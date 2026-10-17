@@ -8,6 +8,7 @@ FOUNDATION_EXPORT void LiraStyleSearchBar(UISearchBar *bar);
 @property(nonatomic, strong) UIColor *selectedSegmentTintColor;
 - (instancetype)initWithItems:(NSArray<NSString *> *)items;
 - (void)setWidth:(CGFloat)width forSegmentAtIndex:(NSUInteger)index;
+- (CGFloat)widthForSegmentAtIndex:(NSUInteger)index;
 - (void)setTitleTextAttributes:(NSDictionary *)attributes forState:(UIControlState)state;
 @end
 

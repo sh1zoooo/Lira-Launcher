@@ -33,12 +33,19 @@ for CASE in populated empty landscape; do
   if [ "$CASE" = empty ]; then EMPTY=YES; fi
   LANDSCAPE=NO
   if [ "$CASE" = landscape ]; then LANDSCAPE=YES; fi
+  mkdir -p "$PREVIEW_ROOT/screenshots/$CASE"
+  xcrun simctl io "$DEVICE" recordVideo --codec=h264 --force "$PREVIEW_ROOT/screenshots/$CASE/transitions.mp4" > "$PREVIEW_ROOT/recording.log" 2>&1 &
+  VIDEO_PID=$!
+  trap 'kill -INT "$VIDEO_PID" 2>/dev/null || true' EXIT
   xcrun simctl launch "$DEVICE" dev.lira.preview -EmptyLibrary "$EMPTY" -Landscape "$LANDSCAPE"
   CONTAINER=$(xcrun simctl get_app_container "$DEVICE" dev.lira.preview data)
   for TRY in {1..30}; do
     if [ -f "$CONTAINER/Documents/result.txt" ]; then break; fi
     sleep 1
   done
+  kill -INT "$VIDEO_PID" || true
+  wait "$VIDEO_PID" || true
+  trap - EXIT
   test -f "$CONTAINER/Documents/result.txt"
   mkdir -p "$PREVIEW_ROOT/screenshots/$CASE"
   cp "$CONTAINER/Documents/"* "$PREVIEW_ROOT/screenshots/$CASE/"

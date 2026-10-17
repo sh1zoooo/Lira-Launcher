@@ -80,6 +80,7 @@ void LiraStyleSearchBar(UISearchBar *bar) {
     if (self.selectedSegmentIndex>=0 && self.selectedSegmentIndex<(NSInteger)self.buttons.count) self.indicator.frame=self.buttons[self.selectedSegmentIndex].frame;
 }
 - (void)setWidth:(CGFloat)width forSegmentAtIndex:(NSUInteger)index { self.widths[@(index)]=@(width); [self setNeedsLayout]; }
+- (CGFloat)widthForSegmentAtIndex:(NSUInteger)index { return self.widths[@(index)] ? [self.widths[@(index)] doubleValue] : MAX(0,self.bounds.size.width-6)/MAX(1,self.buttons.count); }
 - (void)setTitleTextAttributes:(NSDictionary *)attributes forState:(UIControlState)state {
     for (UIButton *button in self.buttons) { if (attributes[NSFontAttributeName]) button.titleLabel.font=attributes[NSFontAttributeName]; }
 }
