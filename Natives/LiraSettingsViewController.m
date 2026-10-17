@@ -2,6 +2,7 @@
 #import "LiraTheme.h"
 #import "LiraLivingWorld.h"
 #import "LiraDesignKit.h"
+#import "PLProfiles.h"
 #import "utils.h"
 #import "LauncherPreferencesViewController.h"
 #import "LauncherLanguageViewController.h"
@@ -82,9 +83,8 @@
     self.search=[UISearchBar new]; self.search.delegate=self; self.search.placeholder=localize(@"lira.settings.search",nil); LiraStyleSearchBar(self.search);
     [self buildProfileHeader];
     self.sections = @[
-        @[@{@"key": @"lira.settings.theme", @"detail": @"lira.settings.theme_detail", @"icon": @"circle.lefthalf.filled", @"action": @"theme"},
-          @{@"key": @"preference.lang.title", @"detail": @"lira.settings.language_detail", @"icon": @"globe", @"class": @"LauncherLanguageViewController"},
-          @{@"key": @"lira.settings.background", @"detail": @"lira.settings.background_detail", @"icon": @"photo", @"class": @"BackgroundSettingsViewController"}],
+        @[@{@"key": @"lira.cover.choose", @"detail": @"lira.cover.detail", @"icon": @"photo", @"action": @"cover"},
+          @{@"key": @"preference.lang.title", @"detail": @"lira.settings.language_detail", @"icon": @"globe", @"class": @"LauncherLanguageViewController"}],
         @[@{@"key": @"lira.settings.accounts", @"detail": @"lira.settings.accounts_detail", @"icon": @"person.crop.circle", @"class": @"AccountListViewController"},
           @{@"key": @"lira.settings.java", @"detail": @"lira.settings.java_detail", @"icon": @"cpu", @"class": @"LauncherPrefManageJREViewController"},
           @{@"key": @"lira.settings.controls", @"detail": @"lira.settings.controls_detail", @"icon": @"gamecontroller", @"class": @"LauncherPrefContCfgViewController"},
@@ -153,7 +153,7 @@
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)path {
     [tableView deselectRowAtIndexPath:path animated:YES];
     NSDictionary *item = self.visibleSections[path.section][path.row];
-    if ([item[@"action"] isEqualToString:@"theme"]) { [self chooseTheme:path]; return; }
+    if ([item[@"action"] isEqualToString:@"cover"]) { LiraChooseProfileCover(self,PLProfiles.current.selectedProfileName); return; }
     Class cls = NSClassFromString(item[@"class"]);
     if (cls && [cls isSubclassOfClass:UIViewController.class]) {
         UIViewController *vc = [[cls alloc] init];
@@ -161,15 +161,15 @@
         [self.navigationController pushViewController:vc animated:YES];
     }
 }
-- (void)chooseTheme:(NSIndexPath *)path {
-    NSMutableArray *actions=NSMutableArray.array;
-    NSArray *values=@[@"auto",@"light",@"dark"], *keys=@[@"lira.settings.system",@"lira.settings.light",@"lira.settings.dark"];
-    for (NSUInteger i=0;i<values.count;i++) {
-        NSString *value=values[i]; [actions addObject:[LiraSheetAction title:localize(keys[i],nil) handler:^{
-            setPrefObject(@"general.ui_theme",value); [NSNotificationCenter.defaultCenter postNotificationName:@"UIThemeChanged" object:nil];
-        }]];
+- (void)viewDidLayoutSubviews {
+    [super viewDidLayoutSubviews];
+    UIView *header=self.tableView.tableHeaderView;
+    CGFloat width=self.tableView.bounds.size.width;
+    if (fabs(header.bounds.size.width-width)>0.5) {
+        CGRect frame=header.frame; frame.size.width=width; header.frame=frame;
+        self.tableView.tableHeaderView=header;
     }
-    LiraPresentSheet(self,localize(@"lira.settings.theme",nil),actions);
+    self.search.frame=CGRectMake(12,156,MAX(0,width-24),56);
 }
 - (void)viewWillDisappear:(BOOL)animated { [super viewWillDisappear:animated]; [self.navigationController setNavigationBarHidden:NO animated:animated]; }
 - (void)searchBarSearchButtonClicked:(UISearchBar *)bar { [bar resignFirstResponder]; }

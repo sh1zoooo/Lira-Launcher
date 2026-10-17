@@ -124,14 +124,14 @@
     cell.cover.image=LiraProfileCover(name);
     cell.nameLabel.text=[NSString stringWithFormat:@"%@%@",[[self favorites] containsObject:name]?@"★ ":@"",display];
     cell.versionLabel.text=PLProfiles.current.profiles[name][@"lastVersionId"]?:@"";
-    cell.contentView.layer.borderWidth=selected?2:0;
-    cell.contentView.layer.borderColor=LiraMint().CGColor;
+    cell.contentView.layer.borderWidth=selected?1:0.5;
+    cell.contentView.layer.borderColor=[UIColor colorWithWhite:1 alpha:selected?0.45:0.08].CGColor;
     cell.accessibilityLabel=[NSString stringWithFormat:@"%@, %@",display,cell.versionLabel.text];
     cell.accessibilityTraits=UIAccessibilityTraitButton|(selected?UIAccessibilityTraitSelected:0);
     return cell;
 }
 - (CGSize)collectionView:(UICollectionView *)collection layout:(UICollectionViewLayout *)layout sizeForItemAtIndexPath:(NSIndexPath *)path {
-    CGFloat available=collection.bounds.size.width-40; NSInteger columns=MAX(1,MIN(4,(NSInteger)((available+16)/190)));
+    CGFloat available=collection.bounds.size.width-40; NSInteger columns=MAX(1,MIN(4,(NSInteger)((available+16)/(UIContentSizeCategoryIsAccessibilityCategory(self.traitCollection.preferredContentSizeCategory)?320:158))));
     CGFloat width=floor((available-16*(columns-1))/columns);
     return CGSizeMake(width,UIContentSizeCategoryIsAccessibilityCategory(self.traitCollection.preferredContentSizeCategory)?width+160:width+92);
 }

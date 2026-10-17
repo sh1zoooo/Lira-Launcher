@@ -214,3 +214,44 @@ void LiraChooseProfileCover(UIViewController *presenter, NSString *profileName) 
     picker.delegate=delegate; picker.allowsMultipleSelection=NO;
     [presenter presentViewController:picker animated:YES completion:nil];
 }
+
+@interface LiraPageControl ()
+@property(nonatomic, strong) NSMutableArray<CALayer *> *dots;
+@end
+@implementation LiraPageControl
+- (instancetype)initWithFrame:(CGRect)frame {
+    if ((self=[super initWithFrame:frame])) {
+        self.dots=NSMutableArray.array; self.isAccessibilityElement=YES;
+        self.accessibilityTraits=UIAccessibilityTraitAdjustable;
+        [self addTarget:self action:@selector(tapped:withEvent:) forControlEvents:UIControlEventTouchUpInside];
+    } return self;
+}
+- (void)setNumberOfPages:(NSInteger)pages {
+    _numberOfPages=MAX(0,pages);
+    for (CALayer *dot in self.dots) [dot removeFromSuperlayer]; [self.dots removeAllObjects];
+    // A long library still has a bounded indicator; VoiceOver exposes the actual page count.
+    for (NSInteger i=0;i<MIN(7,_numberOfPages);i++) { CALayer *dot=[CALayer layer]; [self.layer addSublayer:dot]; [self.dots addObject:dot]; }
+    [self setNeedsLayout];
+}
+- (void)setCurrentPage:(NSInteger)page { _currentPage=MIN(MAX(0,self.numberOfPages-1),MAX(0,page)); [self setNeedsLayout]; }
+- (void)layoutSubviews {
+    [super layoutSubviews]; self.hidden=self.hidesForSinglePage&&self.numberOfPages<=1;
+    NSInteger start=MAX(0,MIN(self.currentPage-3,self.numberOfPages-7));
+    CGFloat spacing=16, left=(self.bounds.size.width-MAX(0,(NSInteger)self.dots.count-1)*spacing)/2;
+    [CATransaction begin]; [CATransaction setDisableActions:YES];
+    for (NSUInteger i=0;i<self.dots.count;i++) {
+        CALayer *dot=self.dots[i]; BOOL active=(NSInteger)i+start==self.currentPage;
+        dot.frame=CGRectMake(left+i*spacing-3,(self.bounds.size.height-6)/2,6,6); dot.cornerRadius=3;
+        dot.backgroundColor=(active?self.currentPageIndicatorTintColor:self.pageIndicatorTintColor).CGColor;
+    }
+    [CATransaction commit]; self.accessibilityValue=[NSString stringWithFormat:@"%ld / %ld",(long)self.currentPage+1,(long)self.numberOfPages];
+}
+- (void)tapped:(UIControl *)control withEvent:(UIEvent *)event {
+    CGFloat x=[[event.allTouches anyObject] locationInView:self].x;
+    NSInteger start=MAX(0,MIN(self.currentPage-3,self.numberOfPages-7));
+    CGFloat left=(self.bounds.size.width-MAX(0,(NSInteger)self.dots.count-1)*16)/2;
+    self.currentPage=start+(NSInteger)llround((x-left)/16); [self sendActionsForControlEvents:UIControlEventValueChanged];
+}
+- (void)accessibilityIncrement { self.currentPage++; [self sendActionsForControlEvents:UIControlEventValueChanged]; }
+- (void)accessibilityDecrement { self.currentPage--; [self sendActionsForControlEvents:UIControlEventValueChanged]; }
+@end

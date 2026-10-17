@@ -2774,3 +2774,4 @@
 "lira.profile.caption" = "Your world. Your rules.";
 "lira.cover.choose" = "Choose cover image";
 "lira.cover.error" = "Could not open the image. Choose a supported image under 20 MB.";
+"lira.cover.detail" = "Use your own artwork for the selected profile";

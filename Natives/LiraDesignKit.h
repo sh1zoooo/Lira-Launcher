@@ -18,3 +18,11 @@ FOUNDATION_EXPORT void LiraStyleSearchBar(UISearchBar *bar);
 + (instancetype)title:(NSString *)title handler:(void (^)(void))handler;
 @end
 FOUNDATION_EXPORT void LiraPresentSheet(UIViewController *presenter, NSString *title, NSArray<LiraSheetAction *> *actions);
+
+@interface LiraPageControl : UIControl
+@property(nonatomic) NSInteger numberOfPages;
+@property(nonatomic) NSInteger currentPage;
+@property(nonatomic) BOOL hidesForSinglePage;
+@property(nonatomic, strong) UIColor *pageIndicatorTintColor;
+@property(nonatomic, strong) UIColor *currentPageIndicatorTintColor;
+@end

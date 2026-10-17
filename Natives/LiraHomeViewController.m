@@ -95,7 +95,7 @@ static NSString *LiraProfileLoader(NSString *name) {
 @property(nonatomic, strong) UILabel *jitLabel;
 @property(nonatomic, strong) UICollectionView *gallery;
 @property(nonatomic, strong) UICollectionViewFlowLayout *galleryLayout;
-@property(nonatomic, strong) UIPageControl *pages;
+@property(nonatomic, strong) LiraPageControl *pages;
 @property(nonatomic, strong) LiraPlayButton *playButton;
 @property(nonatomic, strong) UILabel *emptyLabel;
 @property(nonatomic, strong) UIButton *installButton;
@@ -156,7 +156,7 @@ static NSString *LiraProfileLoader(NSString *name) {
     [self.installButton addTarget:self action:@selector(downloads) forControlEvents:UIControlEventTouchUpInside]; [self.canvas addSubview:self.installButton];
     self.playButton=[LiraPlayButton new]; self.playButton.title=localize(@"Play",nil); self.playButton.enabled=NO; self.playButton.accessibilityIdentifier=@"lira.play";
     [self.playButton addTarget:self action:@selector(play) forControlEvents:UIControlEventTouchUpInside]; [self.canvas addSubview:self.playButton];
-    self.pages=[UIPageControl new]; self.pages.pageIndicatorTintColor=LiraColor(0x454545); self.pages.currentPageIndicatorTintColor=LiraColor(0xBBBBBB); self.pages.hidesForSinglePage=YES;
+    self.pages=[LiraPageControl new]; self.pages.pageIndicatorTintColor=LiraColor(0x454545); self.pages.currentPageIndicatorTintColor=LiraColor(0xBBBBBB); self.pages.hidesForSinglePage=YES;
     [self.pages addTarget:self action:@selector(pageChanged) forControlEvents:UIControlEventValueChanged]; [self.canvas addSubview:self.pages];
     self.moreButton=[UIButton buttonWithType:UIButtonTypeCustom]; [self.moreButton setTitle:localize(@"lira.world.tools",nil) forState:UIControlStateNormal];
     self.moreButton.titleLabel.font=LiraFont(UIFontTextStyleFootnote,12,UIFontWeightMedium); [self.moreButton setTitleColor:LiraColor(0xAAAAAA) forState:UIControlStateNormal];
@@ -179,7 +179,7 @@ static NSString *LiraProfileLoader(NSString *name) {
     }
     CGFloat playWidth=MIN(w-48,wide?360:420), playX=wide?MAX(pad,(w-playWidth)/2+MIN(60,w*0.05)):(w-playWidth)/2;
     self.playButton.frame=CGRectMake(playX,CGRectGetMaxY(self.gallery.frame)+12,playWidth,wide?54:60);
-    self.pages.frame=CGRectMake((w-140)/2,CGRectGetMaxY(self.playButton.frame)+5,140,24);
+    self.pages.frame=CGRectMake((w-140)/2,CGRectGetMaxY(self.playButton.frame)+5,140,32);
     self.moreButton.frame=CGRectMake(pad,CGRectGetMaxY(self.pages.frame),100,44);
     self.jitLabel.frame=CGRectMake(w-pad-170,CGRectGetMinY(self.moreButton.frame),170,44);
     CGFloat contentHeight=MAX(h,CGRectGetMaxY(self.moreButton.frame)+6);
