@@ -22,6 +22,7 @@ jobs:
       - name: Validate Russian catalogue
         run: python3 scripts/check_localizations.py
   native-ui:
+    timeout-minutes: 10
     runs-on: macos-15
     steps:
       - uses: actions/checkout@v4

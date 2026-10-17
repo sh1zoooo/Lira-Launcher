@@ -1,5 +1,5 @@
 #!/bin/bash
-set -euo pipefail
+set -euxo pipefail
 ROOT=$(cd "$(dirname "$0")/../.." && pwd)
 cd "$ROOT"
 PREVIEW_ROOT="$ROOT/artifacts/lira-preview"
@@ -24,7 +24,10 @@ PLIST
 codesign --force --sign - "$APP"
 DEVICE=$(xcrun simctl list devices available -j | python3 -c 'import json,sys; d=json.load(sys.stdin); print(next(x["udid"] for a in d["devices"].values() for x in a if "iPhone" in x["name"]))')
 xcrun simctl boot "$DEVICE" || true
-xcrun simctl bootstatus "$DEVICE" -b
+python3 - "$DEVICE" <<'PYBOOT'
+import subprocess,sys
+subprocess.run(['xcrun','simctl','bootstatus',sys.argv[1],'-b'],check=True,timeout=240)
+PYBOOT
 xcrun simctl status_bar "$DEVICE" override --time '9:41' --batteryState charged --batteryLevel 100
 xcrun simctl install "$DEVICE" "$APP"
 for CASE in populated empty landscape; do
@@ -44,7 +47,11 @@ for CASE in populated empty landscape; do
     sleep 1
   done
   kill -INT "$VIDEO_PID" || true
+  # A recorder must never keep UI verification blocked after the app has finished.
+  (sleep 5; kill -TERM "$VIDEO_PID" 2>/dev/null || true) &
+  STOPPER_PID=$!
   wait "$VIDEO_PID" || true
+  kill "$STOPPER_PID" 2>/dev/null || true
   trap - EXIT
   test -f "$CONTAINER/Documents/result.txt"
   mkdir -p "$PREVIEW_ROOT/screenshots/$CASE"
