@@ -218,9 +218,15 @@ static NSString * const LiraFavoritesKey = @"lira.favoriteProfiles";
     [self.stack addArrangedSubview:section];
 }
 
+- (NSString *)favoritesScope {
+    // POJAV_GAME_DIR may be a stable symlink whose destination changes with the instance.
+    // Resolve it before using the profile path as a persistence key.
+    return [PLProfiles.current.profilePath stringByResolvingSymlinksInPath] ?: NSHomeDirectory();
+}
+
 - (NSArray<NSString *> *)favorites {
     NSDictionary *all = [NSUserDefaults.standardUserDefaults dictionaryForKey:LiraFavoritesKey];
-    NSArray *names = all[PLProfiles.current.profilePath];
+    NSArray *names = all[[self favoritesScope]];
     return [names isKindOfClass:NSArray.class] ? names : @[];
 }
 
@@ -291,7 +297,7 @@ static NSString * const LiraFavoritesKey = @"lira.favoriteProfiles";
     NSString *name = sender.accessibilityIdentifier;
     if ([names containsObject:name]) [names removeObject:name]; else [names addObject:name];
     NSMutableDictionary *all = [[NSUserDefaults.standardUserDefaults dictionaryForKey:LiraFavoritesKey] mutableCopy] ?: NSMutableDictionary.dictionary;
-    all[PLProfiles.current.profilePath] = names;
+    all[[self favoritesScope]] = names;
     [NSUserDefaults.standardUserDefaults setObject:all forKey:LiraFavoritesKey];
     [self rebuildProfiles];
 }
