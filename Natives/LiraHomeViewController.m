@@ -58,7 +58,7 @@ static NSString *LiraProfileLoader(NSString *name) {
     CGFloat textWidth=wide?w-left: w-16;
     self.nameLabel.font=LiraFont(UIFontTextStyleLargeTitle,wide?MIN(72,MAX(38,w*0.075)):38,UIFontWeightUltraLight);
     self.nameLabel.textAlignment=wide?NSTextAlignmentLeft:NSTextAlignmentCenter;
-    CGFloat titleHeight=wide?MIN(side*0.57,138):58;
+    CGFloat titleHeight=wide?MIN(side*0.48,110):58;
     self.nameLabel.frame=CGRectMake(left,top,textWidth,titleHeight);
     CGFloat versionTop=top+titleHeight+(wide?12:4);
     self.versionLabel.textAlignment=wide?NSTextAlignmentLeft:NSTextAlignmentCenter;
@@ -166,10 +166,10 @@ static NSString *LiraProfileLoader(NSString *name) {
     [super viewDidLayoutSubviews];
     CGRect safe=UIEdgeInsetsInsetRect(self.view.bounds,self.view.safeAreaInsets); self.page.frame=safe;
     CGFloat w=safe.size.width,h=safe.size.height; BOOL wide=w>=650;
-    CGFloat pad=wide?MAX(28,w*0.07):20, logoWidth=MIN(w*0.5,310), logoHeight=logoWidth*78/661;
+    CGFloat pad=wide?MAX(28,w*0.07):20, logoWidth=MIN(w*(wide?0.27:0.5),310), logoHeight=logoWidth*78/661;
     self.heading.frame=CGRectMake((w-logoWidth)/2,wide?10:20,logoWidth,logoHeight);
     CGFloat top=CGRectGetMaxY(self.heading.frame)+(wide?18:30);
-    CGFloat heroHeight=wide?MAX(142,MIN(360,h-top-128)):MAX(270,MIN(440,h-top-140));
+    CGFloat heroHeight=wide?MAX(180,MIN(360,h-top-44)):MAX(270,MIN(440,h-top-140));
     if (UIContentSizeCategoryIsAccessibilityCategory(self.traitCollection.preferredContentSizeCategory)) heroHeight+=100;
     self.gallery.frame=CGRectMake(pad,top,w-pad*2,heroHeight);
     CGSize size=self.gallery.bounds.size;
@@ -177,12 +177,16 @@ static NSString *LiraProfileLoader(NSString *name) {
         self.galleryLayout.itemSize=size; [self.galleryLayout invalidateLayout];
         if (self.profiles.count) [self.gallery setContentOffset:CGPointMake(self.focusedIndex*(size.width+12),0) animated:NO];
     }
-    CGFloat playWidth=MIN(w-48,wide?360:420), playX=wide?MAX(pad,(w-playWidth)/2+MIN(60,w*0.05)):(w-playWidth)/2;
-    self.playButton.frame=CGRectMake(playX,CGRectGetMaxY(self.gallery.frame)+12,playWidth,wide?54:60);
-    self.pages.frame=CGRectMake((w-140)/2,CGRectGetMaxY(self.playButton.frame)+5,140,32);
-    self.moreButton.frame=CGRectMake(pad,CGRectGetMaxY(self.pages.frame),100,44);
-    self.jitLabel.frame=CGRectMake(w-pad-170,CGRectGetMinY(self.moreButton.frame),170,44);
-    CGFloat contentHeight=MAX(h,CGRectGetMaxY(self.moreButton.frame)+6);
+    CGFloat coverSide=MIN(heroHeight-12,self.gallery.bounds.size.width*0.35);
+    CGFloat playX=wide?pad+coverSide+28:24;
+    CGFloat playWidth=wide?MIN(360,w-pad-playX):w-48;
+    CGFloat playY=wide?CGRectGetMaxY(self.gallery.frame)-54:CGRectGetMaxY(self.gallery.frame)+12;
+    self.playButton.frame=CGRectMake(playX,playY,playWidth,wide?54:60);
+    self.pages.frame=CGRectMake(playX+(playWidth-140)/2,CGRectGetMaxY(self.playButton.frame)+4,140,32);
+    self.moreButton.frame=wide?CGRectMake(w-pad-100,2,100,44):CGRectMake(pad,CGRectGetMaxY(self.pages.frame),100,44);
+    self.jitLabel.frame=wide?CGRectMake(pad,2,150,44):CGRectMake(w-pad-170,CGRectGetMinY(self.moreButton.frame),170,44);
+    self.jitLabel.textAlignment=wide?NSTextAlignmentLeft:NSTextAlignmentRight;
+    CGFloat contentHeight=wide?MAX(h,CGRectGetMaxY(self.pages.frame)+4):MAX(h,CGRectGetMaxY(self.moreButton.frame)+6);
     self.canvas.frame=CGRectMake(0,0,w,contentHeight); self.page.contentSize=self.canvas.bounds.size;
     self.emptyLabel.frame=CGRectMake(pad,top+heroHeight/2-70,w-2*pad,90);
     self.installButton.frame=CGRectMake((w-MIN(280,w-48))/2,CGRectGetMaxY(self.emptyLabel.frame)+20,MIN(280,w-48),48);
