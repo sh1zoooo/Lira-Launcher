@@ -110,8 +110,13 @@ STUB_PAGE(AISessionListViewController)
                 self.tabs.selectedIndex=0;
                 dispatch_after(dispatch_time(DISPATCH_TIME_NOW,NSEC_PER_SEC),dispatch_get_main_queue(),^{
                     NSCAssert(self.tabs.selectedIndex==0,@"Cannot return home");
+                    [self.home performSelector:NSSelectorFromString(@"showTools")];
+                    dispatch_after(dispatch_time(DISPATCH_TIME_NOW,NSEC_PER_SEC),dispatch_get_main_queue(),^{
+                        [self snapshot:@"04-tools"];
+                        [self.home dismissViewControllerAnimated:NO completion:nil];
                     NSString *documents=NSSearchPathForDirectoriesInDomains(NSDocumentDirectory,NSUserDomainMask,YES).firstObject;
                     [@"PASS: production UI mounted, artwork loaded, hit target/scroll geometry and rapid tab navigation checked. Fixtures only; no game launch verification.\n" writeToFile:[documents stringByAppendingPathComponent:@"result.txt"] atomically:YES encoding:NSUTF8StringEncoding error:nil];
+                    });
                 });
             });
         });

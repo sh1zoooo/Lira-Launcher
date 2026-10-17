@@ -63,6 +63,8 @@
 
 @interface LiraSettingsViewController () <UISearchBarDelegate>
 @property(nonatomic, strong) UISearchBar *search;
+@property(nonatomic, strong) UIImageView *brand;
+@property(nonatomic, strong) UILabel *profileHeading;
 @property(nonatomic, copy) NSArray<NSArray<NSDictionary *> *> *sections;
 @property(nonatomic, copy) NSArray<NSArray<NSDictionary *> *> *visibleSections;
 @end
@@ -99,9 +101,9 @@
 - (void)buildProfileHeader {
     UIView *hero=[[UIView alloc] initWithFrame:CGRectMake(0,0,400,232)];
     UIImageView *logo=[[UIImageView alloc] initWithImage:[UIImage imageNamed:@"LiraBrand/wordmark.png"]];
-    logo.frame=CGRectMake(24,24,260,31); logo.contentMode=UIViewContentModeScaleAspectFit; [hero addSubview:logo];
+    self.brand=logo; logo.frame=CGRectMake(24,24,260,31); logo.contentMode=UIViewContentModeScaleAspectFit; [hero addSubview:logo];
     UILabel *caption=[[UILabel alloc] initWithFrame:CGRectMake(24,76,350,60)];
-    caption.autoresizingMask=UIViewAutoresizingFlexibleWidth; caption.text=localize(@"lira.world.profile",nil);
+    self.profileHeading=caption; caption.autoresizingMask=UIViewAutoresizingFlexibleWidth; caption.text=localize(@"lira.world.profile",nil);
     caption.textColor=UIColor.whiteColor; caption.font=LiraFont(UIFontTextStyleLargeTitle,40,UIFontWeightUltraLight); [hero addSubview:caption];
     self.search.frame=CGRectMake(12,156,376,56); self.search.autoresizingMask=UIViewAutoresizingFlexibleWidth;
     [hero addSubview:self.search]; self.tableView.tableHeaderView=hero;
@@ -165,11 +167,15 @@
     [super viewDidLayoutSubviews];
     UIView *header=self.tableView.tableHeaderView;
     CGFloat width=self.tableView.bounds.size.width;
-    if (fabs(header.bounds.size.width-width)>0.5) {
-        CGRect frame=header.frame; frame.size.width=width; header.frame=frame;
-        self.tableView.tableHeaderView=header;
+    BOOL compact=width>600 && self.tableView.bounds.size.height<500;
+    CGFloat height=compact?124:232;
+    if (fabs(header.bounds.size.width-width)>0.5 || fabs(header.bounds.size.height-height)>0.5) {
+        header.frame=CGRectMake(0,0,width,height); self.tableView.tableHeaderView=header;
     }
-    self.search.frame=CGRectMake(12,156,MAX(0,width-24),56);
+    self.brand.frame=compact?CGRectMake(24,16,220,26):CGRectMake(24,24,MIN(260,width-48),31);
+    self.profileHeading.frame=compact?CGRectMake(270,5,MAX(0,width-294),48):CGRectMake(24,76,MAX(0,width-48),60);
+    self.profileHeading.font=LiraFont(UIFontTextStyleLargeTitle,compact?30:40,UIFontWeightUltraLight);
+    self.search.frame=CGRectMake(12,compact?60:156,MAX(0,width-24),56);
 }
 - (void)viewWillDisappear:(BOOL)animated { [super viewWillDisappear:animated]; [self.navigationController setNavigationBarHidden:NO animated:animated]; }
 - (void)searchBarSearchButtonClicked:(UISearchBar *)bar { [bar resignFirstResponder]; }
