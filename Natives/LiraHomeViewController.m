@@ -23,12 +23,10 @@ static NSString * const LiraFavoritesKey = @"lira.favoriteProfiles";
 @property(nonatomic, strong) UILabel *downloadsLabel;
 @property(nonatomic, strong) UILabel *storageLabel;
 @property(nonatomic, strong) UIButton *playButton;
-@property(nonatomic, strong) UIButton *downloadsButton;
 @property(nonatomic, strong) UISearchBar *searchBar;
 @property(nonatomic, strong) UISegmentedControl *filter;
 @property(nonatomic, strong) UIStackView *quickActions;
 @property(nonatomic, strong) UIStackView *secondaryActions;
-@property(nonatomic, copy) NSDictionary *lastState;
 @property(nonatomic, strong) UIRefreshControl *refreshControl;
 @end
 
@@ -332,7 +330,6 @@ static NSString * const LiraFavoritesKey = @"lira.favoriteProfiles";
 - (void)stateChanged:(NSNotification *)note {
     NSDictionary *info = note.userInfo.copy;
     dispatch_async(dispatch_get_main_queue(), ^{
-        self.lastState = info;
         self.versionLabel.text = info[@"version"] ?: localize(@"lira.home.no_version", nil);
         self.userLabel.text = info[@"user"] ?: localize(@"lira.home.account", nil);
         self.jitLabel.text = info[@"jit"] ?: localize(@"login.jit.checking", nil);
@@ -352,7 +349,10 @@ static NSString * const LiraFavoritesKey = @"lira.favoriteProfiles";
 - (void)downloadCenter { [LauncherRightPanelViewController norightPostAction:@"downloadCenter"]; }
 - (void)downloads { self.tabBarController.selectedIndex = 1; }
 - (void)instances { self.tabBarController.selectedIndex = 3; }
-- (void)push:(UIViewController *)vc { [self.navigationController pushViewController:vc animated:YES]; }
+- (void)push:(UIViewController *)vc {
+    [self.navigationController setNavigationBarHidden:NO animated:YES];
+    [self.navigationController pushViewController:vc animated:YES];
+}
 - (void)importModpack { [self push:[[ModpackImportViewController alloc] init]]; }
 - (void)mods {
     ModsManagerViewController *vc = [[ModsManagerViewController alloc] init];

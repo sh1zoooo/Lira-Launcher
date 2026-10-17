@@ -2977,8 +2977,7 @@ int launchHeadlessJVM(NSString *mainClass, NSArray<NSString *> *args, int minJav
                 //   但我们独立自检（brk #0x69 -> 可写 JIT 区）未过 ⇒ 明确告知。
                 NSLog(@"[JIT-FLOW] [Headless] stikdebug reported complete but self-check failed (brk #0x69 not serviced) -- NOT proceeding");
                 showDialog(localize(@"Error", nil),
-                    @"StikDebug / JIT 工具可能已提示完成，但本机 JIT 自检未通过（未能申请到可写 JIT 区），安装器无法运行。请重试、重启 App，或改用 TrollStore 直启及其它 JIT 开启方式。\n"
-                    @"Your JIT tool may report \"complete\" but the launcher's own self-check failed (no writable JIT region obtainable). Retry, restart the app, or use TrollStore / another enabler.");
+                    localize(@"lira.jit.headless_check", nil));
                 return -1;
             }
             NSLog(@"[JavaLauncher] launchHeadlessJVM: Task139 JIT verified (writable JIT region=%p), continuing",
@@ -3015,8 +3014,7 @@ int launchHeadlessJVM(NSString *mainClass, NSArray<NSString *> *args, int minJav
         if (result == NULL) {
             NSLog(@"[JavaLauncher] launchHeadlessJVM: JIT26 debugger not servicing brk, cannot run processors");
             showDialog(localize(@"Error", nil),
-                @"JIT 调试器未响应，安装器无法运行。请先用带 UniversalJIT26 脚本的方式启用 JIT 后重试。\n"
-                @"JIT debugger is not responding. Enable JIT with the UniversalJIT26 script and try again.");
+                localize(@"lira.jit.headless_debugger", nil));
             return -1;
         }
         if ((uint32_t)result != 0x690000E0) {

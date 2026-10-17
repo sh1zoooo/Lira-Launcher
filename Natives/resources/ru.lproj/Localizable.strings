@@ -2596,3 +2596,10 @@
 "lira.explore.data" = "Наборы данных";
 "lira.explore.modpacks" = "Сборки";
 "lira.explore.worlds" = "Миры";
+"lira.jit.scheme_trollstore" = "TrollStore или StikDebug не обработал apple-magnifier://. Включите URL Scheme в TrollStore или выберите другой инструмент JIT.";
+"lira.jit.scheme_stikdebug" = "StikDebug не обработал stikjit://. Установите StikDebug или выберите другой инструмент JIT.";
+"lira.error.resources" = "Не удалось загрузить ресурсы игры. Выберите версию заново.";
+"lira.error.ltw" = "LTW не поддерживает Minecraft %@: облакам в 26.x нужны текстурные буферы, недоступные в бэкенде GLES 3.0 на iOS. Выберите Zink или MobileGlues в настройках графики. LTW можно использовать для 1.21.x и более старых версий.";
+"lira.error.account" = "Сначала войдите в аккаунт.";
+"lira.jit.headless_check" = "Проверка JIT не пройдена: нет доступной для записи области JIT. Установщик не может работать. Повторите попытку, перезапустите приложение или используйте TrollStore либо другой инструмент JIT.";
+"lira.jit.headless_debugger" = "Отладчик JIT не отвечает. Включите JIT со скриптом UniversalJIT26 и повторите попытку.";

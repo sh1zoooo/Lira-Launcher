@@ -2749,3 +2749,10 @@
 "lira.explore.data" = "Data packs";
 "lira.explore.modpacks" = "Modpacks";
 "lira.explore.worlds" = "Worlds";
+"lira.jit.scheme_trollstore" = "TrollStore or StikDebug did not handle apple-magnifier://. Enable URL Scheme in TrollStore settings, or choose another JIT enabler.";
+"lira.jit.scheme_stikdebug" = "StikDebug did not handle stikjit://. Install StikDebug or choose another JIT enabler.";
+"lira.error.resources" = "Game resources could not be loaded. Please select the version again.";
+"lira.error.ltw" = "LTW cannot run Minecraft %@: the 26.x cloud pipeline requires texture buffers unavailable in the iOS GLES 3.0 backend. Choose Zink or MobileGlues in video settings. LTW remains available for 1.21.x and older.";
+"lira.error.account" = "Please sign in first.";
+"lira.jit.headless_check" = "The JIT self-check failed. The installer cannot run without a writable JIT region. Retry, restart the app, or use TrollStore or another JIT enabler.";
+"lira.jit.headless_debugger" = "The JIT debugger is not responding. Enable JIT with the UniversalJIT26 script and try again.";
