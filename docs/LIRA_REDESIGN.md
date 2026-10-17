@@ -56,3 +56,17 @@ Before merging, exercise the build on iPhone and iPad in both orientations:
    VoiceOver. Verify buttons, scrolling, rotation and theme contrast.
 
 No device or simulator run is implied by the static checks.
+
+## Living World (selected visual direction)
+
+The home is now a full-bleed scenic screen with a mint launch control, a snapping instance carousel, an account avatar and a floating four-destination dock. iPhone and iPad use the same adaptive host. The right-hand motion storyboard in the concept is not an application panel.
+
+`LiraLivingWorld` owns artwork crossfades, tilt parallax, slow scene breathing, button feedback, a launch ripple and the animated dock indicator. Reduce Motion disables spatial/repeating motion. Animation stops offscreen and when the app becomes inactive. Progress comes from `AmeLaunchProgress`, with account/JIT actions still forwarded to the existing launcher backend.
+
+The library has responsive scenic covers, actual profile/version search, per-directory favorites and profile settings via context menus. The management action retains the original version manager. Profile settings use custom forest panels and a scenic header. Full English/Russian catalog parity remains checked by CI.
+
+The two bundled background illustrations were generated for this redesign. They are decorative forest/nether themes assigned deterministically to profiles; they are not screenshots of a user's saved worlds. All labels, controls and status text are native UIKit views.
+
+### Native rendering check
+
+`bash scripts/lira-preview/run.sh` builds the production home, library, profile, dock and tab controller in a small iOS Simulator host, using clearly isolated profile/account fixtures and no game backend. It saves populated/empty-library screenshots and checks artwork, basic hit-target/scroll geometry and rapid tab navigation. This supplements iOS syntax checks and the full Development build. It does not validate JVM/JIT/game launch; those require device testing.

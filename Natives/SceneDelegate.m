@@ -153,21 +153,7 @@ extern UIWindow *mainWindow;
 //   它只按物理机型判定，不读遗留的 general.ui_layout —— 该键的 card 值已在启动最早期
 //   被 PLPreferences 迁移（iPhone 上写回 vs），故无论库里存过什么，iPhone 一律标准布局。
 - (UIViewController *)ameMakeLauncherHomeViewController {
-    NSString *layout = ameResolveUILayout();
-    BOOL isPad = [layout isEqualToString:@"card"];
-    // ★ [UI-LAYOUT] 内部回退开关（不暴露给设置 UI，便于以后回退/装机对照）：
-    //   仅 iPad 生效，值 "vs" ⇒ 临时强制标准布局；iPhone 端一律标准 ⇒ 无论配什么都不会
-    //   再出现 card-on-iPhone 错乱。默认空串 = 按设备自动。
-    NSString *force = getPrefObject(@"debug.debug_ui_layout_force");
-    if (isPad && [force isEqualToString:@"vs"]) {
-        NSLog(@"[UI-LAYOUT] iPad debug.debug_ui_layout_force=vs ⇒ standard(Root)");
-        return [[LauncherRootViewController alloc] init];
-    }
-    if (isPad) {
-        NSLog(@"[UI-LAYOUT] device=iPad ⇒ card layout (auto)");
-        return [[LauncherCardLayoutViewController alloc] init];
-    }
-    NSLog(@"[UI-LAYOUT] device=iPhone ⇒ standard layout (auto); legacy general.ui_layout migrated -> vs");
+    // The immersive home uses one adaptive, edge-to-edge host on iPhone and iPad.
     return [[LauncherRootViewController alloc] init];
 }
 

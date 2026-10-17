@@ -1,5 +1,6 @@
 #import "LiraSettingsViewController.h"
 #import "LiraTheme.h"
+#import "LiraLivingWorld.h"
 #import "utils.h"
 #import "LauncherPreferencesViewController.h"
 #import "LauncherLanguageViewController.h"
@@ -11,6 +12,53 @@
 #import "DownloadTasksViewController.h"
 #import "AccountListViewController.h"
 
+@interface LiraSettingCell : UITableViewCell
+@property(nonatomic, strong) UIView *panel;
+@property(nonatomic, strong) UILabel *heading;
+@property(nonatomic, strong) UILabel *detail;
+@property(nonatomic, strong) UIImageView *symbol;
+@end
+@implementation LiraSettingCell
+- (instancetype)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)identifier {
+    if ((self=[super initWithStyle:UITableViewCellStyleDefault reuseIdentifier:identifier])) {
+        self.backgroundColor=UIColor.clearColor; self.selectionStyle=UITableViewCellSelectionStyleNone;
+        self.panel=[[UIView alloc] init]; self.panel.backgroundColor=LiraColor(0x0D2B1E);
+        self.panel.layer.cornerRadius=20; self.panel.layer.borderWidth=0.5;
+        self.panel.layer.borderColor=[LiraMint() colorWithAlphaComponent:0.16].CGColor;
+        self.heading=[[UILabel alloc] init]; self.heading.font=LiraFont(UIFontTextStyleBody,17,UIFontWeightSemibold);
+        self.heading.textColor=UIColor.whiteColor; self.heading.numberOfLines=0;
+        self.detail=[[UILabel alloc] init]; self.detail.font=[UIFont preferredFontForTextStyle:UIFontTextStyleFootnote];
+        self.detail.textColor=LiraColor(0xA6C1B1); self.detail.numberOfLines=0;
+        self.symbol=[[UIImageView alloc] init]; self.symbol.tintColor=LiraMint(); self.symbol.contentMode=UIViewContentModeScaleAspectFit;
+        UIStackView *text=[[UIStackView alloc] initWithArrangedSubviews:@[self.heading,self.detail]]; text.axis=UILayoutConstraintAxisVertical; text.spacing=4;
+        UIImageView *arrow=[[UIImageView alloc] initWithImage:[UIImage systemImageNamed:@"chevron.right"]]; arrow.tintColor=LiraColor(0x729D83); arrow.contentMode=UIViewContentModeScaleAspectFit;
+        self.panel.translatesAutoresizingMaskIntoConstraints=NO; [self.contentView addSubview:self.panel];
+        for (UIView *v in @[self.symbol,text,arrow]) { v.translatesAutoresizingMaskIntoConstraints=NO; [self.panel addSubview:v]; }
+        [NSLayoutConstraint activateConstraints:@[
+            [self.panel.leadingAnchor constraintEqualToAnchor:self.contentView.leadingAnchor constant:20],
+            [self.panel.trailingAnchor constraintEqualToAnchor:self.contentView.trailingAnchor constant:-20],
+            [self.panel.topAnchor constraintEqualToAnchor:self.contentView.topAnchor constant:5],
+            [self.panel.bottomAnchor constraintEqualToAnchor:self.contentView.bottomAnchor constant:-5],
+            [self.symbol.leadingAnchor constraintEqualToAnchor:self.panel.leadingAnchor constant:16],
+            [self.symbol.centerYAnchor constraintEqualToAnchor:self.panel.centerYAnchor],
+            [self.symbol.widthAnchor constraintEqualToConstant:26],[self.symbol.heightAnchor constraintEqualToConstant:26],
+            [text.leadingAnchor constraintEqualToAnchor:self.symbol.trailingAnchor constant:14],
+            [text.topAnchor constraintEqualToAnchor:self.panel.topAnchor constant:17],
+            [text.bottomAnchor constraintEqualToAnchor:self.panel.bottomAnchor constant:-17],
+            [text.trailingAnchor constraintEqualToAnchor:arrow.leadingAnchor constant:-12],
+            [arrow.trailingAnchor constraintEqualToAnchor:self.panel.trailingAnchor constant:-17],
+            [arrow.centerYAnchor constraintEqualToAnchor:self.panel.centerYAnchor],
+            [arrow.widthAnchor constraintEqualToConstant:10]
+        ]];
+        self.heading.adjustsFontForContentSizeCategory=YES; self.detail.adjustsFontForContentSizeCategory=YES;
+    } return self;
+}
+- (void)setHighlighted:(BOOL)highlighted animated:(BOOL)animated {
+    [super setHighlighted:highlighted animated:animated];
+    [UIView animateWithDuration:LiraMotionAllowed()?0.16:0 animations:^{ self.panel.alpha=highlighted?0.65:1; }];
+}
+@end
+
 @interface LiraSettingsViewController () <UISearchResultsUpdating>
 @property(nonatomic, strong) UISearchController *search;
 @property(nonatomic, copy) NSArray<NSArray<NSDictionary *> *> *sections;
@@ -18,16 +66,19 @@
 @end
 
 @implementation LiraSettingsViewController
-- (instancetype)init { return [super initWithStyle:UITableViewStyleInsetGrouped]; }
+- (instancetype)init { return [super initWithStyle:UITableViewStylePlain]; }
 - (void)viewDidLoad {
     [super viewDidLoad];
-    self.title = localize(@"tab.settings", nil);
+    self.title = localize(@"lira.world.profile", nil);
+    self.overrideUserInterfaceStyle=UIUserInterfaceStyleDark;
     self.view.backgroundColor = LiraBackground();
     self.tableView.rowHeight = UITableViewAutomaticDimension;
     self.tableView.estimatedRowHeight = 76;
-    self.tableView.separatorColor = LiraSecondarySurface();
-    self.navigationItem.largeTitleDisplayMode = UINavigationItemLargeTitleDisplayModeAlways;
-    self.navigationController.navigationBar.prefersLargeTitles = YES;
+    self.tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
+    [self.tableView registerClass:LiraSettingCell.class forCellReuseIdentifier:@"setting"];
+    [self buildProfileHeader];
+    self.navigationItem.largeTitleDisplayMode = UINavigationItemLargeTitleDisplayModeNever;
+    self.navigationController.navigationBar.prefersLargeTitles = NO;
     self.search = [[UISearchController alloc] initWithSearchResultsController:nil];
     self.search.searchResultsUpdater = self;
     self.search.obscuresBackgroundDuringPresentation = NO;
@@ -49,6 +100,22 @@
     ];
     self.visibleSections = self.sections;
     LiraApplyNavigationAppearance(self.navigationController.navigationBar);
+}
+- (void)buildProfileHeader {
+    UIView *hero=[[UIView alloc] initWithFrame:CGRectMake(0,0,400,178)];
+    UIImageView *art=[[UIImageView alloc] initWithImage:LiraWorldImage(@"forest")];
+    art.frame=hero.bounds; art.autoresizingMask=UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight;
+    art.contentMode=UIViewContentModeScaleAspectFill; art.clipsToBounds=YES;
+    [hero addSubview:art];
+    UIView *shade=[[UIView alloc] initWithFrame:hero.bounds]; shade.autoresizingMask=art.autoresizingMask;
+    shade.backgroundColor=[LiraColor(0x001B0F) colorWithAlphaComponent:0.65]; [hero addSubview:shade];
+    UILabel *brand=[[UILabel alloc] initWithFrame:CGRectMake(24,28,300,48)];
+    brand.font=[UIFont fontWithName:@"AvenirNext-Heavy" size:34]; brand.textColor=LiraMint(); brand.text=@"LIRA✦";
+    [hero addSubview:brand];
+    UILabel *caption=[[UILabel alloc] initWithFrame:CGRectMake(24,82,340,64)];
+    caption.autoresizingMask=UIViewAutoresizingFlexibleWidth; caption.text=localize(@"lira.profile.caption",nil);
+    caption.textColor=UIColor.whiteColor; caption.numberOfLines=2; caption.font=LiraFont(UIFontTextStyleTitle2,23,UIFontWeightSemibold);
+    [hero addSubview:caption]; self.tableView.tableHeaderView=hero;
 }
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
@@ -87,22 +154,11 @@
     return section == 2 ? localize(@"lira.settings.footer", nil) : nil;
 }
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)path {
-    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"setting"];
-    if (!cell) cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:@"setting"];
-    NSDictionary *item = self.visibleSections[path.section][path.row];
-    cell.backgroundColor = LiraSurface();
-    cell.textLabel.text = localize(item[@"key"], nil);
-    cell.textLabel.font = LiraFont(UIFontTextStyleBody, 17, UIFontWeightSemibold);
-    cell.textLabel.adjustsFontForContentSizeCategory = YES;
-    cell.textLabel.numberOfLines = 0;
-    cell.detailTextLabel.text = localize(item[@"detail"], nil);
-    cell.detailTextLabel.font = [UIFont preferredFontForTextStyle:UIFontTextStyleFootnote];
-    cell.detailTextLabel.adjustsFontForContentSizeCategory = YES;
-    cell.detailTextLabel.textColor = UIColor.secondaryLabelColor;
-    cell.detailTextLabel.numberOfLines = 0;
-    cell.imageView.image = [UIImage systemImageNamed:item[@"icon"]];
-    cell.imageView.tintColor = accentColor();
-    cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
+    LiraSettingCell *cell=[tableView dequeueReusableCellWithIdentifier:@"setting" forIndexPath:path];
+    NSDictionary *item=self.visibleSections[path.section][path.row];
+    cell.heading.text=localize(item[@"key"],nil);
+    cell.detail.text=localize(item[@"detail"],nil);
+    cell.symbol.image=[UIImage systemImageNamed:item[@"icon"]];
     return cell;
 }
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)path {

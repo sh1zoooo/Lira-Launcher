@@ -2756,3 +2756,19 @@
 "lira.error.account" = "Please sign in first.";
 "lira.jit.headless_check" = "The JIT self-check failed. The installer cannot run without a writable JIT region. Retry, restart the app, or use TrollStore or another JIT enabler.";
 "lira.jit.headless_debugger" = "The JIT debugger is not responding. Enable JIT with the UniversalJIT26 script and try again.";
+
+/* Living World interface */
+"lira.world.play" = "Play";
+"lira.world.library" = "Library";
+"lira.world.profile" = "Profile";
+"lira.world.empty" = "Your next adventure starts here";
+"lira.world.install" = "Install Minecraft";
+"lira.world.tools" = "Tools";
+"lira.world.welcome" = "Welcome back, %@";
+"lira.world.welcome_guest" = "A world of adventures awaits";
+"lira.world.preparing" = "Opening your world…";
+"lira.library.manage" = "Manage";
+"lira.library.favorite" = "Add to favorites";
+"lira.library.unfavorite" = "Remove from favorites";
+"lira.library.configure" = "Profile settings";
+"lira.profile.caption" = "Your world. Your rules.";

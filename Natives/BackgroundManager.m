@@ -676,7 +676,15 @@ static BOOL gAmeGlassRimApplyScheduled = NO;
 
 - (void)makeViewControllerTransparent:(UIViewController *)viewController {
     if (!viewController) return;
-    
+    // These pages own their contrast and scenery. Wallpaper effects must not cover them.
+    NSString *pageClass=NSStringFromClass(viewController.class);
+    if ([pageClass isEqualToString:@"LiraHomeViewController"] || [pageClass isEqualToString:@"LauncherRootViewController"]) {
+        viewController.view.backgroundColor=UIColor.clearColor;
+        for (UIViewController *child in viewController.childViewControllers) [self makeViewControllerTransparent:child];
+        return;
+    }
+    if ([pageClass isEqualToString:@"LiraLibraryViewController"] || [pageClass isEqualToString:@"LiraSettingsViewController"]) return;
+
     // Main view - apply effect based on settings
     if (self.uiEffect == BackgroundUIEffectBlur) {
         // 毛玻璃效果 - clear background, let blur show through

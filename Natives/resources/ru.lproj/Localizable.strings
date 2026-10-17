@@ -2603,3 +2603,19 @@
 "lira.error.account" = "Сначала войдите в аккаунт.";
 "lira.jit.headless_check" = "Проверка JIT не пройдена: нет доступной для записи области JIT. Установщик не может работать. Повторите попытку, перезапустите приложение или используйте TrollStore либо другой инструмент JIT.";
 "lira.jit.headless_debugger" = "Отладчик JIT не отвечает. Включите JIT со скриптом UniversalJIT26 и повторите попытку.";
+
+/* Living World interface */
+"lira.world.play" = "Играть";
+"lira.world.library" = "Библиотека";
+"lira.world.profile" = "Профиль";
+"lira.world.empty" = "Здесь начинается твоё приключение";
+"lira.world.install" = "Установить Minecraft";
+"lira.world.tools" = "Инструменты";
+"lira.world.welcome" = "С возвращением, %@";
+"lira.world.welcome_guest" = "Мир приключений ждёт тебя";
+"lira.world.preparing" = "Открываем мир…";
+"lira.library.manage" = "Управление";
+"lira.library.favorite" = "В избранное";
+"lira.library.unfavorite" = "Убрать из избранного";
+"lira.library.configure" = "Настройки сборки";
+"lira.profile.caption" = "Твой мир. Твои правила.";

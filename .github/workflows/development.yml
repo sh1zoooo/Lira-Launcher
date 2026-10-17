@@ -10,6 +10,10 @@ on:
       - 'l10n_main'
   workflow_dispatch:
 
+concurrency:
+  group: development-${{ github.head_ref || github.ref_name }}
+  cancel-in-progress: true
+
 jobs:
   build:
     name: Development build

@@ -1872,6 +1872,7 @@ static void *ProgressObserverContext = &ProgressObserverContext;
     NSString *title = [self.launchButton titleForState:UIControlStateNormal];
     if (title) info[@"launchTitle"] = title;
     info[@"launchEnabled"] = @(self.launchButton.enabled);
+    if (self.avatarImageView.image) info[@"avatar"] = self.avatarImageView.image;
     // ★ [TOPBAR2] 下载中心状态:数值**直接取自**本类原按钮的 badge/progress 标签,不重算、不复制。
     //   顶栏「下载中心」pill 只做展示,与右栏原按钮永远同口径。
     info[@"dcActive"]   = @(!self.downloadCenterButton.hidden);
