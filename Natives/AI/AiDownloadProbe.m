@@ -1,3 +1,4 @@
+#import "utils.h"
 //
 //  AiDownloadProbe.m
 //  Amethyst
@@ -30,23 +31,19 @@
 }
 
 - (NSString *)summary {
-    return @"查询下载中心全部下载任务的实时状态（配合 install_* 工具的 wait=false 后台下载使用）。"
-           "\n无参数。"
-           "\n返回 JSON：{count, tasks:[{taskId, name, type, state, progress, downloadedBytes, totalBytes, speed, downloadSource}], summary:{各状态数量}}。"
-           "\nstate 取值：等待中/下载中/已暂停/已完成/已取消/失败；progress 为 0~1（-1 表示未知）；speed 单位 bytes/s。"
-           "\n边界：仅查询不操作，暂停/取消等请引导用户在下载中心手动操作。";
+    return localize(@"lira.legacy.223", nil);
 }
 
 + (NSString *)stateName:(DownloadTaskState)state {
     switch (state) {
-        case DownloadTaskStatePending:     return @"等待中";
-        case DownloadTaskStateDownloading: return @"下载中";
-        case DownloadTaskStatePaused:      return @"已暂停";
-        case DownloadTaskStateCompleted:   return @"已完成";
-        case DownloadTaskStateCancelled:   return @"已取消";
-        case DownloadTaskStateFailed:      return @"失败";
+        case DownloadTaskStatePending:     return localize(@"i18n_str_124", nil);
+        case DownloadTaskStateDownloading: return localize(@"i18n_str_138", nil);
+        case DownloadTaskStatePaused:      return localize(@"i18n_str_125", nil);
+        case DownloadTaskStateCompleted:   return localize(@"i18n_str_126", nil);
+        case DownloadTaskStateCancelled:   return localize(@"i18n_str_127", nil);
+        case DownloadTaskStateFailed:      return localize(@"i18n_str_108", nil);
     }
-    return @"未知";
+    return localize(@"i18n_str_121", nil);
 }
 
 - (void)execute:(NSDictionary<NSString *, id> *)params
@@ -87,8 +84,8 @@
     NSError *jsonError = nil;
     NSData *data = [NSJSONSerialization dataWithJSONObject:result options:NSJSONWritingPrettyPrinted error:&jsonError];
     if (!data || jsonError) {
-        completion([NSString stringWithFormat:@"共 %lu 个下载任务（序列化失败：%@）",
-                    (unsigned long)items.count, jsonError.localizedDescription ?: @"未知错误"], nil);
+        completion([NSString stringWithFormat:localize(@"lira.legacy.231", nil),
+                    (unsigned long)items.count, jsonError.localizedDescription ?: localize(@"i18n_str_97", nil)], nil);
         return;
     }
     NSString *json = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];

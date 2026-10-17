@@ -1,3 +1,4 @@
+#import "utils.h"
 //
 //  AiFileTools.m
 //  Amethyst
@@ -38,38 +39,24 @@ static NSString * const kAiToolDomain = @"AiTool";
 
 - (NSString *)summary {
     if ([self.internalName isEqualToString:@"list_files"]) {
-        return @"列出指定目录下的文件/子目录（不递归）。"
-               "\n参数：path（string，可选，默认当前实例根目录）。"
-               "\n返回 JSON 数组，每项含 name（名称）、type（file/dir）、size（字节）、modifiedUnixTS（修改时间戳），按名称排序。";
+        return localize(@"lira.legacy.255", nil);
     }
     if ([self.internalName isEqualToString:@"read_file"]) {
-        return @"读取文本文件内容。"
-               "\n参数：path（string，必填）、maxChars（number，可选，默认 8000，超长截断）。"
-               "\n返回文件文本内容；二进制文件返回「二进制文件不可读」。";
+        return localize(@"lira.legacy.256", nil);
     }
     if ([self.internalName isEqualToString:@"grep_files"]) {
-        return @"在文件中用正则表达式搜索匹配行。"
-               "\n参数：path（string，可选，默认当前实例根目录）、pattern（string，必填，正则表达式）、"
-               "recursive（boolean，可选，默认 NO）、maxResults（number，可选，默认 50）。"
-               "\n返回 JSON 数组 {path, lineNumber, line}。";
+        return localize(@"lira.legacy.257", nil);
     }
     if ([self.internalName isEqualToString:@"write_file"]) {
-        return @"写文本文件（原子写入，自动创建父目录）。"
-               "\n参数：path（string，必填）、content（string，必填）。"
-               "\n返回「已写入（N 字符）」。覆盖已存在内容。";
+        return localize(@"lira.legacy.258", nil);
     }
     if ([self.internalName isEqualToString:@"edit_file"]) {
-        return @"精确替换文件中的一段文本。"
-               "\n参数：path（string，必填）、oldText（string，必填）、newText（string，必填）。"
-               "\n仅当 oldText 在文件中恰好出现 1 次时才替换，否则返回错误（出现 N 次）。";
+        return localize(@"lira.legacy.259", nil);
     }
     if ([self.internalName isEqualToString:@"delete_file"]) {
-        return @"删除文件（危险操作）。"
-               "\n参数：path（string，必填）。"
-               "\n出于安全考虑，仅允许删除文本类文件（.txt/.log/.json/.properties/.toml/.md/.cfg/.yml/.yaml/.xml/.xaml/.lang 等），不删除目录。"
-               "\n返回「已删除」。";
+        return localize(@"lira.legacy.260", nil);
     }
-    return @"文件操作工具";
+    return localize(@"lira.legacy.261", nil);
 }
 
 #pragma mark - 沙盒路径安全
@@ -166,7 +153,7 @@ static NSString * const kAiToolDomain = @"AiTool";
     if ([self.internalName isEqualToString:@"delete_file"]) { [self performDeleteFile:params completion:completion]; return; }
 
     NSError *err = [NSError errorWithDomain:kAiToolDomain code:404
-                                   userInfo:@{NSLocalizedDescriptionKey: [NSString stringWithFormat:@"未知工具 %@", self.internalName]}];
+                                   userInfo:@{NSLocalizedDescriptionKey: [NSString stringWithFormat:localize(@"lira.legacy.208", nil), self.internalName]}];
     completion(nil, err);
 }
 
@@ -181,10 +168,10 @@ static NSString * const kAiToolDomain = @"AiTool";
     NSString *path = [params[@"path"] isKindOfClass:[NSString class]] ? params[@"path"] : nil;
     if (path.length == 0) path = [[self class] currentGameRoot];
     NSString *resolved = [[self class] resolveSafely:path];
-    if (!resolved) { completion(nil, [self errorWithCode:403 message:@"路径越界或无效"]); return; }
+    if (!resolved) { completion(nil, [self errorWithCode:403 message:localize(@"lira.legacy.262", nil)]); return; }
 
     NSArray *items = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:resolved error:nil];
-    if (!items) { completion(nil, [self errorWithCode:404 message:@"目录不存在"]); return; }
+    if (!items) { completion(nil, [self errorWithCode:404 message:localize(@"lira.legacy.263", nil)]); return; }
 
     NSMutableArray *entries = [NSMutableArray array];
     for (NSString *name in items) {
@@ -212,9 +199,9 @@ static NSString * const kAiToolDomain = @"AiTool";
 
 - (void)performReadFile:(NSDictionary *)params completion:(void(^)(NSString *, NSError *))completion {
     NSString *path = [params[@"path"] isKindOfClass:[NSString class]] ? params[@"path"] : nil;
-    if (path.length == 0) { completion(nil, [self errorWithCode:400 message:@"参数 path 必填"]); return; }
+    if (path.length == 0) { completion(nil, [self errorWithCode:400 message:localize(@"lira.legacy.264", nil)]); return; }
     NSString *resolved = [[self class] resolveSafely:path];
-    if (!resolved) { completion(nil, [self errorWithCode:403 message:@"路径越界或无效"]); return; }
+    if (!resolved) { completion(nil, [self errorWithCode:403 message:localize(@"lira.legacy.262", nil)]); return; }
 
     NSUInteger maxChars = 8000;
     NSNumber *maxNum = params[@"maxChars"];
@@ -224,7 +211,7 @@ static NSString * const kAiToolDomain = @"AiTool";
     }
 
     NSData *data = [NSData dataWithContentsOfFile:resolved];
-    if (!data) { completion(nil, [self errorWithCode:404 message:@"文件不存在或不可读"]); return; }
+    if (!data) { completion(nil, [self errorWithCode:404 message:localize(@"lira.legacy.265", nil)]); return; }
 
     // 二进制检测：包含 NUL 字节，或无法按 UTF-8 解码
     BOOL hasNull = [data rangeOfData:[NSData dataWithBytes:"\0" length:1] options:0 range:NSMakeRange(0, data.length)].location != NSNotFound;
@@ -235,7 +222,7 @@ static NSString * const kAiToolDomain = @"AiTool";
     }
     if (!content) { completion(@"二进制文件不可读", nil); return; }
     if (content.length > maxChars) {
-        content = [NSString stringWithFormat:@"（内容过长已截断，显示开头 %lu 字符）\n%@", (unsigned long)maxChars,
+        content = [NSString stringWithFormat:localize(@"lira.legacy.266", nil), (unsigned long)maxChars,
                    [content substringToIndex:maxChars]];
     }
     completion(content, nil);
@@ -247,9 +234,9 @@ static NSString * const kAiToolDomain = @"AiTool";
     NSString *path = [params[@"path"] isKindOfClass:[NSString class]] ? params[@"path"] : nil;
     if (path.length == 0) path = [[self class] currentGameRoot];
     NSString *pattern = [params[@"pattern"] isKindOfClass:[NSString class]] ? params[@"pattern"] : nil;
-    if (pattern.length == 0) { completion(nil, [self errorWithCode:400 message:@"参数 pattern（正则）必填"]); return; }
+    if (pattern.length == 0) { completion(nil, [self errorWithCode:400 message:localize(@"lira.legacy.267", nil)]); return; }
     NSString *resolved = [[self class] resolveSafely:path];
-    if (!resolved) { completion(nil, [self errorWithCode:403 message:@"路径越界或无效"]); return; }
+    if (!resolved) { completion(nil, [self errorWithCode:403 message:localize(@"lira.legacy.262", nil)]); return; }
 
     BOOL recursive = NO;
     NSNumber *recNum = params[@"recursive"];
@@ -263,7 +250,7 @@ static NSString * const kAiToolDomain = @"AiTool";
     NSError *regexError = nil;
     NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:pattern options:0 error:&regexError];
     if (!regex) {
-        completion(nil, [self errorWithCode:400 message:[NSString stringWithFormat:@"正则表达式无效：%@", regexError.localizedDescription]]);
+        completion(nil, [self errorWithCode:400 message:[NSString stringWithFormat:localize(@"lira.legacy.268", nil), regexError.localizedDescription]]);
         return;
     }
 
@@ -312,26 +299,26 @@ static NSString * const kAiToolDomain = @"AiTool";
 - (void)performWriteFile:(NSDictionary *)params completion:(void(^)(NSString *, NSError *))completion {
     NSString *path = [params[@"path"] isKindOfClass:[NSString class]] ? params[@"path"] : nil;
     NSString *content = [params[@"content"] isKindOfClass:[NSString class]] ? params[@"content"] : @"";
-    if (path.length == 0) { completion(nil, [self errorWithCode:400 message:@"参数 path 必填"]); return; }
+    if (path.length == 0) { completion(nil, [self errorWithCode:400 message:localize(@"lira.legacy.264", nil)]); return; }
     if (![params[@"content"] isKindOfClass:[NSString class]]) {
-        completion(nil, [self errorWithCode:400 message:@"参数 content 必填"]); return;
+        completion(nil, [self errorWithCode:400 message:localize(@"lira.legacy.269", nil)]); return;
     }
     NSString *resolved = [[self class] resolveSafely:path];
-    if (!resolved) { completion(nil, [self errorWithCode:403 message:@"路径越界或无效"]); return; }
+    if (!resolved) { completion(nil, [self errorWithCode:403 message:localize(@"lira.legacy.262", nil)]); return; }
 
     NSString *parentDir = [resolved stringByDeletingLastPathComponent];
     NSError *dirError = nil;
     [[NSFileManager defaultManager] createDirectoryAtPath:parentDir withIntermediateDirectories:YES attributes:nil error:&dirError];
-    if (dirError) { completion(nil, [self errorWithCode:500 message:[NSString stringWithFormat:@"创建目录失败：%@", dirError.localizedDescription]]); return; }
+    if (dirError) { completion(nil, [self errorWithCode:500 message:[NSString stringWithFormat:localize(@"lira.legacy.270", nil), dirError.localizedDescription]]); return; }
 
     NSData *data = [content dataUsingEncoding:NSUTF8StringEncoding];
     NSError *writeError = nil;
     BOOL ok = [data writeToURL:[NSURL fileURLWithPath:resolved] options:NSDataWritingAtomic error:&writeError];
     if (!ok) {
-        completion(nil, [self errorWithCode:500 message:[NSString stringWithFormat:@"写入失败：%@", writeError.localizedDescription]]);
+        completion(nil, [self errorWithCode:500 message:[NSString stringWithFormat:localize(@"lira.legacy.271", nil), writeError.localizedDescription]]);
         return;
     }
-    completion([NSString stringWithFormat:@"已写入（%lu 字符）", (unsigned long)content.length], nil);
+    completion([NSString stringWithFormat:localize(@"lira.legacy.272", nil), (unsigned long)content.length], nil);
 }
 
 #pragma mark - edit_file
@@ -340,15 +327,15 @@ static NSString * const kAiToolDomain = @"AiTool";
     NSString *path = [params[@"path"] isKindOfClass:[NSString class]] ? params[@"path"] : nil;
     NSString *oldText = [params[@"oldText"] isKindOfClass:[NSString class]] ? params[@"oldText"] : nil;
     NSString *newText = [params[@"newText"] isKindOfClass:[NSString class]] ? params[@"newText"] : @"";
-    if (path.length == 0) { completion(nil, [self errorWithCode:400 message:@"参数 path 必填"]); return; }
-    if (oldText.length == 0) { completion(nil, [self errorWithCode:400 message:@"参数 oldText 必填"]); return; }
-    if (![params[@"newText"] isKindOfClass:[NSString class]]) { completion(nil, [self errorWithCode:400 message:@"参数 newText 必填"]); return; }
+    if (path.length == 0) { completion(nil, [self errorWithCode:400 message:localize(@"lira.legacy.264", nil)]); return; }
+    if (oldText.length == 0) { completion(nil, [self errorWithCode:400 message:localize(@"lira.legacy.273", nil)]); return; }
+    if (![params[@"newText"] isKindOfClass:[NSString class]]) { completion(nil, [self errorWithCode:400 message:localize(@"lira.legacy.274", nil)]); return; }
     NSString *resolved = [[self class] resolveSafely:path];
-    if (!resolved) { completion(nil, [self errorWithCode:403 message:@"路径越界或无效"]); return; }
+    if (!resolved) { completion(nil, [self errorWithCode:403 message:localize(@"lira.legacy.262", nil)]); return; }
 
     NSError *readError = nil;
     NSString *content = [NSString stringWithContentsOfFile:resolved encoding:NSUTF8StringEncoding error:&readError];
-    if (!content) { completion(nil, [self errorWithCode:404 message:@"读取文件失败或无此文件"]); return; }
+    if (!content) { completion(nil, [self errorWithCode:404 message:localize(@"lira.legacy.275", nil)]); return; }
 
     // 统计 oldText 出现次数
     NSUInteger occurrences = 0;
@@ -362,7 +349,7 @@ static NSString * const kAiToolDomain = @"AiTool";
         searchRange.length = content.length - next;
     }
     if (occurrences != 1) {
-        completion(nil, [self errorWithCode:422 message:[NSString stringWithFormat:@"oldText 不唯一或未找到（出现 %lu 次）", (unsigned long)occurrences]]);
+        completion(nil, [self errorWithCode:422 message:[NSString stringWithFormat:localize(@"lira.legacy.276", nil), (unsigned long)occurrences]]);
         return;
     }
 
@@ -371,7 +358,7 @@ static NSString * const kAiToolDomain = @"AiTool";
     NSData *data = [newContent dataUsingEncoding:NSUTF8StringEncoding];
     NSError *writeError = nil;
     if (![data writeToURL:[NSURL fileURLWithPath:resolved] options:NSDataWritingAtomic error:&writeError]) {
-        completion(nil, [self errorWithCode:500 message:[NSString stringWithFormat:@"写回失败：%@", writeError.localizedDescription]]);
+        completion(nil, [self errorWithCode:500 message:[NSString stringWithFormat:localize(@"lira.legacy.277", nil), writeError.localizedDescription]]);
         return;
     }
     completion(@"已修改", nil);
@@ -393,26 +380,26 @@ static NSString * const kAiToolDomain = @"AiTool";
 
 - (void)performDeleteFile:(NSDictionary *)params completion:(void(^)(NSString *, NSError *))completion {
     NSString *path = [params[@"path"] isKindOfClass:[NSString class]] ? params[@"path"] : nil;
-    if (path.length == 0) { completion(nil, [self errorWithCode:400 message:@"参数 path 必填"]); return; }
+    if (path.length == 0) { completion(nil, [self errorWithCode:400 message:localize(@"lira.legacy.264", nil)]); return; }
     NSString *resolved = [[self class] resolveSafely:path];
-    if (!resolved) { completion(nil, [self errorWithCode:403 message:@"路径越界或无效"]); return; }
+    if (!resolved) { completion(nil, [self errorWithCode:403 message:localize(@"lira.legacy.262", nil)]); return; }
 
     NSFileManager *fm = [NSFileManager defaultManager];
     BOOL isDir = NO;
     if (![fm fileExistsAtPath:resolved isDirectory:&isDir]) {
-        completion(nil, [self errorWithCode:404 message:@"文件不存在"]); return;
+        completion(nil, [self errorWithCode:404 message:localize(@"i18n_str_526", nil)]); return;
     }
     if (isDir) {
-        completion(nil, [self errorWithCode:403 message:@"出于安全考虑仅允许删除文件，不允许删除目录"]); return;
+        completion(nil, [self errorWithCode:403 message:localize(@"lira.legacy.279", nil)]); return;
     }
     NSString *ext = [[resolved pathExtension] lowercaseString];
     if (![[[self class] deletableExtensions] containsObject:ext]) {
-        completion(nil, [self errorWithCode:403 message:[NSString stringWithFormat:@"出于安全考虑仅允许删除文本类文件（不支持 .%@）", ext]]);
+        completion(nil, [self errorWithCode:403 message:[NSString stringWithFormat:localize(@"lira.legacy.280", nil), ext]]);
         return;
     }
     NSError *removeError = nil;
     if (![fm removeItemAtPath:resolved error:&removeError]) {
-        completion(nil, [self errorWithCode:500 message:[NSString stringWithFormat:@"删除失败：%@", removeError.localizedDescription]]);
+        completion(nil, [self errorWithCode:500 message:[NSString stringWithFormat:localize(@"lira.legacy.281", nil), removeError.localizedDescription]]);
         return;
     }
     completion(@"已删除", nil);

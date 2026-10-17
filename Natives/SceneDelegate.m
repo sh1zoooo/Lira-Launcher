@@ -1,6 +1,7 @@
 #import "SceneDelegate.h"
 #import "ios_uikit_bridge.h"
 #import "utils.h"
+#import "LiraTheme.h"
 #import "LauncherRootViewController.h"
 #import "LauncherCardLayoutViewController.h"
 #import "AmeRootTabController.h"   // ★ [ROOTTAB] 根标签栏控制器
@@ -62,6 +63,7 @@ extern UIWindow *mainWindow;
     } else {
         self.window.backgroundColor = [UIColor colorWithWhite:0.08 alpha:1.0];
     }
+    self.window.tintColor = accentColor();
     mainWindow = self.window;
 
     // ★ [I18N] 根 UI 由统一入口安装（语言切换时会整体重建，见 handleLauncherLanguageChanged:）。

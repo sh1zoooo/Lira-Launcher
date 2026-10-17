@@ -23,7 +23,7 @@ static NSError *MRAMListRequestError(NSArray<NSString *> *failures) {
     return [NSError errorWithDomain:@"ModrinthAPIError"
                                code:kMRAMListAllSourcesFailedCode
                            userInfo:@{NSLocalizedDescriptionKey:
-                                          [NSString stringWithFormat:@"Modrinth 列表请求失败: %@", detail]}];
+                                          [NSString stringWithFormat:localize(@"lira.legacy.454", nil), detail]}];
 }
 
 @interface ModrinthAPI ()
@@ -83,7 +83,7 @@ static NSString *ameLocalizedSearchKeyword(NSString *query) {
             @[@"钠", @"sodium"], @[@"锂", @"lithium"], @[@"磷", @"phosphor"],
             @[@"铟", @"indium"], @[@"钾", @"potassium"],
             // 光影 / 视觉
-            @[@"光影", @"shader"], @[@"着色器", @"shader"],
+            @[localize(@"i18n_str_1284", nil), @"shader"], @[@"着色器", @"shader"],
             @[@"材质", @"resource pack"], @[@"材质包", @"resource pack"],
             @[@"资源包", @"resource pack"], @[@"天空", @"sky"],
             @[@"水面", @"water"], @[@"动态光源", @"dynamic lights"],
@@ -470,7 +470,7 @@ static NSString *ameLocalizedSearchKeyword(NSString *query) {
     NSString *base = candidates[index];
     NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"%@/%@", base, pathQuery]];
     if (!url) {
-        [failures addObject:[NSString stringWithFormat:@"%@ (URL 无效)", base]];
+        [failures addObject:[NSString stringWithFormat:localize(@"lira.legacy.455", nil), base]];
         [self mramFetchListPathQuery:pathQuery candidates:candidates arrayKey:arrayKey mapObject:mapObject
                                index:index + 1 failures:failures completion:completion];
         return;
@@ -489,7 +489,7 @@ static NSString *ameLocalizedSearchKeyword(NSString *query) {
         NSString *reason = nil;
 
         if (error) {
-            reason = [NSString stringWithFormat:@"%@ HTTP=%ld 网络错误(%@)", base, (long)status, error.localizedDescription ?: @"?"];
+            reason = [NSString stringWithFormat:localize(@"lira.legacy.456", nil), base, (long)status, error.localizedDescription ?: @"?"];
         } else if (status != 0 && (status < 200 || status >= 300)) {
             // ★ [MODSRC-LIST] 旧实现不检查 HTTP 状态；镜像 5xx 的 JSON 错误体（无 hits）
             //   会被静默转成空数组 ⇒ 用户只看到「暂无」。现在按失败处理并切下一个源。
@@ -506,7 +506,7 @@ static NSString *ameLocalizedSearchKeyword(NSString *query) {
                 }
                 mapped = out;
             } else {
-                reason = [NSString stringWithFormat:@"%@ HTTP=%ld 响应缺少 %@ 数组", base, (long)status, arrayKey];
+                reason = [NSString stringWithFormat:localize(@"lira.legacy.457", nil), base, (long)status, arrayKey];
             }
         }
 
@@ -515,7 +515,7 @@ static NSString *ameLocalizedSearchKeyword(NSString *query) {
             if (completion) completion(mapped, nil);
             return;
         }
-        [failures addObject:reason ?: [NSString stringWithFormat:@"%@ 未知错误", base]];
+        [failures addObject:reason ?: [NSString stringWithFormat:localize(@"lira.legacy.458", nil), base]];
         [self mramFetchListPathQuery:pathQuery candidates:candidates arrayKey:arrayKey mapObject:mapObject
                                index:index + 1 failures:failures completion:completion];
     }];

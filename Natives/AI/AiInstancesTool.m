@@ -32,20 +32,10 @@
 
 - (NSString *)summary {
     if ([self.internalName isEqualToString:@"list_game_versions"]) {
-        return @"拉取 Minecraft Java 版的真实版本列表（默认只返回正式版 release，避免快照等版本过多占用上下文）。"
-               "\n参数：includeSnapshots（boolean，可选，默认 false；为 true 时额外附加最新一条快照版本）。"
-               "\n说明：默认从 BMCLAPI 镜像获取版本清单，失败自动切换官方源重试；返回每个版本的 id（版本号）与 type（release/snapshot）。"
-               "\n内部有 30 分钟缓存（保存在 Documents/AI/game_versions.json，缓存完整清单）。"
-               "\n边界：若网络失败会返回错误信息，不会编造版本号。"
-               "\n示例：调用后得到 [{'id':'1.21.1','type':'release'}, ...]";
+        return localize(@"lira.legacy.232", nil);
     }
     // list_instances
-    return @"列出启动器中已创建的游戏实例（即游戏目录下的版本/目录）。"
-           "\n无参数。"
-           "\n说明：每个实例项包含 profile 名称 name、gameDir、lastVersionId、当前是否选中 selected、"
-           "实例完整路径 path，以及已安装的 mods/resourcepacks/shaders/datapacks 数量（counts 子对象）。"
-           "\n数据来源为 POJAV_HOME/instances/ 目录与 launcher_profiles.json 的 profiles。"
-           "\n边界：实例目录不存在时回退返回当前实例信息。";
+    return localize(@"lira.legacy.233", nil);
 }
 
 #pragma mark - 路径与常量
@@ -123,7 +113,7 @@
     }
 
     NSError *err = [NSError errorWithDomain:@"AiTool" code:404
-                                   userInfo:@{NSLocalizedDescriptionKey: [NSString stringWithFormat:@"未知工具 %@", self.internalName]}];
+                                   userInfo:@{NSLocalizedDescriptionKey: [NSString stringWithFormat:localize(@"lira.legacy.208", nil), self.internalName]}];
     completion(nil, err);
 }
 
@@ -250,7 +240,7 @@
         });
         NSString *resultJSON = [self filteredVersionsJSON:versions includeSnapshots:includeSnapshots];
         dispatch_async(dispatch_get_main_queue(), ^{
-            completion([NSString stringWithFormat:@"%@\n（数据源：%@）", resultJSON, sourceUsed ?: @"bmclapi"], nil);
+            completion([NSString stringWithFormat:localize(@"lira.legacy.234", nil), resultJSON, sourceUsed ?: @"bmclapi"], nil);
         });
     }];
 }
@@ -261,9 +251,9 @@
                       lastError:(NSError * _Nullable)lastError
                       completion:(void (^)(NSArray * _Nullable versions, NSString * _Nullable sourceUsed, NSError * _Nullable error))completion {
     if (index >= urlStrings.count) {
-        NSString *detail = lastError.localizedDescription ?: @"未知错误";
+        NSString *detail = lastError.localizedDescription ?: localize(@"i18n_str_97", nil);
         completion(nil, nil, [NSError errorWithDomain:@"AiTool" code:500
-                                             userInfo:@{NSLocalizedDescriptionKey: [NSString stringWithFormat:@"获取版本列表失败（BMCLAPI 与官方源均不可用）:%@", detail]}]);
+                                             userInfo:@{NSLocalizedDescriptionKey: [NSString stringWithFormat:localize(@"lira.legacy.235", nil), detail]}]);
         return;
     }
     NSString *urlString = urlStrings[index];
@@ -294,7 +284,7 @@
             }
             if (!versions) {
                 parseError = [NSError errorWithDomain:@"AiTool" code:500
-                                              userInfo:@{NSLocalizedDescriptionKey: @"版本清单格式异常"}];
+                                              userInfo:@{NSLocalizedDescriptionKey: localize(@"lira.legacy.236", nil)}];
             }
         }
         dispatch_async(dispatch_get_main_queue(), ^{

@@ -477,6 +477,8 @@ add_executable(AngelAuraAmethyst
   PortForwarder.m
   LauncherMenuViewController.m
   LauncherNavigationController.m
+  LiraHomeViewController.m
+  LiraSettingsViewController.m
   LauncherNewsViewController.m
   HomeCustomizeViewController.m
   LauncherRootViewController.m

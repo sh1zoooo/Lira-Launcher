@@ -91,7 +91,7 @@ static NSString * const kHistoryCellReuseIdentifier = @"DownloadHistoryCell";
         // ★ [I18N-ORDER] 统一入口 localize()(不再绕过语言解析)
         ? localize(@"download.history.result.success", @"成功")
         // ★ [I18N-ORDER] 统一入口 localize()(不再绕过语言解析)
-        : localize(@"download.history.result.failed", @"失败");
+        : localize(@"download.history.result.failed", localize(@"i18n_str_108", nil));
 
     self.detailLabel.text = [NSString stringWithFormat:@"%@ · %@ · %@",
                              typeDisplayName ?: @"--", sizeText, resultText];
@@ -241,7 +241,7 @@ static NSString * const kHistoryCellReuseIdentifier = @"DownloadHistoryCell";
     }]];
     [alert addAction:[UIAlertAction
         // ★ [I18N-ORDER] 统一入口 localize()(不再绕过语言解析)
-        actionWithTitle:localize(@"download.history.cancel", @"取消")
+        actionWithTitle:localize(@"download.history.cancel", localize(@"resman.common.cancel", nil))
                   style:UIAlertActionStyleCancel
                 handler:nil]];
     [self presentViewController:alert animated:YES completion:nil];

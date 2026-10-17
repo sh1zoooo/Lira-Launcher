@@ -1,3 +1,4 @@
+#import "utils.h"
 //
 //  AIInputBarView.m
 //  Amethyst
@@ -64,7 +65,7 @@ static const CGFloat kBarHMargin = 16.0;
     self.inputField = [[UITextField alloc] init];
     self.inputField.translatesAutoresizingMaskIntoConstraints = NO;
     self.inputField.borderStyle = UITextBorderStyleNone;
-    self.inputField.placeholder = @"给 Air 发送消息…";
+    self.inputField.placeholder = localize(@"lira.legacy.245", nil);
     self.inputField.backgroundColor = [UIColor colorWithWhite:1.0 alpha:0.10];
     self.inputField.textColor = [UIColor labelColor];
     self.inputField.font = [UIFont systemFontOfSize:16];

@@ -85,7 +85,7 @@ static NSString * localizeProfileTitle(NSString *title) {
     dispatch_once(&onceToken, ^{
         map = @{
             @"渲染器": @"preference.title.renderer",
-            @"图形 API": @"i18n_str_2057",
+            localize(@"i18n_str_2057", nil): @"i18n_str_2057",
             @"Java版本": @"i18n_str_2036",
             @"内存分配": @"i18n_str_2037",
             @"JVM 启动参数": @"preference.title.java_args",
@@ -552,7 +552,7 @@ static NSString * localizeProfileTitle(NSString *title) {
     // isEqualToString: 比较依赖它们；本改动只动「呈现与交互组织」。
     NSMutableArray *runtimeRows = [NSMutableArray arrayWithArray:@[@"内存分配", @"渲染器"]];
     if ([self isCurrentProfileModernVersion]) {
-        [runtimeRows addObject:@"图形 API"];
+        [runtimeRows addObject:localize(@"i18n_str_2057", nil)];
     }
 
     // ★ [VI-SWITCH-UI] 版本信息组补「版本隔离」开关行 —— 这是用户实际能打开的实例设置页，
@@ -995,7 +995,7 @@ static NSString * localizeProfileTitle(NSString *title) {
                 cell.imageView.image = [UIImage systemImageNamed:@"cpu"];
                 cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
                 cell.detailTextLabel.text = [self rendererDisplayName:self.selectedRenderer];
-            } else if ([title isEqualToString:@"图形 API"]) {
+            } else if ([title isEqualToString:localize(@"i18n_str_2057", nil)]) {
                 cell.imageView.image = [UIImage systemImageNamed:@"rectangle.dashed"];
                 cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
                 cell.detailTextLabel.text = [self graphicsApiDisplayName:self.selectedGraphicsApi];
@@ -1411,7 +1411,7 @@ static NSString * localizeProfileTitle(NSString *title) {
                 [self showMemoryAllocator];                    // 弹出式选择
             } else if ([title isEqualToString:@"渲染器"]) {
                 [self showRendererSelector];                   // 弹出式选择
-            } else if ([title isEqualToString:@"图形 API"]) {
+            } else if ([title isEqualToString:localize(@"i18n_str_2057", nil)]) {
                 [self showGraphicsApiSelector];                // 弹出式选择
             }
             break;

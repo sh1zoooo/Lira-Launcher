@@ -44,13 +44,13 @@
     [[BackgroundManager sharedManager] makeViewControllerTransparent:self];
 
     // 恢复默认
-    UIBarButtonItem *resetItem = [[UIBarButtonItem alloc] initWithTitle:@"恢复默认"
+    UIBarButtonItem *resetItem = [[UIBarButtonItem alloc] initWithTitle:localize(@"i18n_str_898", nil)
                                                                   style:UIBarButtonItemStylePlain
                                                                  target:self
                                                                  action:@selector(resetAction)];
     self.navigationItem.leftBarButtonItem = resetItem;
     // 保存
-    UIBarButtonItem *saveItem = [[UIBarButtonItem alloc] initWithTitle:@"保存"
+    UIBarButtonItem *saveItem = [[UIBarButtonItem alloc] initWithTitle:localize(@"i18n_str_88", nil)
                                                                  style:UIBarButtonItemStyleDone
                                                                 target:self
                                                                 action:@selector(saveAction)];
@@ -81,7 +81,7 @@
     // 提示文案
     UILabel *hintLabel = [[UILabel alloc] init];
     hintLabel.translatesAutoresizingMaskIntoConstraints = NO;
-    hintLabel.text = @"这会注入到每次对话的最前面，用于约定 Air 助手的行为方式。";
+    hintLabel.text = localize(@"lira.legacy.238", nil);
     hintLabel.font = [UIFont systemFontOfSize:12];
     hintLabel.textColor = [UIColor secondaryLabelColor];
     hintLabel.numberOfLines = 0;

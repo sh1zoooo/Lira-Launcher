@@ -1,3 +1,4 @@
+#import "utils.h"
 //
 //  AiLogReader.m
 //  Amethyst
@@ -30,24 +31,13 @@
 
 - (NSString *)summary {
     if ([self.internalName isEqualToString:@"read_crash_report"]) {
-        return @"读取最新一份崩溃报告（crash-report 目录中修改时间最新的 .txt 文件）。"
-               "\n参数：instance（string，可选，实例/游戏目录名，缺省当前选中实例）。"
-               "\n说明：优先读取 logs/crash-reports/ 目录，其次回退到 crash-reports/ 目录，返回最新 .txt 的内容，截断为末尾 6000 字符。"
-               "\n边界：目录或文件不存在时返回「未找到崩溃报告」。";
+        return localize(@"lira.legacy.282", nil);
     }
     if ([self.internalName isEqualToString:@"read_logs"]) {
-        return @"一次并行读取多份日志（排查问题首选工具）。"
-               "\n参数：logs（array，可选，元素：latest.log=游戏日志 / latestlog.txt=启动器日志 / latestlog.old.txt=上次启动器日志 / crash-report=最新崩溃报告）、"
-               "all（boolean，可选，true 时读取全部上述日志）、instance（string，可选，实例名，缺省当前选中实例）。"
-               "\n重要：启动器日志 latestlog.txt 通常已包含游戏日志（stdout/stderr 重定向），排查时优先读取它。"
-               "\n返回 JSON 数组：{key, path, size, lastModified, content（各自截断末尾 4000 字符）}；不存在的文件标注缺失。";
+        return localize(@"lira.legacy.283", nil);
     }
     // read_latest_log
-    return @"读取实例的最近启动日志（logs/latest.log）。"
-           "\n参数：instance（string，可选，实例/游戏目录名，缺省当前选中实例）。"
-           "\n说明：返回日志末尾 4000 字符（过长时起始部分被截断并注明）。文件不存在时返回「未找到日志」。"
-           "\n提示：启动器级日志（POJAV_HOME/latestlog.txt，含游戏日志）请改用 read_logs。"
-           "\n边界：仅读取 .log 文件，绝不读取其它类型文件。";
+    return localize(@"lira.legacy.284", nil);
 }
 
 #pragma mark - 路径
@@ -149,7 +139,7 @@
     }
 
     NSError *err = [NSError errorWithDomain:@"AiTool" code:404
-                                   userInfo:@{NSLocalizedDescriptionKey: [NSString stringWithFormat:@"未知工具 %@", self.internalName]}];
+                                   userInfo:@{NSLocalizedDescriptionKey: [NSString stringWithFormat:localize(@"lira.legacy.208", nil), self.internalName]}];
     completion(nil, err);
 }
 
@@ -259,7 +249,7 @@
                                                     options:NSJSONWritingPrettyPrinted
                                                       error:&jsonError];
         if (!data || jsonError) {
-            completion([NSString stringWithFormat:@"读取了 %lu 份日志（序列化失败）", (unsigned long)sorted.count], nil);
+            completion([NSString stringWithFormat:localize(@"lira.legacy.285", nil), (unsigned long)sorted.count], nil);
             return;
         }
         completion([[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding], nil);

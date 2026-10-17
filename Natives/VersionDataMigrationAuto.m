@@ -1,3 +1,4 @@
+#import "utils.h"
 // ★ [VI-MIGRATE-AUTO] 版本隔离「自动识别迁移」引擎实现。
 // 纯 Foundation（自带 zip inflate + gzip/NBT，不依赖 zlib / UnzipKit），故可在 Mac 上
 // 单独编一个 harness 直接跑真 mod jar / pack.mcmeta / level.dat 验证分类判定。
@@ -770,22 +771,22 @@ static NSString *ameVIAOriginBaselineReason(NSString *rel) {
     NSArray<NSString *> *cps = [rel pathComponents];
     NSString *top = cps.count ? cps.firstObject : @"";
     if ([ameVIABaselineTopDirs() containsObject:top])
-        return [NSString stringWithFormat:@"位于加载器/原版自生成目录 %@/（非玩家内容）", top];
+        return [NSString stringWithFormat:localize(@"lira.legacy.009", nil), top];
     if ([rel isEqualToString:@"config/fabric"] || [rel hasPrefix:@"config/fabric/"])
-        return @"fabric 加载器自身配置目录 config/fabric/";
+        return localize(@"lira.legacy.010", nil);
     if (cps.count == 1 && [ameVIABaselineRootFiles() containsObject:top])
-        return [NSString stringWithFormat:@"原版/启动器自生成根文件 %@", top];
+        return [NSString stringWithFormat:localize(@"lira.legacy.011", nil), top];
     return nil;
 }
 
 /// 玩家内容类别 → 理由。
 static NSString *ameVIAOriginPlayerReason(NSString *cat) {
-    if ([cat isEqualToString:ameVIACatMod])          return @"位于 mods/（玩家放入的 mod）";
-    if ([cat isEqualToString:ameVIACatWorld])        return @"位于 saves/（玩家创建/游玩的存档）";
-    if ([cat isEqualToString:ameVIACatResourcePack]) return @"位于 resourcepacks/（玩家放入的资源包）";
-    if ([cat isEqualToString:ameVIACatShaderPack])   return @"位于 shaderpacks/（玩家放入的光影包）";
-    if ([cat isEqualToString:ameVIACatDataPack])     return @"位于 datapacks/（玩家放入的数据包）";
-    return @"玩家放入/创建的内容";
+    if ([cat isEqualToString:ameVIACatMod])          return localize(@"lira.legacy.012", nil);
+    if ([cat isEqualToString:ameVIACatWorld])        return localize(@"lira.legacy.013", nil);
+    if ([cat isEqualToString:ameVIACatResourcePack]) return localize(@"lira.legacy.014", nil);
+    if ([cat isEqualToString:ameVIACatShaderPack])   return localize(@"lira.legacy.015", nil);
+    if ([cat isEqualToString:ameVIACatDataPack])     return localize(@"lira.legacy.016", nil);
+    return localize(@"lira.legacy.017", nil);
 }
 
 /// 给一个已分类单元补 origin / originReason。此刻尚不知 mod 列表 ⇒ 非基线/玩家的一律先记「未识别」，
@@ -855,7 +856,7 @@ NSArray<NSDictionary *> *ameVIAAnnotateOrigins(NSArray<NSDictionary *> *units) {
         if (hit.length) {
             NSMutableDictionary *m = [u mutableCopy];
             m[@"origin"] = ameVIAOriginMod;       // ★ [VI-ORIGIN]
-            m[@"originReason"] = [NSString stringWithFormat:@"名称「%@」命中已装 mod「%@」⇒ 该 mod 运行时生成", stem, hit];
+            m[@"originReason"] = [NSString stringWithFormat:localize(@"lira.legacy.018", nil), stem, hit];
             m[@"originModId"] = hit;
             [out addObject:m];
         } else {
@@ -913,7 +914,7 @@ static NSDictionary *ameVIAClassifyJar(NSString *srcRoot, NSString *jarPath, NSS
             else if ([dep isKindOfClass:NSDictionary.class] && ((NSDictionary *)dep)[@"quilt_loader"]) loader = ameVIALoaderQuilt;
             NSString *rep = range ? ameVIAVersionRepFromRange(range) : nil;
             NSString *why = [NSString stringWithFormat:@"fabric.mod.json id=%@ depends.minecraft=%@",
-                             mid ?: @"?", range ?: @"(未声明)"];
+                             mid ?: @"?", range ?: localize(@"lira.legacy.019", nil)];
             if (!rep && fver) { rep = fver; why = [why stringByAppendingString:@"；元数据无版本→文件名兜底"]; }
             return ameVIAModUnit(ameVIAMakeUnit(srcRoot, rel, cat, rep, range, loader, why), mid);
         }
@@ -935,7 +936,7 @@ static NSDictionary *ameVIAClassifyJar(NSString *srcRoot, NSString *jarPath, NSS
         }
         NSString *rep = range ? ameVIAVersionRepFromRange(range) : fver;
         return ameVIAMakeUnit(srcRoot, rel, cat, rep, range, ameVIALoaderQuilt,
-                              [NSString stringWithFormat:@"quilt.mod.json depends.minecraft=%@", range ?: @"(未声明)"]);
+                              [NSString stringWithFormat:@"quilt.mod.json depends.minecraft=%@", range ?: localize(@"lira.legacy.019", nil)]);
     }
     // ---- Forge / NeoForge：META-INF/mods.toml / neoforge.mods.toml ----
     NSData *toml = ameVIAReadZipEntry(jarPath, @"META-INF/mods.toml");
@@ -953,7 +954,7 @@ static NSDictionary *ameVIAClassifyJar(NSString *srcRoot, NSString *jarPath, NSS
         NSString *loader = isNeo ? ameVIALoaderNeoForge : ameVIALoaderForge;
         NSString *rep = range ? ameVIAVersionRepFromRange(range) : nil;
         NSMutableString *why = [NSMutableString stringWithFormat:@"%@ modId=%@ minecraft.versionRange=%@",
-                                tomlName, ameVIAStr(p[@"modId"]) ?: @"?", range ?: @"(未声明)"];
+                                tomlName, ameVIAStr(p[@"modId"]) ?: @"?", range ?: localize(@"lira.legacy.019", nil)];
         if (!rep) {
             // 兜底 1：文件名版本号
             if (fver) { rep = fver; [why appendString:@"；无 minecraft 依赖→文件名兜底"]; }
@@ -966,14 +967,14 @@ static NSDictionary *ameVIAClassifyJar(NSString *srcRoot, NSString *jarPath, NSS
                     b = vp.count ? [vp[0] integerValue] : 0;
                 }
                 NSString *byBuild = b ? ameVIAMCVersionForForgeBuild(b) : nil;
-                if (byBuild) { rep = byBuild; [why appendFormat:@"；无版本→Forge 构建号 %ld 弱推断", (long)b]; }
+                if (byBuild) { rep = byBuild; [why appendFormat:localize(@"lira.legacy.020", nil), (long)b]; }
             }
         }
         return ameVIAModUnit(ameVIAMakeUnit(srcRoot, rel, cat, rep, range, loader, why), ameVIAStr(p[@"modId"]));
     }
     // ---- 无元数据：只按文件名 ----
-    NSString *why = [NSString stringWithFormat:@"无 mod 元数据；按文件名（%@/%@）",
-                     fver ?: @"版本未知", floader ?: @"加载器不明"];
+    NSString *why = [NSString stringWithFormat:localize(@"lira.legacy.021", nil),
+                     fver ?: localize(@"lira.legacy.022", nil), floader ?: localize(@"lira.legacy.023", nil)];
     return ameVIAMakeUnit(srcRoot, rel, cat, fver, nil, floader, why);
 }
 
@@ -1009,7 +1010,7 @@ static NSDictionary *ameVIAClassifyUnitInner(NSString *srcRoot, NSString *relPat
         NSString *ver = f >= 0 ? ameVIAMCVersionForPackFormat(f, &note) : nil;
         NSString *why;
         if (ver) why = [NSString stringWithFormat:@"pack.mcmeta pack_format=%ld ⇒ %@", (long)f, note ?: ver];
-        else if (f >= 0) { why = [NSString stringWithFormat:@"pack.mcmeta pack_format=%ld（未收录）", (long)f]; ver = fver; if (fver) why = [why stringByAppendingString:@"；文件名兜底"]; }
+        else if (f >= 0) { why = [NSString stringWithFormat:localize(@"lira.legacy.024", nil), (long)f]; ver = fver; if (fver) why = [why stringByAppendingString:@"；文件名兜底"]; }
         else if (fver) { why = @"无 pack.mcmeta；按文件名"; ver = fver; }
         else why = @"无 pack.mcmeta 且文件名无版本";
         return ameVIAMakeUnit(srcRoot, relPath, cat, ver, nil, nil, why);
@@ -1034,8 +1035,8 @@ static NSDictionary *ameVIAClassifyUnitInner(NSString *srcRoot, NSString *relPat
                 ver = mapped;
                 why = dv != NSNotFound
                     ? [NSString stringWithFormat:@"level.dat DataVersion=%ld%@", (long)dv,
-                       mapped ? [NSString stringWithFormat:@" ⇒ %@", mapped] : @"（未收录，判不出）"]
-                    : @"level.dat 无版本字段";
+                       mapped ? [NSString stringWithFormat:@" ⇒ %@", mapped] : localize(@"lira.legacy.025", nil)]
+                    : localize(@"lira.legacy.026", nil);
             }
             return ameVIAMakeUnit(srcRoot, relPath, cat, ver, nil, nil, why);
         }
@@ -1163,8 +1164,8 @@ NSArray<NSDictionary *> *ameVIAEnumerateTargets(NSString *instanceRoot) {
         if (jd) j = [NSJSONSerialization JSONObjectWithData:jd options:0 error:nil];
         NSString *loader = ameVIAVersionJsonLoader(j, name) ?: ameVIALoaderVanilla;
         NSString *ver = ameVIAVersionJsonMCVersion(j, name) ?: @"";
-        NSString *reason = [NSString stringWithFormat:@"版本目录 %@；%@json%@", name,
-                            j ? @"" : @"无 ", [j isKindOfClass:NSDictionary.class] ? @"" : @"(读不出)"];
+        NSString *reason = [NSString stringWithFormat:localize(@"lira.legacy.027", nil), name,
+                            j ? @"" : localize(@"lira.legacy.028", nil), [j isKindOfClass:NSDictionary.class] ? @"" : localize(@"lira.legacy.029", nil)];
         [out addObject:@{ @"version": ver, @"loader": loader, @"dir": dir, @"id": name, @"reason": reason }];
     }
     return out;
@@ -1217,7 +1218,7 @@ NSArray<NSDictionary *> *ameVIAGroupUnits(NSArray<NSDictionary *> *units,
                 ver = ameVIAStr(matchMod[@"mcVersion"]);
                 range = ameVIAStr(matchMod[@"mcRange"]);
                 loader = ameVIAStr(matchMod[@"loader"]);
-                reason = [NSString stringWithFormat:@"跟随同名 mod「%@」的归属", base];
+                reason = [NSString stringWithFormat:localize(@"lira.legacy.030", nil), base];
             }
         }
 
@@ -1274,7 +1275,7 @@ NSArray<NSDictionary *> *ameVIAGroupUnits(NSArray<NSDictionary *> *units,
             g[@"targetDir"] = best[@"dir"];
             g[@"match"] = bestRank == 2 ? @"exact" : @"range";
             if (ties > 1) {
-                g[@"reason"] = [NSString stringWithFormat:@"%@（有 %d 个同版本目标，取第一个）",
+                g[@"reason"] = [NSString stringWithFormat:localize(@"lira.legacy.031", nil),
                                 ameVIAStr(g[@"reason"]) ?: @"", ties];
             }
         } else {

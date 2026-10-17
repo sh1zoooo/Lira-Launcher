@@ -1,4 +1,5 @@
 #import "DownloadViewController.h"
+#import "LiraTheme.h"
 #import "BackgroundManager.h"
 // IconLoader：统一的项目图标加载器（双层缓存 + 降采样 + 并发控制 + CDN 镜像），
 // 替代 UIImageView+AFNetworking（仅内存缓存，无降采样，无镜像）
@@ -462,6 +463,7 @@ typedef NS_ENUM(NSInteger, ModernAssetType) {
 #pragma mark - DownloadViewController
 
 @interface DownloadViewController () <UICollectionViewDataSource, UICollectionViewDelegate, UITableViewDataSource, UITableViewDelegate, UISearchBarDelegate, ModVersionViewControllerDelegate, ShaderVersionViewControllerDelegate, AssetVersionViewControllerDelegate>
+@property(nonatomic, strong) UIScrollView *liraCategoryScroll;
 
 @property (nonatomic, strong) UISegmentedControl *tabSegment;
 @property (nonatomic, strong) UISegmentedControl *versionFilterSegment;
@@ -767,21 +769,52 @@ typedef NS_ENUM(NSInteger, ModernAssetType) {
 }
 
 - (void)setupTabSegment {
-    // 精简标签文字为单字+图标，避免在窄屏上拥挤截断（参照 FCL 紧凑 tab）
-    self.tabSegment = [[UISegmentedControl alloc] initWithItems:@[localize(@"i18n_str_39", nil), localize(@"i18n_str_1283", nil), localize(@"i18n_str_1284", nil), localize(@"i18n_str_1285", nil), localize(@"i18n_str_1286", nil), localize(@"i18n_str_1287", nil), localize(@"i18n_str_119", nil)]];
+    UILabel *title = [[UILabel alloc] init];
+    title.text = localize(@"lira.explore.title", nil);
+    title.font = LiraFont(UIFontTextStyleTitle1, 28, UIFontWeightBold);
+    title.adjustsFontForContentSizeCategory = YES;
+    title.textColor = UIColor.labelColor;
+    title.translatesAutoresizingMaskIntoConstraints = NO;
+    [self.view addSubview:title];
+    self.liraCategoryScroll = [[UIScrollView alloc] init];
+    self.liraCategoryScroll.translatesAutoresizingMaskIntoConstraints = NO;
+    self.liraCategoryScroll.showsHorizontalScrollIndicator = NO;
+    self.liraCategoryScroll.contentInset = UIEdgeInsetsMake(0, 16, 0, 16);
+    [self.view addSubview:self.liraCategoryScroll];
+    // Full names stay readable in Russian: categories scroll instead of squeezing seven labels.
+    NSArray *titles = @[localize(@"lira.explore.versions", nil), localize(@"lira.explore.mods", nil),
+        localize(@"lira.explore.shaders", nil), localize(@"lira.explore.resources", nil),
+        localize(@"lira.explore.data", nil), localize(@"lira.explore.modpacks", nil), localize(@"lira.explore.worlds", nil)];
+    self.tabSegment = [[UISegmentedControl alloc] initWithItems:titles];
     self.tabSegment.translatesAutoresizingMaskIntoConstraints = NO;
     self.tabSegment.selectedSegmentIndex = 0;
-    // 调小字体，确保 7 个 tab 在 iPhone 竖屏也能完整显示
-    NSDictionary *textAttrs = @{NSFontAttributeName: [UIFont systemFontOfSize:12 weight:UIFontWeightMedium]};
-    [self.tabSegment setTitleTextAttributes:textAttrs forState:UIControlStateNormal];
+    self.tabSegment.selectedSegmentTintColor = accentColor();
+    self.tabSegment.backgroundColor = LiraSecondarySurface();
+    UIFont *font = LiraFont(UIFontTextStyleSubheadline, 15, UIFontWeightSemibold);
+    [self.tabSegment setTitleTextAttributes:@{NSFontAttributeName:font, NSForegroundColorAttributeName:UIColor.labelColor} forState:UIControlStateNormal];
+    [self.tabSegment setTitleTextAttributes:@{NSFontAttributeName:font, NSForegroundColorAttributeName:UIColor.whiteColor} forState:UIControlStateSelected];
+    CGFloat total = 0;
+    for (NSUInteger i = 0; i < titles.count; i++) {
+        CGFloat width = MAX(88, ceil([titles[i] sizeWithAttributes:@{NSFontAttributeName:font}].width) + 36);
+        [self.tabSegment setWidth:width forSegmentAtIndex:i];
+        total += width;
+    }
     [self.tabSegment addTarget:self action:@selector(tabChanged:) forControlEvents:UIControlEventValueChanged];
-    [self.view addSubview:self.tabSegment];
-
+    [self.liraCategoryScroll addSubview:self.tabSegment];
     [NSLayoutConstraint activateConstraints:@[
-        [self.tabSegment.topAnchor constraintEqualToAnchor:self.view.safeAreaLayoutGuide.topAnchor constant:8],
-        [self.tabSegment.leadingAnchor constraintEqualToAnchor:self.view.leadingAnchor constant:12],
-        [self.tabSegment.trailingAnchor constraintEqualToAnchor:self.view.trailingAnchor constant:-12],
-        [self.tabSegment.heightAnchor constraintEqualToConstant:32]
+        [title.topAnchor constraintEqualToAnchor:self.view.safeAreaLayoutGuide.topAnchor constant:12],
+        [title.leadingAnchor constraintEqualToAnchor:self.view.leadingAnchor constant:20],
+        [title.trailingAnchor constraintLessThanOrEqualToAnchor:self.view.trailingAnchor constant:-20],
+        [self.liraCategoryScroll.topAnchor constraintEqualToAnchor:title.bottomAnchor constant:12],
+        [self.liraCategoryScroll.leadingAnchor constraintEqualToAnchor:self.view.leadingAnchor],
+        [self.liraCategoryScroll.trailingAnchor constraintEqualToAnchor:self.view.trailingAnchor],
+        [self.liraCategoryScroll.heightAnchor constraintEqualToConstant:46],
+        [self.tabSegment.topAnchor constraintEqualToAnchor:self.liraCategoryScroll.contentLayoutGuide.topAnchor],
+        [self.tabSegment.bottomAnchor constraintEqualToAnchor:self.liraCategoryScroll.contentLayoutGuide.bottomAnchor],
+        [self.tabSegment.leadingAnchor constraintEqualToAnchor:self.liraCategoryScroll.contentLayoutGuide.leadingAnchor],
+        [self.tabSegment.trailingAnchor constraintEqualToAnchor:self.liraCategoryScroll.contentLayoutGuide.trailingAnchor],
+        [self.tabSegment.heightAnchor constraintEqualToAnchor:self.liraCategoryScroll.frameLayoutGuide.heightAnchor],
+        [self.tabSegment.widthAnchor constraintEqualToConstant:total]
     ]];
 }
 
@@ -1517,6 +1550,11 @@ typedef NS_ENUM(NSInteger, ModernAssetType) {
 //   与其它四个标签页(无进场动效)保持一致。原实现 viewDidLoad 也走这里 ⇒ 整页 cross-dissolve
 //   进场,用户报「打开下载页面时的动效与其他四个页面不一致」。
 - (void)switchToTab:(NSInteger)index animated:(BOOL)animated {
+    CGFloat categoryX = 0;
+    for (NSInteger i = 0; i < index; i++) categoryX += [self.tabSegment widthForSegmentAtIndex:i];
+    [self.liraCategoryScroll scrollRectToVisible:CGRectMake(categoryX, 0,
+        [self.tabSegment widthForSegmentAtIndex:index], 46) animated:animated];
+
     void (^applyVisibility)(void) = ^{
         self.versionFilterSegment.hidden = (index != 0);
         self.versionCollectionView.hidden = (index != 0);

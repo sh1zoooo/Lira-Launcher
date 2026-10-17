@@ -1,3 +1,4 @@
+#import "utils.h"
 //
 //  AiSleepTool.m
 //  Amethyst
@@ -19,9 +20,7 @@ static const double kAiSleepMaxSeconds = 120.0;
 }
 
 - (NSString *)summary {
-    return @"等待指定秒数后返回（用于等待后台下载推进或模拟任务间隔）。"
-           "\n参数：seconds（number，可选，默认 1，上限 120）。"
-           "\n返回「已等待 N 秒」。";
+    return localize(@"lira.legacy.239", nil);
 }
 
 - (void)execute:(NSDictionary<NSString *, id> *)params
@@ -40,7 +39,7 @@ static const double kAiSleepMaxSeconds = 120.0;
 
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(seconds * NSEC_PER_SEC)),
                    dispatch_get_main_queue(), ^{
-        completion([NSString stringWithFormat:@"已等待 %.1f 秒", seconds], nil);
+        completion([NSString stringWithFormat:localize(@"lira.legacy.240", nil), seconds], nil);
     });
 }
 

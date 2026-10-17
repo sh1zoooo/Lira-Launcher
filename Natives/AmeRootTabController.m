@@ -11,6 +11,8 @@
 //    用户实测一次性报了三个 bug —— 那条路已废弃。
 //
 #import "AmeRootTabController.h"
+#import "LiraTheme.h"
+#import "LiraSettingsViewController.h"
 #import "utils.h"   // ★ [I18N] localize()
 #import "ios_uikit_bridge.h"   // ★ [GAME-LANDSCAPE] 游戏方向锁状态查询(AmeGameLandscapeLockActive)
 #import "DownloadViewController.h"
@@ -110,7 +112,7 @@ static UIViewController *AmeWrapInNav(UIViewController *vc) {
             case 1: content = [[DownloadViewController alloc] init]; break;
             case 2: content = [[AISessionListViewController alloc] init]; break;
             case 3: content = [[VersionManagerViewController alloc] init]; break;   // ★ [TAB-INST-REVERT] 实例标签 = 版本管理单页(恢复原状,无分段)
-            case 4: content = [[LauncherPreferencesViewController alloc] init]; break;
+            case 4: content = [[LiraSettingsViewController alloc] init]; break;
             default: content = [[UIViewController alloc] init]; break;
         }
 
@@ -128,7 +130,18 @@ static UIViewController *AmeWrapInNav(UIViewController *vc) {
     tbc.selectedIndex = 0;
     tbc.delegate = tbc;
 
-    // ★ 不设 UITabBarAppearance:设了就盖掉 iOS 26 系统玻璃
+    tbc.tabBar.tintColor = accentColor();
+    tbc.tabBar.unselectedItemTintColor = UIColor.secondaryLabelColor;
+    UITabBarAppearance *appearance = [[UITabBarAppearance alloc] init];
+    [appearance configureWithOpaqueBackground];
+    appearance.backgroundColor = LiraSurface();
+    appearance.shadowColor = UIColor.clearColor;
+    tbc.tabBar.standardAppearance = appearance;
+    if (@available(iOS 15.0, *)) tbc.tabBar.scrollEdgeAppearance = appearance;
+    for (UINavigationController *nav in vcs) {
+        if ([nav isKindOfClass:UINavigationController.class]) LiraApplyNavigationAppearance(nav.navigationBar);
+    }
+
     return tbc;
 }
 

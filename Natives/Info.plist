@@ -19,9 +19,10 @@
 		<string>zh-Hant</string>
 		<string>en</string>
 		<string>ja</string>
+		<string>ru</string>
 	</array>
 	<key>CFBundleDisplayName</key>
-	<string>Air</string>
+	<string>Lira</string>
 	<key>CFBundleExecutable</key>
 	<string>AngelAuraAmethyst</string>
 	<key>CFBundleIcons</key>

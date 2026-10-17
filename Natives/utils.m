@@ -373,7 +373,7 @@ NSArray<NSString *> *AmeLauncherSupportedLanguageCodes(void) {
     static NSArray<NSString *> *codes;
     static dispatch_once_t once;
     dispatch_once(&once, ^{
-        codes = @[@"zh-Hans", @"zh-Hant", @"en", @"ja"];
+        codes = @[@"zh-Hans", @"zh-Hant", @"en", @"ja", @"ru"];
     });
     return codes;
 }
