@@ -18,7 +18,7 @@
     self = [super init];
     if (self) {
         _identifier = [NSUUID UUID].UUIDString;
-        _title = localize(@"ai.session.new", @"新会话");   // ★ [HOST-BUG-A]
+        _title = localize(@"ai.session.new", localize(@"ai.session.new", nil));   // ★ [HOST-BUG-A]
         NSDate *now = [NSDate date];
         _createdAt = now;
         _updatedAt = now;

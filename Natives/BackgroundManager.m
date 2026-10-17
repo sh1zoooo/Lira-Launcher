@@ -7,6 +7,7 @@
 //
 
 #import "BackgroundManager.h"
+#import "LiraTheme.h"
 #import "UIKit+GlassSurface.h"   // ★ 液态玻璃材质 + 玻璃质感(高光边)
 #import "AMEGlassStyle.h"        // ★ [GLASS-STYLE] 界面风格解析层(原生 / 液态玻璃)
 #import <Photos/Photos.h>
@@ -112,25 +113,13 @@ static BOOL gAmeGlassRimApplyScheduled = NO;
     if (ctx == NULL || b.size.width <= 0.0 || b.size.height <= 0.0) { return; }
     const CGFloat W = b.size.width, H = b.size.height;
 
-    UIColor *base0 = nil, *base1 = nil, *r1 = nil, *r2 = nil, *r3 = nil;
-    CGFloat r1x = 0.9 * W, r1y = 0.70 * H, r1s = 0.60;   // 蓝光斑
-    CGFloat r2x = 0.9 * W, r2y = 0.80 * H, r2s = 0.55;   // 品红/粉光斑
-    CGFloat r3x = 0.8 * W, r3y = 0.70 * H, r3s = 0.60;   // 青色/薄荷光斑
-    if (dark) {
-        // 深色:紫蓝渐变  base #101322 → #05060c
-        base0 = AmeRGBA(0x10, 0x13, 0x22, 1.0);
-        base1 = AmeRGBA(0x05, 0x06, 0x0C, 1.0);
-        r1 = AmeRGBA(90, 130, 255, 0.55);
-        r2 = AmeRGBA(210, 90, 220, 0.50);
-        r3 = AmeRGBA(0, 220, 200, 0.32);
-    } else {
-        // 浅色:白→粉紫  base #eef3ff → #fdf8ff
-        base0 = AmeRGBA(0xEE, 0xF3, 0xFF, 1.0);
-        base1 = AmeRGBA(0xFD, 0xF8, 0xFF, 1.0);
-        r1 = AmeRGBA(150, 185, 255, 0.90);
-        r2 = AmeRGBA(255, 175, 235, 0.85);
-        r3 = AmeRGBA(160, 240, 225, 0.70);
-    }
+    UIColor *base0 = dark ? LiraColor(0x101117) : LiraColor(0xF4F5FA);
+    UIColor *base1 = dark ? LiraColor(0x14151F) : LiraColor(0xF0F1F8);
+    UIColor *r1 = [accentColor() colorWithAlphaComponent:dark ? 0.07 : 0.04];
+    UIColor *r2 = UIColor.clearColor, *r3 = UIColor.clearColor;
+    CGFloat r1x = W, r1y = H, r1s = 0.8;
+    CGFloat r2x = W, r2y = H, r2s = 0.8;
+    CGFloat r3x = W, r3y = H, r3s = 0.8;
 
     // 线性底(top → bottom)
     CGColorSpaceRef space = CGColorSpaceCreateDeviceRGB();
@@ -572,8 +561,7 @@ static BOOL gAmeGlassRimApplyScheduled = NO;
     [host insertSubview:g atIndex:0];
     self.ameDefaultGradientHost = host;   // ★ [E3] 弱持有,便于清理
     // 兜底底色(与渐变基色一致,避免首帧/渐变外露黑)
-    host.backgroundColor = AmeDynamicColor(AmeRGBA(0x10, 0x13, 0x22, 1.0),
-                                           AmeRGBA(0xEE, 0xF3, 0xFF, 1.0));
+    host.backgroundColor = LiraBackground();
 }
 
 - (void)applyDefaultBackgroundToContainer:(UIView *)container {
@@ -688,7 +676,15 @@ static BOOL gAmeGlassRimApplyScheduled = NO;
 
 - (void)makeViewControllerTransparent:(UIViewController *)viewController {
     if (!viewController) return;
-    
+    // These pages own their contrast and scenery. Wallpaper effects must not cover them.
+    NSString *pageClass=NSStringFromClass(viewController.class);
+    if ([pageClass isEqualToString:@"LiraHomeViewController"] || [pageClass isEqualToString:@"LauncherRootViewController"]) {
+        viewController.view.backgroundColor=UIColor.clearColor;
+        for (UIViewController *child in viewController.childViewControllers) [self makeViewControllerTransparent:child];
+        return;
+    }
+    if ([pageClass isEqualToString:@"LiraLibraryViewController"] || [pageClass isEqualToString:@"LiraSettingsViewController"]) return;
+
     // Main view - apply effect based on settings
     if (self.uiEffect == BackgroundUIEffectBlur) {
         // 毛玻璃效果 - clear background, let blur show through
@@ -732,6 +728,17 @@ static BOOL gAmeGlassRimApplyScheduled = NO;
 }
 
 - (void)applyEffectToCell:(UITableViewCell *)cell {
+    if (!cell) return;
+    if (![self hasBackground]) {
+        for (UIView *child in cell.contentView.subviews.copy) {
+            if (child.tag == kBackgroundBlurTag) [child removeFromSuperview];
+        }
+        cell.backgroundColor = LiraSurface();
+        cell.contentView.backgroundColor = UIColor.clearColor;
+        AmeDetachGlassRim(cell.contentView);
+        return;
+    }
+
     if (cell == nil) { return; }
     // ★ [RIM-STATE] 列表行不叠高光(见下面 [NO-RIM])——但行会被复用、也可能带着历史图层 ⇒
     //   每次应用都【无条件先摘一次】,保证「原生 / 关高光」下行上没有任何高光残留
@@ -818,6 +825,12 @@ static BOOL gAmeGlassRimApplyScheduled = NO;
 }
 
 - (void)applyEffectToNavigationBar:(UINavigationBar *)navigationBar {
+    if (!navigationBar) return;
+    if (![self hasBackground]) {
+        LiraApplyNavigationAppearance(navigationBar);
+        return;
+    }
+
     // 关键修复（UI 累积异常 + 小白条根治）：
     // 1. 之前每次调用都重建 UINavigationBarAppearance，iOS 内部会重新生成 hairline
     //    UIImageView，累积后表现为"上方一行小白条"。现改为静态单例 Appearance，
@@ -1015,6 +1028,17 @@ static BOOL gAmeGlassRimApplyScheduled = NO;
 
 - (void)applyEffectToView:(UIView *)view {
     if (!view) return;
+    if (![self hasBackground]) {
+        for (UIView *child in view.subviews.copy) {
+            if (child.tag == kBackgroundBlurTag) [child removeFromSuperview];
+        }
+        view.backgroundColor = LiraSurface();
+        view.layer.cornerCurve = kCACornerCurveContinuous;
+        AmeDetachGlassRim(view);
+        return;
+    }
+
+    if (!view) return;
 
     if (self.uiEffect == BackgroundUIEffectBlur) {
         // ★ [GLASS-LIQUID] 明确区分两条路:系统材质(默认)vs 自绘叠加(仅用户显式打开)。
@@ -1108,6 +1132,17 @@ static BOOL gAmeGlassRimApplyScheduled = NO;
 }
 
 - (void)applyEffectToCollectionViewCell:(UICollectionViewCell *)cell {
+    if (!cell) return;
+    if (![self hasBackground]) {
+        for (UIView *child in cell.contentView.subviews.copy) {
+            if (child.tag == kBackgroundBlurTag) [child removeFromSuperview];
+        }
+        cell.backgroundColor = LiraSurface();
+        cell.contentView.backgroundColor = UIColor.clearColor;
+        AmeDetachGlassRim(cell.contentView);
+        return;
+    }
+
     if (!cell) return;
 
     // ★ [CORNER-FIX] 有效圆角:contentView 没设圆角时,回退到「第一个带圆角的内层卡片容器」。

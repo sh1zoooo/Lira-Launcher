@@ -729,7 +729,7 @@ static void *ProgressObserverContext = &ProgressObserverContext;
             NSLog(@"[JIT-FLOW] [NavCtrl] openURL apple-magnifier:// (TrollStore) -> %d", urlOK);
             if (!urlOK) {
                 dispatch_async(dispatch_get_main_queue(), ^{
-                    showDialog(localize(@"Error", nil), @"apple-magnifier:// 无响应（TrollStore / StikDebug 未处理该 URL Scheme？）。请在 TrollStore 设置里启用 URL Scheme，或改用其它 JIT 开启方式。\napple-magnifier:// was not handled (TrollStore URL Scheme disabled?). Enable it in TrollStore settings, or use another JIT enabler.");
+                    showDialog(localize(@"Error", nil), localize(@"lira.jit.scheme_trollstore", nil));
                 });
             }
         }];
@@ -772,7 +772,7 @@ static void *ProgressObserverContext = &ProgressObserverContext;
             NSLog(@"[JIT] [NavCtrl] openURL stikjit:// -> %d", urlOK);
             if (!urlOK) {
                 dispatch_async(dispatch_get_main_queue(), ^{
-                    showDialog(localize(@"Error", nil), @"stikjit:// 无响应（未安装 StikDebug？）。请安装 StikDebug 后重试，或换用其它 JIT 开启方式。\nstikjit:// was not handled (StikDebug not installed?). Install StikDebug and retry.");
+                    showDialog(localize(@"Error", nil), localize(@"lira.jit.scheme_stikdebug", nil));
                 });
             }
         }];

@@ -868,7 +868,7 @@ static NSInteger CFAModLoaderTypeForLoader(NSString *loader) {
             //   绝不把原始「HTTP=403」抛给界面（无 key 场景由调用方改用 missingAPIKeyError）。
             detail = localize(@"i18n_str_9103", nil);
         } else {
-            detail = failures.count ? [NSString stringWithFormat:@"CurseForge 列表请求失败: %@", [failures componentsJoinedByString:@" | "]] : @"CurseForge 列表请求失败";
+            detail = failures.count ? [NSString stringWithFormat:localize(@"lira.legacy.459", nil), [failures componentsJoinedByString:@" | "]] : localize(@"lira.legacy.460", nil);
         }
         NSMutableDictionary *userInfo = [NSMutableDictionary dictionary];
         userInfo[NSLocalizedDescriptionKey] = detail;
@@ -881,7 +881,7 @@ static NSInteger CFAModLoaderTypeForLoader(NSString *loader) {
     NSString *base = candidates[index];
     NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"%@/%@", base, pathQuery]];
     if (!url) {
-        [failures addObject:[NSString stringWithFormat:@"%@ (URL 无效)", base]];
+        [failures addObject:[NSString stringWithFormat:localize(@"lira.legacy.455", nil), base]];
         [self cfaFetchListPathQuery:pathQuery candidates:candidates arrayKey:arrayKey mapObject:mapObject index:index + 1 state:state failures:failures completion:completion];
         return;
     }
@@ -905,7 +905,7 @@ static NSInteger CFAModLoaderTypeForLoader(NSString *loader) {
         NSString *reason = nil;
 
         if (error) {
-            reason = [NSString stringWithFormat:@"%@ HTTP=%ld 网络错误(%@)", base, (long)status, error.localizedDescription ?: @"?"];
+            reason = [NSString stringWithFormat:localize(@"lira.legacy.456", nil), base, (long)status, error.localizedDescription ?: @"?"];
         } else if (status == 401 || status == 403) {
             // ★ [MODSRC-403] 该候选拒绝本 key：视为「此候选失败」，继续下一个候选（镜像），
             //   并把后续候选切到 keyless（镜像无需 key，带无效 key 反被镜像网关拒，实测 500）。
@@ -928,7 +928,7 @@ static NSInteger CFAModLoaderTypeForLoader(NSString *loader) {
                 }
                 mapped = out;
             } else {
-                reason = [NSString stringWithFormat:@"%@ HTTP=%ld 响应缺少 %@ 数组", base, (long)status, arrayKey];
+                reason = [NSString stringWithFormat:localize(@"lira.legacy.457", nil), base, (long)status, arrayKey];
                 [self debugLogRequest:request response:response data:data jsonError:nil];
             }
         }
@@ -942,7 +942,7 @@ static NSInteger CFAModLoaderTypeForLoader(NSString *loader) {
             if (completion) completion(mapped, nil);
             return;
         }
-        [failures addObject:reason ?: [NSString stringWithFormat:@"%@ 未知错误", base]];
+        [failures addObject:reason ?: [NSString stringWithFormat:localize(@"lira.legacy.458", nil), base]];
         [self cfaFetchListPathQuery:pathQuery candidates:candidates arrayKey:arrayKey mapObject:mapObject index:index + 1 state:state failures:failures completion:completion];
     }];
     [task resume];

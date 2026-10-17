@@ -115,7 +115,7 @@ NS_ASSUME_NONNULL_END
 
     UILabel *infoLabel = [[UILabel alloc] init];
     infoLabel.translatesAutoresizingMaskIntoConstraints = NO;
-    infoLabel.text = @"支持 OpenAI / DeepSeek / Kimi / GLM / Ollama 等任意 OpenAI 兼容接口。填写 Base URL 与模型名即可使用。";
+    infoLabel.text = localize(@"lira.legacy.287", nil);
     infoLabel.font = [UIFont systemFontOfSize:13 weight:UIFontWeightRegular];
     infoLabel.textColor = [UIColor secondaryLabelColor];
     infoLabel.numberOfLines = 0;
@@ -124,7 +124,7 @@ NS_ASSUME_NONNULL_END
     // 新增按钮
     UIButton *addButton = [UIButton buttonWithType:UIButtonTypeSystem];
     addButton.translatesAutoresizingMaskIntoConstraints = NO;
-    [addButton setTitle:@"＋ 新增提供商" forState:UIControlStateNormal];
+    [addButton setTitle:localize(@"lira.legacy.288", nil) forState:UIControlStateNormal];
     addButton.titleLabel.font = [UIFont systemFontOfSize:15 weight:UIFontWeightSemibold];
     [addButton setTitleColor:accentColor() forState:UIControlStateNormal];
     addButton.backgroundColor = [accentColor() colorWithAlphaComponent:0.15];
@@ -236,7 +236,7 @@ NS_ASSUME_NONNULL_END
     // 名称
     UILabel *nameLabel = [[UILabel alloc] init];
     nameLabel.translatesAutoresizingMaskIntoConstraints = NO;
-    nameLabel.text = provider.name.length > 0 ? provider.name : @"未命名提供商";
+    nameLabel.text = provider.name.length > 0 ? provider.name : localize(@"lira.legacy.289", nil);
     nameLabel.font = [UIFont systemFontOfSize:16 weight:UIFontWeightSemibold];
     nameLabel.textColor = [UIColor labelColor];
     nameLabel.numberOfLines = 1;
@@ -245,7 +245,7 @@ NS_ASSUME_NONNULL_END
     // 模型
     UILabel *modelLabel = [[UILabel alloc] init];
     modelLabel.translatesAutoresizingMaskIntoConstraints = NO;
-    modelLabel.text = provider.model.length > 0 ? provider.model : @"未设置模型";
+    modelLabel.text = provider.model.length > 0 ? provider.model : localize(@"lira.legacy.290", nil);
     modelLabel.font = [UIFont monospacedSystemFontOfSize:12 weight:UIFontWeightRegular];
     modelLabel.textColor = [UIColor secondaryLabelColor];
     modelLabel.numberOfLines = 1;
@@ -255,7 +255,7 @@ NS_ASSUME_NONNULL_END
     // Base URL
     UILabel *urlLabel = [[UILabel alloc] init];
     urlLabel.translatesAutoresizingMaskIntoConstraints = NO;
-    urlLabel.text = provider.baseURL.length > 0 ? provider.baseURL : @"未设置 Base URL";
+    urlLabel.text = provider.baseURL.length > 0 ? provider.baseURL : localize(@"lira.legacy.291", nil);
     urlLabel.font = [UIFont systemFontOfSize:12];
     urlLabel.textColor = [UIColor secondaryLabelColor];
     urlLabel.numberOfLines = 1;
@@ -341,7 +341,7 @@ NS_ASSUME_NONNULL_END
 - (nullable NSArray<UITableViewRowAction *> *)tableView:(UITableView *)tableView editActionsForRowAtIndexPath:(NSIndexPath *)indexPath {
     __weak typeof(self) weakSelf = self;
     UITableViewRowAction *deleteAction = [UITableViewRowAction rowActionWithStyle:UITableViewRowActionStyleDestructive
-                                                                           title:@"删除"
+                                                                           title:localize(@"i18n_str_306", nil)
                                                                          handler:^(UITableViewRowAction * _Nonnull action, NSIndexPath * _Nonnull ip) {
         __strong typeof(weakSelf) strongSelf = weakSelf;
         AiProvider *provider = [AiProviderStore sharedStore].providers[ip.row];
@@ -387,7 +387,7 @@ NS_ASSUME_NONNULL_END
     self.view.backgroundColor = [[UIColor labelColor] colorWithAlphaComponent:0.04];
     [[BackgroundManager sharedManager] makeViewControllerTransparent:self];
 
-    UIBarButtonItem *saveItem = [[UIBarButtonItem alloc] initWithTitle:@"保存"
+    UIBarButtonItem *saveItem = [[UIBarButtonItem alloc] initWithTitle:localize(@"i18n_str_88", nil)
                                                                  style:UIBarButtonItemStyleDone
                                                                 target:self
                                                                 action:@selector(saveAction)];
@@ -444,7 +444,7 @@ NS_ASSUME_NONNULL_END
     _baseURLField.text = self.provider.baseURL;
     // API Key 已存在时不回显明文，仅显示占位提示，留空表示保留原密钥
     if (self.provider.apiKey.length > 0) {
-        _apiKeyField.placeholder = @"已保存（重新输入以修改）";
+        _apiKeyField.placeholder = localize(@"lira.legacy.292", nil);
     }
     _modelField.text = self.provider.model;
     _temperatureSlider.value = self.provider.temperature;
@@ -478,8 +478,8 @@ NS_ASSUME_NONNULL_END
 }
 
 - (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section {
-    if (section == 0) return @"连接信息";
-    if (section == 1) return @"参数";
+    if (section == 0) return localize(@"lira.legacy.293", nil);
+    if (section == 1) return localize(@"lira.legacy.294", nil);
     return nil;
 }
 
@@ -507,7 +507,7 @@ NS_ASSUME_NONNULL_END
     } else if (indexPath.section == 1) {
         switch (indexPath.row) {
             case 0: {
-                cell.textLabel.text = @"温度";
+                cell.textLabel.text = localize(@"lira.legacy.295", nil);
                 if (!_temperatureLabel) {
                     _temperatureLabel = [[UILabel alloc] init];
                     _temperatureLabel.font = [UIFont monospacedSystemFontOfSize:15 weight:UIFontWeightRegular];
@@ -534,7 +534,7 @@ NS_ASSUME_NONNULL_END
                 break;
         }
     } else {
-        cell.textLabel.text = @"测试连接";
+        cell.textLabel.text = localize(@"lira.legacy.296", nil);
         cell.textLabel.textAlignment = NSTextAlignmentCenter;
         cell.textLabel.textColor = accentColor();
     }
@@ -565,7 +565,7 @@ NS_ASSUME_NONNULL_END
         footer.textColor = [UIColor secondaryLabelColor];
         footer.textAlignment = NSTextAlignmentCenter;
         footer.numberOfLines = 0;
-        footer.text = @"测试连接会向此提供商发送一条极短的 \"ping\" 请求以验证可用性。";
+        footer.text = localize(@"lira.legacy.297", nil);
         return footer;
     }
     return nil;
@@ -619,15 +619,15 @@ NS_ASSUME_NONNULL_END
     AiProvider *provider = [self providerFromForm];
     NSString *name = [provider.name stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
     if (name.length == 0) {
-        [self showMessage:@"提示" body:@"请填写提供商名称"];
+        [self showMessage:localize(@"i18n_str_388", nil) body:localize(@"lira.legacy.298", nil)];
         return;
     }
     if (provider.baseURL.length == 0) {
-        [self showMessage:@"提示" body:@"请填写 Base URL"];
+        [self showMessage:localize(@"i18n_str_388", nil) body:localize(@"lira.legacy.299", nil)];
         return;
     }
     if (provider.model.length == 0) {
-        [self showMessage:@"提示" body:@"请填写模型名称"];
+        [self showMessage:localize(@"i18n_str_388", nil) body:localize(@"lira.legacy.300", nil)];
         return;
     }
 
@@ -653,11 +653,11 @@ NS_ASSUME_NONNULL_END
 - (void)testConnectionAction {
     AiProvider *provider = [self providerFromForm];
     if (provider.baseURL.length == 0 || provider.model.length == 0) {
-        [self showMessage:@"无法测试" body:@"请先填写 Base URL 与模型名称。"];
+        [self showMessage:localize(@"lira.legacy.301", nil) body:localize(@"lira.legacy.302", nil)];
         return;
     }
 
-    UIAlertController *loading = [UIAlertController alertControllerWithTitle:@"测试连接" message:@"正在测试，请稍候…" preferredStyle:UIAlertControllerStyleAlert];
+    UIAlertController *loading = [UIAlertController alertControllerWithTitle:localize(@"lira.legacy.296", nil) message:localize(@"lira.legacy.303", nil) preferredStyle:UIAlertControllerStyleAlert];
     [self presentViewController:loading animated:YES completion:nil];
 
     AiAPIClient *client = [[AiAPIClient alloc] init];
@@ -665,9 +665,9 @@ NS_ASSUME_NONNULL_END
         dispatch_async(dispatch_get_main_queue(), ^{
             [loading dismissViewControllerAnimated:YES completion:^{
                 if (error) {
-                    [self showMessage:@"连接失败" body:error.localizedDescription ?: @"未知错误"];
+                    [self showMessage:localize(@"lira.legacy.094", nil) body:error.localizedDescription ?: localize(@"i18n_str_97", nil)];
                 } else {
-                    [self showMessage:@"连接成功" body:successMessage ?: @"连接成功"];
+                    [self showMessage:localize(@"lira.legacy.304", nil) body:successMessage ?: localize(@"lira.legacy.304", nil)];
                 }
             }];
         });
@@ -678,7 +678,7 @@ NS_ASSUME_NONNULL_END
     UIAlertController *alert = [UIAlertController alertControllerWithTitle:title
                                                                    message:body
                                                             preferredStyle:UIAlertControllerStyleAlert];
-    [alert addAction:[UIAlertAction actionWithTitle:@"好" style:UIAlertActionStyleDefault handler:nil]];
+    [alert addAction:[UIAlertAction actionWithTitle:localize(@"i18n_str_322", nil) style:UIAlertActionStyleDefault handler:nil]];
     [self presentViewController:alert animated:YES completion:nil];
 }
 

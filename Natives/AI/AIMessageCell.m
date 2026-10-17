@@ -1,3 +1,4 @@
+#import "utils.h"
 //
 //  AIMessageCell.m
 //  Amethyst
@@ -189,7 +190,7 @@ static const CGFloat kMsgCornerRadius = 12.0;
 /// 工具调用消息用于气泡显示的内容：AI 的话 + 工具调用提示（共存）
 + (NSString *)displayContentForMessage:(AiMessage *)message {
     if (message.isToolCall) {
-        NSString *base = message.content.length > 0 ? message.content : @"（正在调用工具…）";
+        NSString *base = message.content.length > 0 ? message.content : localize(@"lira.legacy.219", nil);
         // 关键修复（工具名显示 call_00_...）：toolName 缺失时显示通用"工具"，
         // 绝不用 toolCallID（形如 call_xxx 的一串 id）顶替真实工具名
         NSString *name = message.toolName.length > 0 ? message.toolName : @"工具";
@@ -205,9 +206,9 @@ static const CGFloat kMsgCornerRadius = 12.0;
     NSString *name = message.toolName.length > 0 ? message.toolName : @"工具";
     if (message.isToolResult) {
         // 只显示执行成功/失败状态，不展示冗长的工具返回正文（避免占满屏幕）
-        return message.toolSucceeded ? [NSString stringWithFormat:@"✅ %@ 执行成功", name] : [NSString stringWithFormat:@"❌ %@ 执行失败", name];
+        return message.toolSucceeded ? [NSString stringWithFormat:localize(@"lira.legacy.220", nil), name] : [NSString stringWithFormat:localize(@"lira.legacy.221", nil), name];
     }
-    return [NSString stringWithFormat:@"⚙️ 工具：%@", name];
+    return [NSString stringWithFormat:localize(@"lira.legacy.222", nil), name];
 }
 
 #pragma mark - 高度估算

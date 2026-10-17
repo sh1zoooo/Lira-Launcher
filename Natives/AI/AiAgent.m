@@ -1,3 +1,4 @@
+#import "utils.h"
 //
 //  AiAgent.m
 //  Amethyst
@@ -123,7 +124,7 @@ static NSString * const kAiSessionMessagesDidChangeNotification = @"AiSessionMes
     if (!session) {
         if (completionHandler) {
             dispatch_async(dispatch_get_main_queue(), ^{
-                completionHandler([NSError errorWithDomain:@"AiAgent" code:1 userInfo:@{NSLocalizedDescriptionKey: @"会话为空"}]);
+                completionHandler([NSError errorWithDomain:@"AiAgent" code:1 userInfo:@{NSLocalizedDescriptionKey: localize(@"lira.legacy.336", nil)}]);
             });
         }
         return;
@@ -133,7 +134,7 @@ static NSString * const kAiSessionMessagesDidChangeNotification = @"AiSessionMes
     if (self.running) {
         if (completionHandler) {
             dispatch_async(dispatch_get_main_queue(), ^{
-                completionHandler([NSError errorWithDomain:@"AiAgent" code:3 userInfo:@{NSLocalizedDescriptionKey: @"上一条回复尚未完成，请稍候或先点停止"}]);
+                completionHandler([NSError errorWithDomain:@"AiAgent" code:3 userInfo:@{NSLocalizedDescriptionKey: localize(@"lira.legacy.337", nil)}]);
             });
         }
         return;
@@ -180,8 +181,8 @@ static NSString * const kAiSessionMessagesDidChangeNotification = @"AiSessionMes
     NSDateFormatter *dateFmt = [[NSDateFormatter alloc] init];
     dateFmt.locale = [[NSLocale alloc] initWithLocaleIdentifier:@"zh_CN"];
     [dateFmt setDateFormat:@"yyyy 年 M 月 d 日"];
-    NSString *todayLine = [NSString stringWithFormat:@"今天是 %@。若需新建游戏目录，命名格式为「Minecraft版本 加载器 YYYY.MM.DD」。", [dateFmt stringFromDate:[NSDate date]]];
-    systemPrompt = [systemPrompt stringByAppendingString:[NSString stringWithFormat:@"\n\n【今天日期】%@", todayLine]];
+    NSString *todayLine = [NSString stringWithFormat:localize(@"lira.legacy.338", nil), [dateFmt stringFromDate:[NSDate date]]];
+    systemPrompt = [systemPrompt stringByAppendingString:[NSString stringWithFormat:localize(@"lira.legacy.339", nil), todayLine]];
 
     // 2. 工具定义
     NSArray *tools = [[AiToolRegistry sharedRegistry] openAIToolSchemas];
@@ -379,12 +380,12 @@ static NSString * const kAiSessionMessagesDidChangeNotification = @"AiSessionMes
         // 重试护栏：同一 callID 已执行 ≥3 次则不再回喂
         NSInteger attempts = [strongSelf.attempts[callID] integerValue];
         if (attempts >= kMaxToolAttempts) {
-            AiMessage *failMsg = [AiMessage toolResultMessageWithContent:[NSString stringWithFormat:@"多次尝试仍失败：%@", name ?: @""] toolCallID:callID];
+            AiMessage *failMsg = [AiMessage toolResultMessageWithContent:[NSString stringWithFormat:localize(@"lira.legacy.340", nil), name ?: @""] toolCallID:callID];
             failMsg.toolName = name ?: @"";
             failMsg.toolSucceeded = NO;
             storeResult(idx, failMsg);
             terminalError = [NSError errorWithDomain:@"AiAgent" code:2
-                                            userInfo:@{NSLocalizedDescriptionKey: [NSString stringWithFormat:@"工具 %@ 多次尝试仍失败", name ?: callID]}];
+                                            userInfo:@{NSLocalizedDescriptionKey: [NSString stringWithFormat:localize(@"lira.legacy.341", nil), name ?: callID]}];
             noteCompleted(done);
             return;
         }
@@ -393,7 +394,7 @@ static NSString * const kAiSessionMessagesDidChangeNotification = @"AiSessionMes
         // 校验工具是否存在
         id<AiTool> tool = [[AiToolRegistry sharedRegistry] toolForName:name ?: @""];
         if (!tool) {
-            AiMessage *unknownMsg = [AiMessage toolResultMessageWithContent:[NSString stringWithFormat:@"未知工具：%@", name ?: @""] toolCallID:callID];
+            AiMessage *unknownMsg = [AiMessage toolResultMessageWithContent:[NSString stringWithFormat:localize(@"lira.legacy.342", nil), name ?: @""] toolCallID:callID];
             unknownMsg.toolName = name ?: @"";
             unknownMsg.toolSucceeded = NO;
             storeResult(idx, unknownMsg);
@@ -424,8 +425,8 @@ static NSString * const kAiSessionMessagesDidChangeNotification = @"AiSessionMes
 
         // 安全确认（DangerousWrite 等需确认时阻塞等待用户选择）
         if ([[AiSafetyManager sharedManager] needsUserConfirmationForPermission:tool.permission]) {
-            [[AiSafetyManager sharedManager] requestConfirmationWithTitle:[NSString stringWithFormat:@"AI 请求执行「%@」", name ?: @""]
-                                                                  message:[NSString stringWithFormat:@"该工具需要你确认后才执行。\n参数：%@", arguments]
+            [[AiSafetyManager sharedManager] requestConfirmationWithTitle:[NSString stringWithFormat:localize(@"lira.legacy.343", nil), name ?: @""]
+                                                                  message:[NSString stringWithFormat:localize(@"lira.legacy.344", nil), arguments]
                                                               completion:^(BOOL approved) {
                 __strong typeof(weakSelf) ss4 = weakSelf;
                 if (!ss4 || !ss4.running) { if (done) done(); return; }

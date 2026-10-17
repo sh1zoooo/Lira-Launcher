@@ -1,3 +1,4 @@
+#import "utils.h"
 //
 //  AiInstanceCreator.m
 //  Amethyst
@@ -18,12 +19,7 @@
 }
 
 - (NSString *)summary {
-    return @"新建游戏目录（实例）并切换为当前目录。"
-           "\n参数：name（string，必填，目录名，推荐「MC版本 加载器 YYYY.MM.DD」格式，如「1.20.1 Fabric 2026.08.26」）、"
-           "mcVersion（string，可选）、loader（string，可选）。"
-           "\n行为：在 instances/ 下创建目录 → 切换当前游戏目录（重建符号链接）→ 注册并选中同名 profile。"
-           "\n返回实例完整路径。后续 install_* 的 instance 参数传该目录名即可。"
-           "\n边界：目录已存在时直接切换不报错（幂等）。";
+    return localize(@"lira.legacy.193", nil);
 }
 
 - (void)execute:(NSDictionary<NSString *, id> *)params
@@ -33,7 +29,7 @@
     NSString *name = [params[@"name"] isKindOfClass:[NSString class]] ? params[@"name"] : @"";
     if (name.length == 0) {
         completion(nil, [NSError errorWithDomain:@"AiTool" code:400
-                                     userInfo:@{NSLocalizedDescriptionKey: @"参数 name 必填"}]);
+                                     userInfo:@{NSLocalizedDescriptionKey: localize(@"lira.legacy.194", nil)}]);
         return;
     }
     // 目录名安全化：去掉路径分隔符（与 VersionManagerViewController 创建目录一致直接拼接，
@@ -43,7 +39,7 @@
     name = [parts componentsJoinedByString:@"_"];
     if (name.length == 0) {
         completion(nil, [NSError errorWithDomain:@"AiTool" code:400
-                                     userInfo:@{NSLocalizedDescriptionKey: @"参数 name 无效"}]);
+                                     userInfo:@{NSLocalizedDescriptionKey: localize(@"lira.legacy.195", nil)}]);
         return;
     }
 
@@ -63,7 +59,7 @@
                                                          error:&dirError]) {
         completion(nil, [NSError errorWithDomain:@"AiTool" code:500
                                      userInfo:@{NSLocalizedDescriptionKey:
-                                         [NSString stringWithFormat:@"创建实例目录失败：%@", dirError.localizedDescription ?: @"未知错误"]}]);
+                                         [NSString stringWithFormat:localize(@"lira.legacy.196", nil), dirError.localizedDescription ?: localize(@"i18n_str_97", nil)]}]);
         return;
     }
 
@@ -80,7 +76,7 @@
         if (!linkOK) {
             completion(nil, [NSError errorWithDomain:@"AiTool" code:500
                                          userInfo:@{NSLocalizedDescriptionKey:
-                                             [NSString stringWithFormat:@"重建 POJAV_GAME_DIR 符号链接失败：%@", linkError.localizedDescription ?: @"未知错误"]}]);
+                                             [NSString stringWithFormat:localize(@"lira.legacy.197", nil), linkError.localizedDescription ?: localize(@"i18n_str_97", nil)]}]);
             return;
         }
         [[NSFileManager defaultManager] changeCurrentDirectoryPath:lasmPath];
@@ -108,10 +104,10 @@
 
     NSString *note = @"";
     if (mcVersion.length > 0 || loader.length > 0) {
-        note = [NSString stringWithFormat:@"（备注：MC %@ %@；请继续用 install_game_version / install_loader 安装）",
-                mcVersion.length > 0 ? mcVersion : @"未指定", loader.length > 0 ? loader : @"无加载器"];
+        note = [NSString stringWithFormat:localize(@"lira.legacy.198", nil),
+                mcVersion.length > 0 ? mcVersion : localize(@"lira.legacy.199", nil), loader.length > 0 ? loader : localize(@"i18n_str_464", nil)];
     }
-    completion([NSString stringWithFormat:@"已创建并切换到实例「%@」。\n路径：%@%@",
+    completion([NSString stringWithFormat:localize(@"lira.legacy.201", nil),
                 name, instancePath, note], nil);
 }
 

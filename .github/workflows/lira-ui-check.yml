@@ -1,0 +1,53 @@
+name: Lira UI checks
+on:
+  push:
+    branches: ['feature/lira-redesign-ru']
+  pull_request:
+    paths:
+      - 'Natives/**'
+      - 'scripts/check_localizations.py'
+      - '.github/workflows/lira-ui-check.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: lira-ui-${{ github.head_ref || github.ref_name }}
+  cancel-in-progress: true
+
+jobs:
+  localization:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate Russian catalogue
+        run: python3 scripts/check_localizations.py
+  native-ui:
+    timeout-minutes: 10
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate Apple string tables
+        run: |
+          plutil -lint Natives/resources/en.lproj/Localizable.strings
+          plutil -lint Natives/resources/ru.lproj/Localizable.strings
+          plutil -lint Natives/Info.plist
+      - name: Check native UI syntax with the iOS SDK
+        shell: bash
+        run: |
+          set -euo pipefail
+          SDK=$(xcrun --sdk iphoneos --show-sdk-path)
+          for source in Natives/LiraDesignKit.m Natives/LiraLivingWorld.m Natives/LiraLibraryViewController.m Natives/LiraHomeViewController.m Natives/LiraSettingsViewController.m Natives/AmeRootTabController.m Natives/BackgroundManager.m Natives/DownloadViewController.m Natives/VersionManagerViewController.m Natives/AI/*.m; do
+            xcrun --sdk iphoneos clang -fsyntax-only -fobjc-arc -fcommon \
+              -target arm64-apple-ios14.0 -isysroot "$SDK" \
+              -I Natives -I Natives/include -I Natives/external/UnzipKit -I Natives/external/AltKit \
+              -F Natives/resources/Frameworks \
+              "$source"
+          done
+      - name: Render production UI in iPhone simulator (fixture data)
+        run: bash scripts/lira-preview/run.sh
+      - name: Upload native preview screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Lira-native-UI-preview
+          path: artifacts/lira-preview/screenshots

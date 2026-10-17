@@ -459,7 +459,7 @@ static NSString *ameSafeZipDestination(NSString *fileName, NSString *baseDir) {
             if (tops.count >= 12) *stop = YES;
         }
     } error:nil];
-    if (tops.count == 0) return @"(压缩包内没有任何条目)";
+    if (tops.count == 0) return localize(@"lira.legacy.046", nil);
     return [tops componentsJoinedByString:@", "];
 }
 

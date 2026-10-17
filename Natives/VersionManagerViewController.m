@@ -137,14 +137,14 @@ static NSInteger const kSectionVersions    = 1;
     self.titleLabel = [[UILabel alloc] init];
     self.titleLabel.translatesAutoresizingMaskIntoConstraints = NO;
     self.titleLabel.font = [UIFont systemFontOfSize:titleFont weight:UIFontWeightSemibold];
-    self.titleLabel.textColor = [UIColor whiteColor];
+    self.titleLabel.textColor = UIColor.labelColor;
     self.titleLabel.adjustsFontForContentSizeCategory = NO;
     [self.contentContainer addSubview:self.titleLabel];
 
     self.subtitleLabel = [[UILabel alloc] init];
     self.subtitleLabel.translatesAutoresizingMaskIntoConstraints = NO;
     self.subtitleLabel.font = [UIFont systemFontOfSize:[ScreenUtils sp:10] weight:UIFontWeightRegular];
-    self.subtitleLabel.textColor = [[UIColor whiteColor] colorWithAlphaComponent:0.6];
+    self.subtitleLabel.textColor = UIColor.secondaryLabelColor;
     self.subtitleLabel.numberOfLines = 0;
     self.subtitleLabel.lineBreakMode = NSLineBreakByWordWrapping;
     self.subtitleLabel.adjustsFontForContentSizeCategory = NO;

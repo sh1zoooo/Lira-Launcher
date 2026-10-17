@@ -1,3 +1,4 @@
+#import "utils.h"
 //
 //  AiSafetyManager.m
 //  Amethyst
@@ -91,7 +92,7 @@ static NSString * const kAiSafetyModeKey = @"ai.safety_mode";
         }
 
         UIAlertController *alert = [UIAlertController
-            alertControllerWithTitle:title ?: @"AI 操作确认"
+            alertControllerWithTitle:title ?: localize(@"lira.legacy.319", nil)
                              message:message
                       preferredStyle:UIAlertControllerStyleAlert];
 
@@ -105,7 +106,7 @@ static NSString * const kAiSafetyModeKey = @"ai.safety_mode";
         [alert addAction:allowAction];
 
         // 「取消」→ 不批准
-        UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:@"取消"
+        UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:localize(@"resman.common.cancel", nil)
                                                                style:UIAlertActionStyleCancel
                                                              handler:^(UIAlertAction *action) {
             if (completion) completion(NO);
@@ -131,7 +132,7 @@ static NSString * const kAiSafetyModeKey = @"ai.safety_mode";
         UIAlertController *alert = [UIAlertController alertControllerWithTitle:title
                                                                         message:message
                                                                  preferredStyle:UIAlertControllerStyleAlert];
-        [alert addAction:[UIAlertAction actionWithTitle:@"知道了"
+        [alert addAction:[UIAlertAction actionWithTitle:localize(@"i18n_str_197", nil)
                                                   style:UIAlertActionStyleDefault
                                                 handler:nil]];
         [presentingVC presentViewController:alert animated:YES completion:nil];
@@ -140,24 +141,24 @@ static NSString * const kAiSafetyModeKey = @"ai.safety_mode";
 
 - (NSString *)permissionChineseName:(AiToolPermission)permission {
     switch (permission) {
-        case AiToolPermissionReadOnly:          return @"只读操作";
-        case AiToolPermissionControlledWrite:   return @"受控写入";
-        case AiToolPermissionDangerousWrite:    return @"危险写入";
-        case AiToolPermissionExternalNetwork:   return @"网络访问";
+        case AiToolPermissionReadOnly:          return localize(@"lira.legacy.321", nil);
+        case AiToolPermissionControlledWrite:   return localize(@"lira.legacy.322", nil);
+        case AiToolPermissionDangerousWrite:    return localize(@"lira.legacy.323", nil);
+        case AiToolPermissionExternalNetwork:   return localize(@"lira.legacy.324", nil);
     }
-    return @"未知操作";
+    return localize(@"lira.legacy.325", nil);
 }
 
 + (NSString *)safetyModeChineseName:(AiSafetyMode)mode {
     switch (mode) {
         case AiSafetyModeSafe:
-            return @"安全（Safe）\n\n仅允许执行只读操作，会修改或删除文件等操作将被拒绝。\n适合日常使用，最大限度地保护你的数据。";
+            return localize(@"lira.legacy.326", nil);
         case AiSafetyModeAsk:
-            return @"询问（Ask）\n\n写操作与网络请求在执行前会弹出确认框，由你逐个决定是否放行。\n兼顾安全与便利的推荐模式。";
+            return localize(@"lira.legacy.327", nil);
         case AiSafetyModeYOLO:
-            return @"完全（YOLO）\n\n写操作与网络请求不再询问，直接执行。\n适合完全信任 AI 的场景，谨慎使用！";
+            return localize(@"lira.legacy.328", nil);
     }
-    return @"未知模式";
+    return localize(@"lira.legacy.329", nil);
 }
 
 @end

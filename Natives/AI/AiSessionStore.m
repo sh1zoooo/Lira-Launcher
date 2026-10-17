@@ -1,3 +1,4 @@
+#import "utils.h"
 //
 //  AiSessionStore.m
 //  Amethyst
@@ -156,7 +157,7 @@ static const NSUInteger kAutoTitleMaxLength = 20;
 }
 
 + (NSString *)autoTitleForMessage:(NSString *)message {
-    if (message.length == 0) return @"新会话";
+    if (message.length == 0) return localize(@"ai.session.new", nil);
     NSString *trimmed = [message stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
     NSString *single = [[trimmed stringByReplacingOccurrencesOfString:@"\n" withString:@" "] stringByReplacingOccurrencesOfString:@"\r" withString:@" "];
     if (single.length <= kAutoTitleMaxLength) {

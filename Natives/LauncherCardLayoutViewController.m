@@ -1,7 +1,7 @@
 #import "LauncherCardLayoutViewController.h"
 #import "LauncherMenuViewController.h"
 #import "UIViewController+AMEPanel.h"   // ★ 子面板原生基底样式(移植)
-#import "LauncherNewsViewController.h"
+#import "LiraHomeViewController.h"
 #import "LauncherRightPanelViewController.h"
 #import "DownloadViewController.h"
 #import "VersionManagerViewController.h"
@@ -152,7 +152,7 @@ static NSString *E1SymbolForInstance(NSString *name) {
         return @"hammer.fill";
     }
     if ([n containsString:@"bsl"] || [n containsString:@"iris"] ||
-        [n containsString:@"shader"] || [n containsString:@"光影"]) {
+        [n containsString:@"shader"] || [n containsString:localize(@"i18n_str_1284", nil)]) {
         return @"drop.fill";
     }
     return @"cube.fill";
@@ -173,10 +173,10 @@ static NSString *E1InstanceSubtitle(NSString *name, NSDictionary *profile) {
     }
     NSString *version = profile[@"lastVersionId"];
     if (modCount > 0) {
-        return version.length ? [NSString stringWithFormat:@"%lu 个模组 · %@", (unsigned long)modCount, version]
-                              : [NSString stringWithFormat:@"%lu 个模组", (unsigned long)modCount];
+        return version.length ? [NSString stringWithFormat:localize(@"lira.legacy.041", nil), (unsigned long)modCount, version]
+                              : [NSString stringWithFormat:localize(@"lira.legacy.042", nil), (unsigned long)modCount];
     }
-    return version.length ? [NSString stringWithFormat:@"无模组 · %@", version] : @"无模组";
+    return version.length ? [NSString stringWithFormat:localize(@"lira.legacy.043", nil), version] : localize(@"lira.legacy.044", nil);
 }
 
 /// 实例当前渲染器(真实偏好,默认 Metal)—— 用于卡上「Metal」药丸(SPEC §2.1 success 绿)
@@ -298,7 +298,7 @@ static const void *kE1InstanceNameKey = &kE1InstanceNameKey;
     //   口径与标准布局 LauncherRootViewController.m:634(「中间内容 - 默认显示新闻页」)对齐。
     // ★ [TAB-INST-REVERT] 实例网格现无宿主:「实例」标签已改回 VersionManagerViewController 单页,
     //   而 e1ShowInstancesPage(唯一会建实例网格的方法)全仓无调用者 ⇒ 主区恒为上面这个新闻/便当盒主页。
-    LauncherNewsViewController *homeVC = [[LauncherNewsViewController alloc] init];
+    LiraHomeViewController *homeVC = [[LiraHomeViewController alloc] init];
     [self setContentViewController:homeVC animated:NO];
     
     // 应用背景
@@ -974,8 +974,8 @@ static const void *kE1InstanceNameKey = &kE1InstanceNameKey;
     //   改为与标准布局 LauncherRootViewController.m:775-788 完全同款:切标签 0 + 幂等还原主页内容
     //   (内容区不是主页时才重建;已在主页则只把可能残留的实例面板收起)。
     AmeHomeSwitchToTab(self, 0, YES);
-    if (![self.contentViewController isKindOfClass:[LauncherNewsViewController class]]) {
-        LauncherNewsViewController *homeVC = [[LauncherNewsViewController alloc] init];
+    if (![self.contentViewController isKindOfClass:[LiraHomeViewController class]]) {
+        LiraHomeViewController *homeVC = [[LiraHomeViewController alloc] init];
         [self setContentViewController:homeVC animated:YES];
     } else if (self.instancesPanelView && !self.instancesPanelView.hidden) {
         self.instancesPanelView.hidden = YES;
@@ -985,7 +985,7 @@ static const void *kE1InstanceNameKey = &kE1InstanceNameKey;
 /// ★ [E1] 新闻页(原主页)。当前菜单/入口不再直接触发,保留方法 + ShowNewsPage 通知,
 ///   便于后续把「公告/主页」入口挂回来时零改动可用。
 - (void)showNewsPage {
-    LauncherNewsViewController *newsVC = [[LauncherNewsViewController alloc] init];
+    LiraHomeViewController *newsVC = [[LiraHomeViewController alloc] init];
     [self setContentViewController:newsVC animated:YES];
 }
 
@@ -1971,7 +1971,7 @@ static const void *kE1InstanceNameKey = &kE1InstanceNameKey;
     play.layer.masksToBounds = YES;
     objc_setAssociatedObject(play, kE1InstanceNameKey, name, OBJC_ASSOCIATION_COPY_NONATOMIC);
     [play addTarget:self action:@selector(e1LaunchButtonTapped:) forControlEvents:UIControlEventTouchUpInside];
-    play.accessibilityLabel = [NSString stringWithFormat:@"启动 %@", name];
+    play.accessibilityLabel = [NSString stringWithFormat:localize(@"lira.legacy.045", nil), name];
 
     [card addSubview:icon];
     [card addSubview:textCol];

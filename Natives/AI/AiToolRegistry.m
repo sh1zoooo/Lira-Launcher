@@ -1,3 +1,4 @@
+#import "utils.h"
 //
 //  AiToolRegistry.m
 //  Amethyst
@@ -162,7 +163,7 @@
         if (completion) {
             dispatch_async(dispatch_get_main_queue(), ^{
                 NSError *err = [NSError errorWithDomain:@"AiTool" code:404
-                                               userInfo:@{NSLocalizedDescriptionKey: [NSString stringWithFormat:@"未知工具 %@", name ?: @""]}];
+                                               userInfo:@{NSLocalizedDescriptionKey: [NSString stringWithFormat:localize(@"lira.legacy.208", nil), name ?: @""]}];
                 completion(nil, err);
             });
         }

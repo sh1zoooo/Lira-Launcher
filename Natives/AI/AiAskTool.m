@@ -1,3 +1,4 @@
+#import "utils.h"
 //
 //  AiAskTool.m
 //  Amethyst
@@ -17,14 +18,7 @@
 }
 
 - (NSString *)summary {
-    return @"当需要用户做出决策（如选择版本、加载器、目标实例、挑选资源等）时使用。"
-           "\n参数（二选一）："
-           "\n  - questions（string 或 array）：JSON 数组或 NSArray，每项 @{question, options:[...], allowCustom:bool}。"
-           "\n  - 单问：question（string）+ options（array）+ allowCustom（bool，可选）。"
-           "\n流程：按顺序在主线程弹出选择向导，逐题收集用户选择；支持「自定义…」输入与「取消」。"
-           "\n全部完成后返回 JSON {\"answers\":[{\"question\":..,\"answer\":..}]}；"
-           "\n用户在任意一步取消则返回 {\"cancelled\":true}。"
-           "\n用法：先调用本工具拿到答案，再据此执行后续操作；不要臆测用户的选择。";
+    return localize(@"lira.legacy.330", nil);
 }
 
 #pragma mark - 视图控制器定位
@@ -112,7 +106,7 @@
     NSArray *steps = [self parseSteps:params];
     if (steps.count == 0) {
         NSError *err = [NSError errorWithDomain:@"AiTool" code:400
-                                       userInfo:@{NSLocalizedDescriptionKey: @"未提供有效问题（questions/question 参数缺失）"}];
+                                       userInfo:@{NSLocalizedDescriptionKey: localize(@"lira.legacy.331", nil)}];
         completion(nil, err);
         return;
     }
@@ -165,26 +159,26 @@
 
     // 自定义输入
     if (allowCustom) {
-        [alert addAction:[UIAlertAction actionWithTitle:@"自定义…"
+        [alert addAction:[UIAlertAction actionWithTitle:localize(@"lira.legacy.332", nil)
                                                   style:UIAlertActionStyleDefault
                                                 handler:^(UIAlertAction *action) {
             UIViewController *presenting2 = [self topmostPresentableViewController];
             UIAlertController *textAlert = [UIAlertController
                 alertControllerWithTitle:[NSString stringWithFormat:@"%lu. %@", (unsigned long)(index + 1), question]
-                                 message:@"请输入自定义回答"
+                                 message:localize(@"lira.legacy.333", nil)
                           preferredStyle:UIAlertControllerStyleAlert];
             [textAlert addTextFieldWithConfigurationHandler:^(UITextField *textField) {
-                textField.placeholder = @"在此输入…";
+                textField.placeholder = localize(@"lira.legacy.334", nil);
                 textField.autocapitalizationType = UITextAutocapitalizationTypeNone;
             }];
-            [textAlert addAction:[UIAlertAction actionWithTitle:@"确定"
+            [textAlert addAction:[UIAlertAction actionWithTitle:localize(@"i18n_str_44", nil)
                                                           style:UIAlertActionStyleDefault
                                                         handler:^(UIAlertAction *submit) {
                 NSString *text = [textAlert.textFields.firstObject.text stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
                 [answers addObject:@{@"question": question, @"answer": (text.length ? text : @"")}];
                 [self presentStepAtIndex:(index + 1) steps:steps answers:answers completion:completion];
             }]];
-            [textAlert addAction:[UIAlertAction actionWithTitle:@"取消"
+            [textAlert addAction:[UIAlertAction actionWithTitle:localize(@"resman.common.cancel", nil)
                                                           style:UIAlertActionStyleCancel
                                                         handler:^(UIAlertAction *cancel) {
                 [self finishWithCancel:completion];
@@ -195,7 +189,7 @@
     }
 
     // 取消
-    [alert addAction:[UIAlertAction actionWithTitle:@"取消"
+    [alert addAction:[UIAlertAction actionWithTitle:localize(@"resman.common.cancel", nil)
                                               style:UIAlertActionStyleCancel
                                             handler:^(UIAlertAction *action) {
         [self finishWithCancel:completion];

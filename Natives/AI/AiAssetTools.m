@@ -168,34 +168,22 @@ static BOOL aiIsLatestAlias(NSString *s) {
 
 - (NSString *)summary {
     if ([_internalName isEqualToString:@"search_resourcepacks"]) {
-        return @"在 Modrinth 搜索资源包。"
-               "\n参数：query（string，必填，搜索关键词）。"
-               "\n返回最多 8 条 JSON 数组 [{slug,title,description,downloads,project_id}]；无结果显示「未找到相关项目」。";
+        return localize(@"lira.legacy.396", nil);
     }
     if ([_internalName isEqualToString:@"search_shaders"]) {
-        return @"在 Modrinth 搜索光影包（着色器）。"
-               "\n参数：query（string，必填，搜索关键词）。"
-               "\n返回最多 8 条 JSON 数组 [{slug,title,description,downloads,project_id}]；无结果显示「未找到相关项目」。";
+        return localize(@"lira.legacy.397", nil);
     }
     if ([_internalName isEqualToString:@"search_datapacks"]) {
-        return @"在 Modrinth 搜索数据包。"
-               "\n参数：query（string，必填，搜索关键词）。"
-               "\n返回最多 8 条 JSON 数组 [{slug,title,description,downloads,project_id}]；无结果显示「未找到相关项目」。";
+        return localize(@"lira.legacy.398", nil);
     }
     if ([_internalName isEqualToString:@"search_modpacks"]) {
-        return @"在 Modrinth 搜索整合包。"
-               "\n参数：query（string，必填，搜索关键词）。"
-               "\n返回最多 8 条 JSON 数组 [{slug,title,description,downloads,project_id}]；无结果显示「未找到相关项目」。";
+        return localize(@"lira.legacy.399", nil);
     }
     if ([_internalName isEqualToString:@"search_worlds"]) {
-        return @"在 Modrinth 搜索世界存档。"
-               "\n参数：query（string，必填，搜索关键词）。"
-               "\n返回最多 8 条 JSON 数组 [{slug,title,description,downloads,project_id}]；无结果显示「未找到相关项目」。";
+        return localize(@"lira.legacy.400", nil);
     }
     // search_mods
-    return @"在 Modrinth 搜索模组。"
-           "\n参数：query（string，必填，搜索关键词）、facets（string，可选，mod/resourcepack/shaderpack/datapack/world/modpack，默认 mod）。"
-           "\n返回最多 8 条 JSON 数组 [{slug,title,description,downloads,project_id}]；无结果显示「未找到相关项目」。";
+    return localize(@"lira.legacy.401", nil);
 }
 
 #pragma mark - 执行
@@ -209,7 +197,7 @@ static BOOL aiIsLatestAlias(NSString *s) {
     NSString *query = [params[@"query"] isKindOfClass:[NSString class]] ? params[@"query"] : @"";
     if (query.length == 0) {
         NSError *err = [NSError errorWithDomain:kAiAssetToolDomain code:400
-                                        userInfo:@{NSLocalizedDescriptionKey: @"缺少必填参数 query（搜索关键词）"}];
+                                        userInfo:@{NSLocalizedDescriptionKey: localize(@"lira.legacy.402", nil)}];
         completion(nil, err);
         return;
     }
@@ -266,7 +254,7 @@ static BOOL aiIsLatestAlias(NSString *s) {
         }
         NSData *data = [NSJSONSerialization dataWithJSONObject:items options:0 error:nil];
         NSString *jsonStr = data ? [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding] : @"[]";
-        completion([NSString stringWithFormat:@"%@\n（数据源：%@）", jsonStr, usedSource ?: @"Modrinth"], nil);
+        completion([NSString stringWithFormat:localize(@"lira.legacy.234", nil), jsonStr, usedSource ?: @"Modrinth"], nil);
     }];
 }
 
@@ -306,35 +294,22 @@ static BOOL aiIsLatestAlias(NSString *s) {
 
 - (NSString *)summary {
     if ([_internalName isEqualToString:@"install_resourcepack"]) {
-        return @"从 Modrinth 下载并安装资源包到资源包目录，全自动完成，进度在下载中心展示。"
-               "\n参数：slugOrId（string，必填，Modrinth 项目 slug 或 id）、versionId（string，可选，可传 \"latest\" 表示最新版）、gameVersion（string，可选，按 MC 版本过滤）、instance（string，可选，实例名）、wait（boolean，可选，默认 true；false 时后台下载立即返回，可用 check_downloads 查进度）。"
-               "\n说明：默认源 Modrinth，失败自动切换 MCIM 镜像再回退官方。目录不存在会自动创建。返回安装结果说明。";
+        return localize(@"lira.legacy.403", nil);
     }
     if ([_internalName isEqualToString:@"install_shader"]) {
-        return @"从 Modrinth 下载并安装光影包到光影目录，全自动完成，进度在下载中心展示。"
-               "\n参数：slugOrId（string，必填，Modrinth 项目 slug 或 id）、versionId（string，可选，可传 \"latest\" 表示最新版）、gameVersion（string，可选，按 MC 版本过滤）、instance（string，可选，实例名）、wait（boolean，可选，默认 true；false 时后台下载立即返回，可用 check_downloads 查进度）。"
-               "\n说明：默认源 Modrinth，失败自动切换 MCIM 镜像再回退官方。若安装 Iris 光影，建议提醒用户把渲染器切换为 Zink。返回安装结果说明。";
+        return localize(@"lira.legacy.404", nil);
     }
     if ([_internalName isEqualToString:@"install_datapack"]) {
-        return @"从 Modrinth 下载并安装数据包到数据包目录，全自动完成，进度在下载中心展示。"
-               "\n参数：slugOrId（string，必填，Modrinth 项目 slug 或 id）、versionId（string，可选，可传 \"latest\" 表示最新版）、gameVersion（string，可选，按 MC 版本过滤）、instance（string，可选，实例名）、wait（boolean，可选，默认 true；false 时后台下载立即返回，可用 check_downloads 查进度）。"
-               "\n说明：默认源 Modrinth，失败自动切换 MCIM 镜像再回退官方。返回安装结果说明。";
+        return localize(@"lira.legacy.405", nil);
     }
     if ([_internalName isEqualToString:@"install_game_version"]) {
-        return @"直接下载并安装指定 Minecraft 原版本体（版本 JSON + 库文件 + 资源文件），全自动完成，进度在下载中心实时展示，无需用户操作。"
-               "\n参数：versionId（string，必填，如 1.20.1，也支持 latest-release / latest-snapshot / latest）、wait（boolean，可选，默认 true；false 时后台安装立即返回，可用 check_downloads 查进度）。"
-               "\n说明：版本清单默认从 BMCLAPI 镜像获取，失败自动切换官方源。行为：安装完成后自动创建并选中对应实例。返回安装结果说明。";
+        return localize(@"lira.legacy.406", nil);
     }
     if ([_internalName isEqualToString:@"install_loader"]) {
-        return @"直接安装模组加载器（全自动，进度在下载中心展示）。"
-               "\n参数：mcVersion（string，必填，目标 MC 版本）、loaderType（string，必填，fabric/forge/neoforge/quilt/optifine）、loaderVersion（string，可选，可传 \"latest\" 表示最新稳定版，无需先拉版本列表）、instance（string，可选，实例名）、wait（boolean，可选，默认 true；false 时后台安装立即返回，可用 check_downloads 查进度）。"
-               "\n行为：Fabric/Quilt 直接安装——若原版本体未安装会先自动安装原版，随后写入加载器版本 JSON 并注册实例，Fabric 还会自动安装 Fabric API；"
-               "Forge/NeoForge/OptiFine 安装器需要运行 Java 图形安装器/处理器，暂无法全自动，将打开内置下载页引导用户完成。";
+        return localize(@"lira.legacy.407", nil);
     }
     // install_mod
-    return @"从 Modrinth 下载并安装模组到 mods 目录，全自动完成，进度在下载中心展示。"
-           "\n参数：slugOrId（string，必填，Modrinth 项目 slug 或 id）、versionId（string，可选，可传 \"latest\" 表示最新版，无需先拉版本列表）、gameVersion（string，可选，指定 MC 版本过滤，缺省自动取实例当前 MC 版本）、instance（string，可选，实例名）、wait（boolean，可选，默认 true；false 时后台下载立即返回，可用 check_downloads 查进度）。"
-           "\n说明：默认源 Modrinth，失败自动切换 MCIM 镜像再回退官方；若安装 Sodium 会自动连带安装 Podium（或 Podium Port）。返回安装结果说明。";
+    return localize(@"lira.legacy.408", nil);
 }
 
 #pragma mark - 执行
@@ -389,14 +364,14 @@ static BOOL aiIsLatestAlias(NSString *s) {
     NSString *slugOrId = [params[@"slugOrId"] isKindOfClass:[NSString class]] ? params[@"slugOrId"] : @"";
     if (slugOrId.length == 0) {
         completion(nil, [NSError errorWithDomain:kAiAssetToolDomain code:400
-                                        userInfo:@{NSLocalizedDescriptionKey: @"缺少必填参数 slugOrId"}]);
+                                        userInfo:@{NSLocalizedDescriptionKey: localize(@"lira.legacy.409", nil)}]);
         return;
     }
 
     // 目标目录
     NSString *folder = [self resolvedFolderForParams:params];
     if (folder.length == 0) {
-        completion(nil, [NSError errorWithDomain:kAiAssetToolDomain code:500 userInfo:@{NSLocalizedDescriptionKey: @"无法确定安装目录"}]);
+        completion(nil, [NSError errorWithDomain:kAiAssetToolDomain code:500 userInfo:@{NSLocalizedDescriptionKey: localize(@"lira.legacy.410", nil)}]);
         return;
     }
     // latest 别名：等价于不指定版本（自动选最新 release）
@@ -468,8 +443,8 @@ static BOOL aiIsLatestAlias(NSString *s) {
                                                             profile:[AiAssetNetworkUtil resolveProfileName:params]
                                                          completion:^(BOOL podOK, NSString * _Nullable podName, NSString * _Nullable podMsg) {
                             NSString *note = podOK
-                                ? [NSString stringWithFormat:@"已自动连带安装 %@（用于屏蔽 Sodium 的启动器检测，不装会强制崩溃）", podName ?: @"Podium"]
-                                : @"注意：Sodium 需要搭配 Podium 或 Podium Port（屏蔽启动器检测，否则游戏强制崩溃），自动连带安装失败，请让我重试或手动安装";
+                                ? [NSString stringWithFormat:localize(@"lira.legacy.411", nil), podName ?: @"Podium"]
+                                : localize(@"lira.legacy.412", nil);
                             finishWithNote(result, note);
                         }];
                     } else {
@@ -583,7 +558,7 @@ static BOOL aiIsLatestAlias(NSString *s) {
         }
         NSArray *versions = [json isKindOfClass:[NSArray class]] ? json : nil;
         if (versions.count == 0) {
-            completion(nil, nil, nil, [NSError errorWithDomain:kAiAssetToolDomain code:404 userInfo:@{NSLocalizedDescriptionKey: @"该项目暂无可用版本"}]);
+            completion(nil, nil, nil, [NSError errorWithDomain:kAiAssetToolDomain code:404 userInfo:@{NSLocalizedDescriptionKey: localize(@"lira.legacy.413", nil)}]);
             return;
         }
         // gameVersion 兼容性过滤（Modrinth 版本对象的 game_versions 数组）
@@ -598,7 +573,7 @@ static BOOL aiIsLatestAlias(NSString *s) {
             }
             if (filtered.count == 0) {
                 completion(nil, nil, nil, [NSError errorWithDomain:kAiAssetToolDomain code:404
-                                                        userInfo:@{NSLocalizedDescriptionKey: [NSString stringWithFormat:@"未找到适配 MC %@ 的版本，可换用 versionId 指定版本重试", gameVersion]}]);
+                                                        userInfo:@{NSLocalizedDescriptionKey: [NSString stringWithFormat:localize(@"lira.legacy.414", nil), gameVersion]}]);
                 return;
             }
             versions = filtered;
@@ -611,7 +586,7 @@ static BOOL aiIsLatestAlias(NSString *s) {
             }
             if (!chosen) {
                 completion(nil, nil, nil, [NSError errorWithDomain:kAiAssetToolDomain code:404
-                                                           userInfo:@{NSLocalizedDescriptionKey: [NSString stringWithFormat:@"未找到版本 %@", versionId]}]);
+                                                           userInfo:@{NSLocalizedDescriptionKey: [NSString stringWithFormat:localize(@"lira.legacy.415", nil), versionId]}]);
                 return;
             }
         } else {
@@ -626,7 +601,7 @@ static BOOL aiIsLatestAlias(NSString *s) {
         NSArray *files = [chosen isKindOfClass:[NSDictionary class]] ? chosen[@"files"] : nil;
         NSDictionary *file = ([files isKindOfClass:[NSArray class]] && files.count > 0) ? files[0] : nil;
         if (![file isKindOfClass:[NSDictionary class]]) {
-            completion(nil, nil, nil, [NSError errorWithDomain:kAiAssetToolDomain code:404 userInfo:@{NSLocalizedDescriptionKey: @"所选版本无可用文件"}]);
+            completion(nil, nil, nil, [NSError errorWithDomain:kAiAssetToolDomain code:404 userInfo:@{NSLocalizedDescriptionKey: localize(@"lira.legacy.416", nil)}]);
             return;
         }
         NSString *fileURLStr = file[@"url"];
@@ -639,7 +614,7 @@ static BOOL aiIsLatestAlias(NSString *s) {
         NSURL *fileURL = [NSURL URLWithString:[fileURLStr isKindOfClass:[NSString class]] ? fileURLStr : @""];
         if (![filename isKindOfClass:[NSString class]]) filename = @"download";
         if (!fileURL) {
-            completion(nil, nil, nil, [NSError errorWithDomain:kAiAssetToolDomain code:404 userInfo:@{NSLocalizedDescriptionKey: @"下载地址无效"}]);
+            completion(nil, nil, nil, [NSError errorWithDomain:kAiAssetToolDomain code:404 userInfo:@{NSLocalizedDescriptionKey: localize(@"lira.legacy.417", nil)}]);
             return;
         }
         completion(filename, fileURL, sha1, nil);
@@ -653,13 +628,13 @@ static BOOL aiIsLatestAlias(NSString *s) {
     NSString *versionId = [params[@"versionId"] isKindOfClass:[NSString class]] ? params[@"versionId"] : @"";
     if (versionId.length == 0) {
         completion(nil, [NSError errorWithDomain:kAiAssetToolDomain code:400
-                                        userInfo:@{NSLocalizedDescriptionKey: @"缺少必填参数 versionId"}]);
+                                        userInfo:@{NSLocalizedDescriptionKey: localize(@"lira.legacy.418", nil)}]);
         return;
     }
 
     // wait=false：后台安装，立即返回（结果不回调，进度可用 check_downloads 查询）
     if (!aiWaitRequested(params)) {
-        completion([NSString stringWithFormat:@"已在后台开始安装 MC %@（版本 JSON、库文件、资源文件），任务将注册到下载中心，可随时用 check_downloads 查看进度；安装完成后会自动创建并选中对应实例。", versionId], nil);
+        completion([NSString stringWithFormat:localize(@"lira.legacy.419", nil), versionId], nil);
         [AiAssetInstaller installVanillaVersionId:versionId completion:^(BOOL bgSuccess, NSString * _Nullable bgMessage) {
             if (!bgSuccess) {
                 NSLog(@"[AI] 后台安装 MC %@ 失败：%@", versionId, bgMessage ?: @"");
@@ -672,10 +647,10 @@ static BOOL aiIsLatestAlias(NSString *s) {
     // 用户可在下载中心实时查看；无需打开下载页引导手动操作。
     [AiAssetInstaller installVanillaVersionId:versionId completion:^(BOOL success, NSString * _Nullable message) {
         if (success) {
-            completion([NSString stringWithFormat:@"MC %@ 本体已安装完成（版本 JSON、库文件、资源文件均已就绪），并已创建并选中对应实例。", versionId], nil);
+            completion([NSString stringWithFormat:localize(@"lira.legacy.420", nil), versionId], nil);
         } else {
             completion(nil, [NSError errorWithDomain:kAiAssetToolDomain code:500
-                                            userInfo:@{NSLocalizedDescriptionKey: [NSString stringWithFormat:@"安装 MC %@ 失败：%@", versionId, message ?: @"未知错误"]}]);
+                                            userInfo:@{NSLocalizedDescriptionKey: [NSString stringWithFormat:localize(@"lira.legacy.421", nil), versionId, message ?: localize(@"i18n_str_97", nil)]}]);
         }
     }];
 }
@@ -687,13 +662,13 @@ static BOOL aiIsLatestAlias(NSString *s) {
     NSString *mcVersion = [params[@"mcVersion"] isKindOfClass:[NSString class]] ? params[@"mcVersion"] : @"";
     NSString *loaderType = [params[@"loaderType"] isKindOfClass:[NSString class]] ? [params[@"loaderType"] lowercaseString] : @"";
     if (mcVersion.length == 0) {
-        completion(nil, [NSError errorWithDomain:kAiAssetToolDomain code:400 userInfo:@{NSLocalizedDescriptionKey: @"缺少必填参数 mcVersion"}]);
+        completion(nil, [NSError errorWithDomain:kAiAssetToolDomain code:400 userInfo:@{NSLocalizedDescriptionKey: localize(@"lira.legacy.422", nil)}]);
         return;
     }
     NSSet *validLoaders = [NSSet setWithObjects:@"fabric", @"forge", @"neoforge", @"quilt", @"optifine", nil];
     if (![validLoaders containsObject:loaderType]) {
         completion(nil, [NSError errorWithDomain:kAiAssetToolDomain code:400
-                                        userInfo:@{NSLocalizedDescriptionKey: @"loaderType 必须为 fabric / forge / neoforge / quilt / optifine 之一"}]);
+                                        userInfo:@{NSLocalizedDescriptionKey: localize(@"lira.legacy.423", nil)}]);
         return;
     }
 
@@ -711,9 +686,9 @@ static BOOL aiIsLatestAlias(NSString *s) {
 
     [AiAssetNetworkUtil postShowDownloadPage];
     if (!installed) {
-        completion([NSString stringWithFormat:@"%@ 安装器需要运行 Java 图形安装器，暂无法全自动。MC %@ 本体也尚未安装，已为你打开下载页，请先安装 MC 本体，再在页面中安装 %@。", [loaderType capitalizedString], mcVersion, loaderType], nil);
+        completion([NSString stringWithFormat:localize(@"lira.legacy.424", nil), [loaderType capitalizedString], mcVersion, loaderType], nil);
     } else {
-        completion([NSString stringWithFormat:@"%@ 安装器需要运行 Java 图形安装器，暂无法全自动。MC %@ 已就绪，已为你打开下载页，请在页面中安装 %@ 加载器。", [loaderType capitalizedString], mcVersion, loaderType], nil);
+        completion([NSString stringWithFormat:localize(@"lira.legacy.425", nil), [loaderType capitalizedString], mcVersion, loaderType], nil);
     }
 }
 
@@ -737,7 +712,7 @@ static BOOL aiIsLatestAlias(NSString *s) {
 
     // wait=false：后台安装，立即返回；后续 completion 全部吞掉（下载中心/check_downloads 可查进度）
     if (!aiWaitRequested(params)) {
-        completion([NSString stringWithFormat:@"已在后台开始安装 %@ 加载器（MC %@）：将自动预装原版本体（如未安装）、写入加载器版本 JSON 并注册实例%@，任务进度可在下载中心或通过 check_downloads 查看。", displayName, mcVersion, isQuilt ? @"" : @"、自动安装 Fabric API"], nil);
+        completion([NSString stringWithFormat:localize(@"lira.legacy.426", nil), displayName, mcVersion, isQuilt ? @"" : localize(@"lira.legacy.427", nil)], nil);
         completion = ^(NSString * _Nullable r, NSError * _Nullable e) {
             // 后台执行：终态结果不回传（进度与结果均可见于下载中心）
         };
@@ -778,7 +753,7 @@ static BOOL aiIsLatestAlias(NSString *s) {
     [AiAssetInstaller installVanillaVersionId:mcVersion completion:^(BOOL success, NSString * _Nullable message) {
         if (!success) {
             completion(nil, [NSError errorWithDomain:kAiAssetToolDomain code:500
-                                            userInfo:@{NSLocalizedDescriptionKey: [NSString stringWithFormat:@"自动预装 MC %@ 本体失败：%@（无法继续安装 %@）", mcVersion, message ?: @"未知错误", displayName]}]);
+                                            userInfo:@{NSLocalizedDescriptionKey: [NSString stringWithFormat:localize(@"lira.legacy.428", nil), mcVersion, message ?: localize(@"i18n_str_97", nil), displayName]}]);
             return;
         }
         continueWithLoader();
@@ -813,7 +788,7 @@ static BOOL aiIsLatestAlias(NSString *s) {
                                                                iconURL:nil];
         if (!task) {
             completion(nil, [NSError errorWithDomain:kAiAssetToolDomain code:500
-                                            userInfo:@{NSLocalizedDescriptionKey: @"注册加载器安装任务失败"}]);
+                                            userInfo:@{NSLocalizedDescriptionKey: localize(@"lira.legacy.429", nil)}]);
             return;
         }
         [manager setTaskWithId:task.taskId stages:PLTaskStagesFabricExtra()];
@@ -829,7 +804,7 @@ static BOOL aiIsLatestAlias(NSString *s) {
         if (!profileURL) {
             [manager updateTaskWithId:task.taskId stageAtIndex:profileStage status:PLTaskStageStatusFailed];
             NSError *err = [NSError errorWithDomain:kAiAssetToolDomain code:400
-                                        userInfo:@{NSLocalizedDescriptionKey: @"加载器 profile 地址无效"}];
+                                        userInfo:@{NSLocalizedDescriptionKey: localize(@"lira.legacy.430", nil)}];
             [manager setTaskWithId:task.taskId completedWithError:err];
             completion(nil, err);
             return;
@@ -840,7 +815,7 @@ static BOOL aiIsLatestAlias(NSString *s) {
                 [manager updateTaskWithId:task.taskId stageAtIndex:profileStage status:PLTaskStageStatusFailed];
                 [manager updateTaskWithId:task.taskId stageAtIndex:profileStage progress:0 message:pError.localizedDescription];
                 NSError *err = pError ?: [NSError errorWithDomain:kAiAssetToolDomain code:2
-                                                         userInfo:@{NSLocalizedDescriptionKey: [NSString stringWithFormat:@"获取 %@ profile 失败", displayName]}];
+                                                         userInfo:@{NSLocalizedDescriptionKey: [NSString stringWithFormat:localize(@"lira.legacy.431", nil), displayName]}];
                 [manager setTaskWithId:task.taskId completedWithError:err];
                 completion(nil, err);
                 return;
@@ -856,7 +831,7 @@ static BOOL aiIsLatestAlias(NSString *s) {
             if (versionId.length == 0) {
                 [manager updateTaskWithId:task.taskId stageAtIndex:jsonStage status:PLTaskStageStatusFailed];
                 NSError *err = [NSError errorWithDomain:kAiAssetToolDomain code:3
-                                                userInfo:@{NSLocalizedDescriptionKey: @"profile JSON 缺少版本 id"}];
+                                                userInfo:@{NSLocalizedDescriptionKey: localize(@"lira.legacy.432", nil)}];
                 [manager setTaskWithId:task.taskId completedWithError:err];
                 completion(nil, err);
                 return;
@@ -875,7 +850,7 @@ static BOOL aiIsLatestAlias(NSString *s) {
             if (!jsonData || ![jsonData writeToFile:jsonPath options:NSDataWritingAtomic error:&saveError]) {
                 [manager updateTaskWithId:task.taskId stageAtIndex:jsonStage status:PLTaskStageStatusFailed];
                 NSError *err = [NSError errorWithDomain:kAiAssetToolDomain code:4
-                                                userInfo:@{NSLocalizedDescriptionKey: saveError.localizedDescription ?: @"写入版本 JSON 失败"}];
+                                                userInfo:@{NSLocalizedDescriptionKey: saveError.localizedDescription ?: localize(@"lira.legacy.433", nil)}];
                 [manager setTaskWithId:task.taskId completedWithError:err];
                 completion(nil, err);
                 return;
@@ -907,14 +882,14 @@ static BOOL aiIsLatestAlias(NSString *s) {
                     }
                     [manager setTaskWithId:task.taskId completedWithError:nil];
                     NSString *result = apiOK
-                        ? [NSString stringWithFormat:@"%@ %@ 已安装完成（MC %@），并已自动安装 Fabric API，实例已创建并选中。", displayName, resolvedLoaderVersion, mcVersion]
-                        : [NSString stringWithFormat:@"%@ %@ 已安装完成（MC %@），实例已创建并选中；但 Fabric API 自动安装失败：%@，可让我重新安装或手动处理。", displayName, resolvedLoaderVersion, mcVersion, apiMessage ?: @"未知原因"];
+                        ? [NSString stringWithFormat:localize(@"lira.legacy.434", nil), displayName, resolvedLoaderVersion, mcVersion]
+                        : [NSString stringWithFormat:localize(@"lira.legacy.435", nil), displayName, resolvedLoaderVersion, mcVersion, apiMessage ?: localize(@"i18n_str_1118", nil)];
                     completion(result, nil);
                 }];
             } else {
                 [manager updateTaskWithId:task.taskId stageAtIndex:libsStage status:PLTaskStageStatusSkipped];
                 [manager setTaskWithId:task.taskId completedWithError:nil];
-                completion([NSString stringWithFormat:@"Quilt %@ 已安装完成（MC %@），实例已创建并选中。", resolvedLoaderVersion, mcVersion], nil);
+                completion([NSString stringWithFormat:localize(@"lira.legacy.437", nil), resolvedLoaderVersion, mcVersion], nil);
             }
         }];
     };
@@ -929,7 +904,7 @@ static BOOL aiIsLatestAlias(NSString *s) {
     NSURL *listURL = [NSURL URLWithString:listURLStr];
     if (!listURL) {
         completion(nil, [NSError errorWithDomain:kAiAssetToolDomain code:400
-                                        userInfo:@{NSLocalizedDescriptionKey: @"加载器版本列表地址无效"}]);
+                                        userInfo:@{NSLocalizedDescriptionKey: localize(@"lira.legacy.438", nil)}]);
         return;
     }
     [AiAssetNetworkUtil getJSONFromURL:listURL completion:^(id _Nullable json, NSError * _Nullable error) {
@@ -944,7 +919,7 @@ static BOOL aiIsLatestAlias(NSString *s) {
             NSString *body = [json isKindOfClass:[NSDictionary class]] ? [[NSString alloc] initWithData:[NSJSONSerialization dataWithJSONObject:json options:0 error:nil] encoding:NSUTF8StringEncoding] : ([json isKindOfClass:[NSString class]] ? json : NSStringFromClass([json class]));
             NSLog(@"[AI] %@ 加载器版本列表为空（URL: %@，响应类型: %@，内容: %@）", displayName, listURLStr, NSStringFromClass([json class]), [body substringToIndex:MIN(body.length, 200)]);
             completion(nil, [NSError errorWithDomain:kAiAssetToolDomain code:404
-                                            userInfo:@{NSLocalizedDescriptionKey: [NSString stringWithFormat:@"MC %@ 暂无可用 %@ 加载器版本", mcVersion, displayName]}]);
+                                            userInfo:@{NSLocalizedDescriptionKey: [NSString stringWithFormat:localize(@"lira.legacy.439", nil), mcVersion, displayName]}]);
             return;
         }
         // 关键修复（install_loader "latest" 无法解析版本）：Fabric/Quilt meta 版本在嵌套的
@@ -973,7 +948,7 @@ static BOOL aiIsLatestAlias(NSString *s) {
         if (picked.length == 0) {
             NSLog(@"[AI] 无法解析 %@ 加载器版本号（URL: %@，已遍历 %lu 个条目，首个条目: %@）", displayName, listURLStr, (unsigned long)list.count, list.firstObject);
             completion(nil, [NSError errorWithDomain:kAiAssetToolDomain code:404
-                                            userInfo:@{NSLocalizedDescriptionKey: @"无法解析加载器版本号"}]);
+                                            userInfo:@{NSLocalizedDescriptionKey: localize(@"lira.legacy.440", nil)}]);
             return;
         }
         startWithLoaderVersion(picked);
@@ -1022,7 +997,7 @@ static BOOL aiIsLatestAlias(NSString *s) {
 
 + (void)getJSONFromURL:(NSURL *)url completion:(void (^)(id _Nullable, NSError * _Nullable))completion {
     if (!url) {
-        if (completion) completion(nil, [NSError errorWithDomain:kAiAssetToolDomain code:400 userInfo:@{NSLocalizedDescriptionKey: @"URL 为空"}]);
+        if (completion) completion(nil, [NSError errorWithDomain:kAiAssetToolDomain code:400 userInfo:@{NSLocalizedDescriptionKey: localize(@"lira.legacy.441", nil)}]);
         return;
     }
     NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url];
@@ -1033,12 +1008,12 @@ static BOOL aiIsLatestAlias(NSString *s) {
     NSURLSessionDataTask *task = [[NSURLSession sharedSession] dataTaskWithRequest:request completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
         dispatch_async(dispatch_get_main_queue(), ^{
             if (error || !data) {
-                if (completion) completion(nil, error ?: [NSError errorWithDomain:kAiAssetToolDomain code:1 userInfo:@{NSLocalizedDescriptionKey: @"网络请求失败"}]);
+                if (completion) completion(nil, error ?: [NSError errorWithDomain:kAiAssetToolDomain code:1 userInfo:@{NSLocalizedDescriptionKey: localize(@"lira.legacy.442", nil)}]);
                 return;
             }
             NSInteger status = [(NSHTTPURLResponse *)response statusCode];
             if (status < 200 || status >= 300) {
-                NSString *msg = (status == 404) ? @"资源不存在（404）" : [NSString stringWithFormat:@"请求失败（HTTP %ld）", (long)status];
+                NSString *msg = (status == 404) ? localize(@"lira.legacy.443", nil) : [NSString stringWithFormat:localize(@"lira.legacy.243", nil), (long)status];
                 if (completion) completion(nil, [NSError errorWithDomain:kAiAssetToolDomain code:status userInfo:@{NSLocalizedDescriptionKey: msg}]);
                 return;
             }
@@ -1067,13 +1042,13 @@ static BOOL aiIsLatestAlias(NSString *s) {
                        completion:(void (^)(id _Nullable json, NSString * _Nullable usedSource, NSError * _Nullable error))completion {
     if (!completion) return;
     if (path.length == 0) {
-        completion(nil, nil, [NSError errorWithDomain:kAiAssetToolDomain code:400 userInfo:@{NSLocalizedDescriptionKey: @"Modrinth API 路径为空"}]);
+        completion(nil, nil, [NSError errorWithDomain:kAiAssetToolDomain code:400 userInfo:@{NSLocalizedDescriptionKey: localize(@"lira.legacy.444", nil)}]);
         return;
     }
     if (index >= bases.count) {
-        NSString *detail = lastError.localizedDescription ?: @"未知错误";
+        NSString *detail = lastError.localizedDescription ?: localize(@"i18n_str_97", nil);
         completion(nil, nil, [NSError errorWithDomain:kAiAssetToolDomain code:1
-                                             userInfo:@{NSLocalizedDescriptionKey: [NSString stringWithFormat:@"Modrinth 官方源与 MCIM 镜像均不可用：%@", detail]}]);
+                                             userInfo:@{NSLocalizedDescriptionKey: [NSString stringWithFormat:localize(@"lira.legacy.445", nil), detail]}]);
         return;
     }
     NSURL *url = [NSURL URLWithString:[bases[index] stringByAppendingString:path]];
@@ -1169,9 +1144,9 @@ static BOOL aiIsLatestAlias(NSString *s) {
                              lastError:(NSError * _Nullable)lastError
                              completion:(void (^)(NSDictionary * _Nullable entry, NSError * _Nullable error))completion {
     if (index >= manifestURLStrs.count) {
-        NSString *detail = lastError.localizedDescription ?: @"未知错误";
+        NSString *detail = lastError.localizedDescription ?: localize(@"i18n_str_97", nil);
         if (completion) completion(nil, [NSError errorWithDomain:kAiAssetToolDomain code:500
-                                                        userInfo:@{NSLocalizedDescriptionKey: [NSString stringWithFormat:@"获取版本清单失败（BMCLAPI 与官方源均不可用）：%@", detail]}]);
+                                                        userInfo:@{NSLocalizedDescriptionKey: [NSString stringWithFormat:localize(@"lira.legacy.446", nil), detail]}]);
         return;
     }
     NSURL *manifestURL = [NSURL URLWithString:manifestURLStrs[index]];
@@ -1190,7 +1165,7 @@ static BOOL aiIsLatestAlias(NSString *s) {
         if (versions.count == 0) {
             [self fetchVersionEntryFromManifests:manifestURLStrs index:index + 1 versionId:versionId
                                       lastError:[NSError errorWithDomain:kAiAssetToolDomain code:2
-                                                                  userInfo:@{NSLocalizedDescriptionKey: @"版本清单格式无效"}]
+                                                                  userInfo:@{NSLocalizedDescriptionKey: localize(@"lira.legacy.447", nil)}]
                                       completion:completion];
             return;
         }
@@ -1208,7 +1183,7 @@ static BOOL aiIsLatestAlias(NSString *s) {
         }
         if (![target isKindOfClass:[NSString class]] || target.length == 0) {
             if (completion) completion(nil, [NSError errorWithDomain:kAiAssetToolDomain code:404
-                                                            userInfo:@{NSLocalizedDescriptionKey: @"无法解析目标版本号"}]);
+                                                            userInfo:@{NSLocalizedDescriptionKey: localize(@"lira.legacy.448", nil)}]);
             return;
         }
 
@@ -1220,7 +1195,7 @@ static BOOL aiIsLatestAlias(NSString *s) {
             }
         }
         if (completion) completion(nil, [NSError errorWithDomain:kAiAssetToolDomain code:404
-                                                        userInfo:@{NSLocalizedDescriptionKey: [NSString stringWithFormat:@"版本清单中未找到版本 %@", target]}]);
+                                                        userInfo:@{NSLocalizedDescriptionKey: [NSString stringWithFormat:localize(@"lira.legacy.449", nil), target]}]);
     }];
 }
 
@@ -1400,7 +1375,7 @@ static BOOL aiIsLatestAlias(NSString *s) {
                  onFinished:(nullable void (^)(BOOL success, NSString * _Nullable message))onFinished {
     if (!url || folder.length == 0 || filename.length == 0) {
         dispatch_async(dispatch_get_main_queue(), ^{
-            if (completion) completion(nil, [NSError errorWithDomain:kAiAssetToolDomain code:400 userInfo:@{NSLocalizedDescriptionKey: @"下载参数不完整"}]);
+            if (completion) completion(nil, [NSError errorWithDomain:kAiAssetToolDomain code:400 userInfo:@{NSLocalizedDescriptionKey: localize(@"lira.legacy.450", nil)}]);
         });
         return;
     }
@@ -1443,7 +1418,7 @@ static BOOL aiIsLatestAlias(NSString *s) {
     if (!waitForCompletion) {
         dispatch_async(dispatch_get_main_queue(), ^{
             if (completion) {
-                completion([NSString stringWithFormat:@"已加入后台下载：%@（任务ID %@，目标目录 %@，文件 %@），进度可用 check_downloads 查询", dispName, task.taskId, [folder lastPathComponent], filename], nil);
+                completion([NSString stringWithFormat:localize(@"lira.legacy.451", nil), dispName, task.taskId, [folder lastPathComponent], filename], nil);
             }
         });
     }
@@ -1476,17 +1451,17 @@ static BOOL aiIsLatestAlias(NSString *s) {
             dispatch_async(dispatch_get_main_queue(), ^{
                 if (!success) {
                     [[DownloadTaskManager sharedManager] setTaskWithId:task.taskId
-                                                      completedWithError:error ?: [NSError errorWithDomain:kAiAssetToolDomain code:1 userInfo:@{NSLocalizedDescriptionKey: @"下载失败"}]];
-                    if (onFinished) onFinished(NO, error.localizedDescription ?: @"下载失败");
+                                                      completedWithError:error ?: [NSError errorWithDomain:kAiAssetToolDomain code:1 userInfo:@{NSLocalizedDescriptionKey: localize(@"i18n_str_448", nil)}]];
+                    if (onFinished) onFinished(NO, error.localizedDescription ?: localize(@"i18n_str_448", nil));
                     if (waitForCompletion && completion) {
-                        completion(nil, error ?: [NSError errorWithDomain:kAiAssetToolDomain code:1 userInfo:@{NSLocalizedDescriptionKey: @"下载失败"}]);
+                        completion(nil, error ?: [NSError errorWithDomain:kAiAssetToolDomain code:1 userInfo:@{NSLocalizedDescriptionKey: localize(@"i18n_str_448", nil)}]);
                     }
                     return;
                 }
                 [[DownloadTaskManager sharedManager] setTaskWithId:task.taskId completedWithError:nil];
                 if (onFinished) onFinished(YES, nil);
                 if (waitForCompletion && completion) {
-                    NSString *result = [NSString stringWithFormat:@"已安装 %@ 到 %@（%@）", dispName, [folder lastPathComponent], filename];
+                    NSString *result = [NSString stringWithFormat:localize(@"lira.legacy.453", nil), dispName, [folder lastPathComponent], filename];
                     completion(result, nil);
                 }
             });

@@ -285,9 +285,9 @@
         if ([section isEqualToString:@"ai"]) {
             if ([key isEqualToString:@"safety_mode"]) {
                 switch ([[AiSettings sharedSettings] safetyMode]) {
-                    case AiSafetyModeSafe:  return @"只读自动执行（Safe）";
-                    case AiSafetyModeAsk:   return @"写操作逐次确认（Ask）";
-                    case AiSafetyModeYOLO:  return @"自动批准（YOLO）";
+                    case AiSafetyModeSafe:  return localize(@"lira.legacy.035", nil);
+                    case AiSafetyModeAsk:   return localize(@"lira.legacy.036", nil);
+                    case AiSafetyModeYOLO:  return localize(@"lira.legacy.037", nil);
                 }
             }
             if ([key isEqualToString:@"markdown_enabled"]) {
@@ -1435,14 +1435,14 @@
               @"icon": @"hand.raised.fill",
               @"type": self.typePickField,
               @"pickKeys": @[
-                  @"只读自动执行（Safe）",
-                  @"写操作逐次确认（Ask）",
-                  @"自动批准（YOLO）"
+                  localize(@"lira.legacy.035", nil),
+                  localize(@"lira.legacy.036", nil),
+                  localize(@"lira.legacy.037", nil)
               ],
               @"pickList": @[
-                  @"只读自动执行（Safe）",
-                  @"写操作逐次确认（Ask）",
-                  @"自动批准（YOLO）"
+                  localize(@"lira.legacy.035", nil),
+                  localize(@"lira.legacy.036", nil),
+                  localize(@"lira.legacy.037", nil)
               ]
             },
             @{@"key": @"markdown_enabled",
@@ -1798,7 +1798,7 @@
                                             handler:^(UIAlertAction *action) {
         [UpdateChecker openReleasePage];
     }]];
-    [alert addAction:[UIAlertAction actionWithTitle:localize(@"Cancel", @"取消")
+    [alert addAction:[UIAlertAction actionWithTitle:localize(@"Cancel", localize(@"resman.common.cancel", nil))
                                               style:UIAlertActionStyleCancel
                                             handler:nil]];
     [self presentViewController:alert animated:YES completion:nil];

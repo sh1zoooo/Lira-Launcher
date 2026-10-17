@@ -1,3 +1,4 @@
+#import "utils.h"
 //
 //  AiTodoTool.m
 //  Amethyst
@@ -38,24 +39,16 @@ static const NSInteger kAiTodoMaxItems = 200;
 
 - (NSString *)summary {
     if ([self.internalName isEqualToString:@"todo_create"]) {
-        return @"创建一条待办事项（多步任务的执行清单）。"
-               "\n参数：title（string，必填）、description（string，可选）。"
-               "\n返回新条目 id。";
+        return localize(@"lira.legacy.305", nil);
     }
     if ([self.internalName isEqualToString:@"todo_list"]) {
-        return @"列出全部待办事项（含已完成）。"
-               "\n无参数。"
-               "\n返回 JSON 数组：{id, title, description, done, createdAt}。";
+        return localize(@"lira.legacy.306", nil);
     }
     if ([self.internalName isEqualToString:@"todo_update"]) {
-        return @"更新待办事项：勾选完成/取消完成，或修改标题与描述。"
-               "\n参数：id（number，必填）、done（boolean，可选，true=完成 false=未完成）、title（string，可选）、description（string，可选）。"
-               "\n返回更新后的条目。";
+        return localize(@"lira.legacy.307", nil);
     }
     // todo_delete
-    return @"删除一条待办事项。"
-           "\n参数：id（number，必填）。"
-           "\n返回「已删除」。";
+    return localize(@"lira.legacy.308", nil);
 }
 
 #pragma mark - 存储
@@ -94,7 +87,7 @@ static const NSInteger kAiTodoMaxItems = 200;
 }
 
 + (NSString *)itemDescription:(NSDictionary *)item {
-    if (![item isKindOfClass:[NSDictionary class]]) return @"（无效条目）";
+    if (![item isKindOfClass:[NSDictionary class]]) return localize(@"lira.legacy.309", nil);
     NSString *done = [item[@"done"] boolValue] ? @"[已完成]" : @"[未完成]";
     NSString *desc = [item[@"description"] isKindOfClass:[NSString class]] ? item[@"description"] : @"";
     if (desc.length > 0) {
@@ -123,7 +116,7 @@ static const NSInteger kAiTodoMaxItems = 200;
             result = [self performDelete:params error:&error];
         } else {
             error = [NSError errorWithDomain:@"AiTool" code:404
-                                    userInfo:@{NSLocalizedDescriptionKey: [NSString stringWithFormat:@"未知工具 %@", self.internalName]}];
+                                    userInfo:@{NSLocalizedDescriptionKey: [NSString stringWithFormat:localize(@"lira.legacy.208", nil), self.internalName]}];
         }
 
         dispatch_async(dispatch_get_main_queue(), ^{
@@ -136,7 +129,7 @@ static const NSInteger kAiTodoMaxItems = 200;
     NSString *title = [params[@"title"] isKindOfClass:[NSString class]] ? params[@"title"] : @"";
     if (title.length == 0) {
         if (error) *error = [NSError errorWithDomain:@"AiTool" code:400
-                                            userInfo:@{NSLocalizedDescriptionKey: @"参数 title 必填"}];
+                                            userInfo:@{NSLocalizedDescriptionKey: localize(@"lira.legacy.310", nil)}];
         return nil;
     }
     NSString *desc = [params[@"description"] isKindOfClass:[NSString class]] ? params[@"description"] : @"";
@@ -144,7 +137,7 @@ static const NSInteger kAiTodoMaxItems = 200;
     NSMutableArray *todos = [AiTodoTool loadTodos];
     if (todos.count >= kAiTodoMaxItems) {
         if (error) *error = [NSError errorWithDomain:@"AiTool" code:409
-                                            userInfo:@{NSLocalizedDescriptionKey: @"待办清单已满（200 条），请先清理"}];
+                                            userInfo:@{NSLocalizedDescriptionKey: localize(@"lira.legacy.311", nil)}];
         return nil;
     }
     NSInteger newId = [AiTodoTool nextIdInTodos:todos];
@@ -158,15 +151,15 @@ static const NSInteger kAiTodoMaxItems = 200;
     [todos addObject:item];
     if (![AiTodoTool saveTodos:todos]) {
         if (error) *error = [NSError errorWithDomain:@"AiTool" code:500
-                                            userInfo:@{NSLocalizedDescriptionKey: @"todos.json 写入失败"}];
+                                            userInfo:@{NSLocalizedDescriptionKey: localize(@"lira.legacy.312", nil)}];
         return nil;
     }
-    return [NSString stringWithFormat:@"已创建待办 #%ld：%@", (long)newId, title];
+    return [NSString stringWithFormat:localize(@"lira.legacy.313", nil), (long)newId, title];
 }
 
 - (NSString *)performList {
     NSMutableArray *todos = [AiTodoTool loadTodos];
-    if (todos.count == 0) return @"待办清单为空。";
+    if (todos.count == 0) return localize(@"lira.legacy.314", nil);
 
     NSMutableString *out = [NSMutableString string];
     NSInteger doneCount = 0;
@@ -174,7 +167,7 @@ static const NSInteger kAiTodoMaxItems = 200;
         if ([item[@"done"] boolValue]) doneCount++;
         [out appendFormat:@"%@\n", [AiTodoTool itemDescription:item]];
     }
-    [out appendFormat:@"共 %lu 条，其中已完成 %ld 条。",
+    [out appendFormat:localize(@"lira.legacy.315", nil),
         (unsigned long)todos.count, (long)doneCount];
     return out;
 }
@@ -192,7 +185,7 @@ static const NSInteger kAiTodoMaxItems = 200;
     }
     if (!target) {
         if (error) *error = [NSError errorWithDomain:@"AiTool" code:404
-                                            userInfo:@{NSLocalizedDescriptionKey: [NSString stringWithFormat:@"待办 #%ld 不存在", (long)itemId]}];
+                                            userInfo:@{NSLocalizedDescriptionKey: [NSString stringWithFormat:localize(@"lira.legacy.316", nil), (long)itemId]}];
         return nil;
     }
 
@@ -217,10 +210,10 @@ static const NSInteger kAiTodoMaxItems = 200;
     if (idx != NSNotFound) todos[idx] = updated;
     if (![AiTodoTool saveTodos:todos]) {
         if (error) *error = [NSError errorWithDomain:@"AiTool" code:500
-                                            userInfo:@{NSLocalizedDescriptionKey: @"todos.json 写入失败"}];
+                                            userInfo:@{NSLocalizedDescriptionKey: localize(@"lira.legacy.312", nil)}];
         return nil;
     }
-    return [NSString stringWithFormat:@"已更新：%@", [AiTodoTool itemDescription:updated]];
+    return [NSString stringWithFormat:localize(@"lira.legacy.317", nil), [AiTodoTool itemDescription:updated]];
 }
 
 - (NSString *)performDelete:(NSDictionary *)params error:(NSError **)error {
@@ -235,16 +228,16 @@ static const NSInteger kAiTodoMaxItems = 200;
     }
     if (!target) {
         if (error) *error = [NSError errorWithDomain:@"AiTool" code:404
-                                            userInfo:@{NSLocalizedDescriptionKey: [NSString stringWithFormat:@"待办 #%ld 不存在", (long)itemId]}];
+                                            userInfo:@{NSLocalizedDescriptionKey: [NSString stringWithFormat:localize(@"lira.legacy.316", nil), (long)itemId]}];
         return nil;
     }
     [todos removeObject:target];
     if (![AiTodoTool saveTodos:todos]) {
         if (error) *error = [NSError errorWithDomain:@"AiTool" code:500
-                                            userInfo:@{NSLocalizedDescriptionKey: @"todos.json 写入失败"}];
+                                            userInfo:@{NSLocalizedDescriptionKey: localize(@"lira.legacy.312", nil)}];
         return nil;
     }
-    return [NSString stringWithFormat:@"已删除待办 #%ld", (long)itemId];
+    return [NSString stringWithFormat:localize(@"lira.legacy.318", nil), (long)itemId];
 }
 
 @end

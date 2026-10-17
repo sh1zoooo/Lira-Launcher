@@ -1,6 +1,6 @@
 #import "LauncherRootViewController.h"
 #import "LauncherMenuViewController.h"
-#import "LauncherNewsViewController.h"
+#import "LiraHomeViewController.h"
 #import "LauncherRightPanelViewController.h"
 #import "DownloadViewController.h"
 #import "VersionManagerViewController.h"
@@ -632,7 +632,7 @@ static const CGFloat kPortraitCardCorner      = 16.0;   // 竖屏底部卡圆角
     _sidebarViewController = sidebarVC;
     
     // 中间内容 - 默认显示新闻页
-    LauncherNewsViewController *newsVC = [[LauncherNewsViewController alloc] init];
+    LiraHomeViewController *newsVC = [[LiraHomeViewController alloc] init];
     [self setContentViewController:newsVC animated:NO];
     
     // 右侧面板 - 账户和启动
@@ -782,8 +782,8 @@ static const CGFloat kPortraitCardCorner      = 16.0;   // 竖屏底部卡圆角
     //   (AmeRootTabController 把主页也包进了 UINavigationController,见 AmeRootTabController.m:116)
     //   ⇒ 直接 return ⇒ 内容区永远还原不回主页 ⇒ 账户页「完成」(只发 ShowHomePage)点了没反应(用户实测「点不动」)。
     //   这里补一步【幂等还原】:内容区不是主页(新闻页)时才重建 —— 已在主页时点标签栏「实例」不会多余刷新。
-    if (![self.contentViewController isKindOfClass:[LauncherNewsViewController class]]) {
-        LauncherNewsViewController *newsVC = [[LauncherNewsViewController alloc] init];
+    if (![self.contentViewController isKindOfClass:[LiraHomeViewController class]]) {
+        LiraHomeViewController *newsVC = [[LiraHomeViewController alloc] init];
         [self setContentViewController:newsVC animated:YES];
     }
 }
@@ -867,10 +867,10 @@ static const CGFloat kPortraitCardCorner      = 16.0;   // 竖屏底部卡圆角
     // 陶瓦联机界面（与 HMCL/FCL/ZL2 互通）；libterracotta 未链接时提示
     if (![TerracottaBridge isAvailable]) {
         UIAlertController *alert = [UIAlertController
-            alertControllerWithTitle:@"联机功能不可用"
-                              message:@"libterracotta 库未链接，请按 README 中「陶瓦联机集成」章节下载 xcframework 后重新构建。"
+            alertControllerWithTitle:localize(@"multiplayer.unavailable.title", nil)
+                              message:localize(@"lira.legacy.033", nil)
                        preferredStyle:UIAlertControllerStyleAlert];
-        [alert addAction:[UIAlertAction actionWithTitle:@"好" style:UIAlertActionStyleDefault handler:nil]];
+        [alert addAction:[UIAlertAction actionWithTitle:localize(@"i18n_str_322", nil) style:UIAlertActionStyleDefault handler:nil]];
         [self presentViewController:alert animated:YES completion:nil];
         return;
     }
