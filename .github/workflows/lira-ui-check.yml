@@ -35,7 +35,7 @@ jobs:
         run: |
           set -euo pipefail
           SDK=$(xcrun --sdk iphoneos --show-sdk-path)
-          for source in Natives/LiraLivingWorld.m Natives/LiraLibraryViewController.m Natives/LiraHomeViewController.m Natives/LiraSettingsViewController.m Natives/AmeRootTabController.m Natives/BackgroundManager.m Natives/DownloadViewController.m Natives/VersionManagerViewController.m Natives/AI/*.m; do
+          for source in Natives/LiraDesignKit.m Natives/LiraLivingWorld.m Natives/LiraLibraryViewController.m Natives/LiraHomeViewController.m Natives/LiraSettingsViewController.m Natives/AmeRootTabController.m Natives/BackgroundManager.m Natives/DownloadViewController.m Natives/VersionManagerViewController.m Natives/AI/*.m; do
             xcrun --sdk iphoneos clang -fsyntax-only -fobjc-arc -fcommon \
               -target arm64-apple-ios14.0 -isysroot "$SDK" \
               -I Natives -I Natives/include -I Natives/external/UnzipKit -I Natives/external/AltKit \

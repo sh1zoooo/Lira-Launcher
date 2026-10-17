@@ -11,11 +11,11 @@ xcrun --sdk iphonesimulator clang -fobjc-arc -fcommon -Wno-incomplete-implementa
   -target "$ARCH-apple-ios15.0-simulator" -isysroot "$SDK" \
   -I Natives -I Natives/include -I Natives/external/UnzipKit -I Natives/external/AltKit \
   -F Natives/resources/Frameworks \
-  scripts/lira-preview/PreviewHost.m Natives/LiraLivingWorld.m Natives/LiraHomeViewController.m \
+  scripts/lira-preview/PreviewHost.m Natives/LiraDesignKit.m Natives/LiraLivingWorld.m Natives/LiraHomeViewController.m \
   Natives/LiraLibraryViewController.m Natives/LiraSettingsViewController.m \
   Natives/AmeRootTabController.m Natives/AmeLaunchProgress.m \
-  -framework UIKit -framework Foundation -framework QuartzCore -o "$APP/LiraPreview"
-cp -R Natives/resources/LiraWorlds Natives/resources/ru.lproj "$APP/"
+  -framework UIKit -framework Foundation -framework QuartzCore -framework CoreGraphics -framework ImageIO -o "$APP/LiraPreview"
+cp -R Natives/resources/LiraBrand Natives/resources/ru.lproj "$APP/"
 cat > "$APP/Info.plist" <<'PLIST'
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd"><plist version="1.0"><dict>
 <key>CFBundleIdentifier</key><string>dev.lira.preview</string><key>CFBundleExecutable</key><string>LiraPreview</string><key>CFBundleName</key><string>Lira Preview</string><key>CFBundlePackageType</key><string>APPL</string><key>CFBundleVersion</key><string>1</string><key>CFBundleShortVersionString</key><string>1.0</string><key>LSRequiresIPhoneOS</key><true/><key>UILaunchScreen</key><dict/><key>UIDeviceFamily</key><array><integer>1</integer><integer>2</integer></array><key>UISupportedInterfaceOrientations</key><array><string>UIInterfaceOrientationPortrait</string><string>UIInterfaceOrientationLandscapeLeft</string><string>UIInterfaceOrientationLandscapeRight</string></array>
@@ -27,11 +27,13 @@ xcrun simctl boot "$DEVICE" || true
 xcrun simctl bootstatus "$DEVICE" -b
 xcrun simctl status_bar "$DEVICE" override --time '9:41' --batteryState charged --batteryLevel 100
 xcrun simctl install "$DEVICE" "$APP"
-for CASE in populated empty; do
+for CASE in populated empty landscape; do
   xcrun simctl terminate "$DEVICE" dev.lira.preview || true
   EMPTY=NO
   if [ "$CASE" = empty ]; then EMPTY=YES; fi
-  xcrun simctl launch "$DEVICE" dev.lira.preview -EmptyLibrary "$EMPTY"
+  LANDSCAPE=NO
+  if [ "$CASE" = landscape ]; then LANDSCAPE=YES; fi
+  xcrun simctl launch "$DEVICE" dev.lira.preview -EmptyLibrary "$EMPTY" -Landscape "$LANDSCAPE"
   CONTAINER=$(xcrun simctl get_app_container "$DEVICE" dev.lira.preview data)
   for TRY in {1..30}; do
     if [ -f "$CONTAINER/Documents/result.txt" ]; then break; fi

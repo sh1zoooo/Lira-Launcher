@@ -7,7 +7,7 @@ FOUNDATION_EXPORT UIImage *LiraWorldImage(NSString *scene);
 FOUNDATION_EXPORT UIColor *LiraMint(void);
 FOUNDATION_EXPORT BOOL LiraMotionAllowed(void);
 
-/// Raster scenery is independent of text and controls; never captures touch input.
+/// Graphite gradient behind the custom screens; never captures touch input.
 @interface LiraWorldBackdrop : UIView
 @property(nonatomic, getter=isMotionActive) BOOL motionActive;
 - (void)showScene:(NSString *)scene animated:(BOOL)animated;

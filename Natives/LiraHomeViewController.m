@@ -1,6 +1,7 @@
 #import "LiraHomeViewController.h"
 #import "LiraLivingWorld.h"
 #import "LiraTheme.h"
+#import "LiraDesignKit.h"
 #import "utils.h"
 #import "PLProfiles.h"
 #import "LauncherRightPanelViewController.h"
@@ -29,71 +30,66 @@ static NSString *LiraProfileLoader(NSString *name) {
 @interface LiraWorldInstanceCell : UICollectionViewCell
 @property(nonatomic, strong) UIImageView *cover;
 @property(nonatomic, strong) UILabel *nameLabel;
-@property(nonatomic, strong) UILabel *gameLabel;
 @property(nonatomic, strong) UILabel *versionLabel;
-@property(nonatomic, strong) UILabel *loaderLabel;
-@property(nonatomic, strong) UIStackView *details;
+@property(nonatomic, strong) UIImageView *loaderIcon;
 - (void)configureProfile:(NSString *)name focused:(BOOL)focused;
 @end
 @implementation LiraWorldInstanceCell
 - (instancetype)initWithFrame:(CGRect)frame {
-    if ((self = [super initWithFrame:frame])) {
-        self.backgroundColor = UIColor.clearColor;
-        self.cover = [[UIImageView alloc] init]; self.cover.translatesAutoresizingMaskIntoConstraints = NO;
-        self.cover.contentMode = UIViewContentModeScaleAspectFill; self.cover.clipsToBounds = YES;
-        self.cover.layer.cornerRadius = 22; self.cover.layer.cornerCurve = kCACornerCurveContinuous;
-        self.cover.layer.borderWidth = 1.3; self.cover.layer.borderColor = [LiraMint() colorWithAlphaComponent:0.6].CGColor;
-        [self.contentView addSubview:self.cover];
-        self.details = [[UIStackView alloc] init]; self.details.axis = UILayoutConstraintAxisVertical;
-        self.details.spacing = 5; self.details.translatesAutoresizingMaskIntoConstraints = NO;
-        [self.contentView addSubview:self.details];
-        self.nameLabel = [[UILabel alloc] init]; self.nameLabel.font = LiraFont(UIFontTextStyleCaption1,12,UIFontWeightSemibold);
-        self.nameLabel.textColor = LiraColor(0xBCE7CE);
-        self.gameLabel = [[UILabel alloc] init];
-        self.gameLabel.font = [[UIFontMetrics metricsForTextStyle:UIFontTextStyleTitle1] scaledFontForFont:[UIFont fontWithName:@"AvenirNextCondensed-Heavy" size:38] ?: [UIFont boldSystemFontOfSize:36]];
-        self.gameLabel.text = @"MINECRAFT"; self.gameLabel.textColor = LiraColor(0xF0F7EB);
-        self.gameLabel.shadowColor = [UIColor.blackColor colorWithAlphaComponent:0.8]; self.gameLabel.shadowOffset = CGSizeMake(0,3);
-        self.versionLabel = [[UILabel alloc] init]; self.versionLabel.font = LiraFont(UIFontTextStyleTitle3,20,UIFontWeightBold);
-        self.versionLabel.textColor = UIColor.whiteColor;
-        self.loaderLabel = [[UILabel alloc] init]; self.loaderLabel.font = LiraFont(UIFontTextStyleSubheadline,14,UIFontWeightMedium);
-        self.loaderLabel.textColor = LiraColor(0xA5EBC6);
-        for (UILabel *label in @[self.nameLabel,self.gameLabel,self.versionLabel,self.loaderLabel]) {
-            label.adjustsFontForContentSizeCategory = YES; label.adjustsFontSizeToFitWidth = YES;
-            label.minimumScaleFactor = 0.65;
-            [self.details addArrangedSubview:label];
-        }
-        NSLayoutConstraint *coverWidth=[self.cover.widthAnchor constraintEqualToAnchor:self.contentView.widthAnchor multiplier:0.30];
-        coverWidth.priority=999;
-        [NSLayoutConstraint activateConstraints:@[
-            [self.cover.widthAnchor constraintLessThanOrEqualToConstant:128], coverWidth,
-            [self.cover.leadingAnchor constraintEqualToAnchor:self.contentView.leadingAnchor],
-            [self.cover.centerYAnchor constraintEqualToAnchor:self.contentView.centerYAnchor],
-            [self.cover.heightAnchor constraintEqualToAnchor:self.cover.widthAnchor multiplier:1.08],
-            [self.cover.heightAnchor constraintLessThanOrEqualToAnchor:self.contentView.heightAnchor constant:-8],
-            [self.details.leadingAnchor constraintEqualToAnchor:self.cover.trailingAnchor constant:18],
-            [self.details.trailingAnchor constraintEqualToAnchor:self.contentView.trailingAnchor constant:-6],
-            [self.details.centerYAnchor constraintEqualToAnchor:self.contentView.centerYAnchor]
-        ]];
-        self.isAccessibilityElement = YES;
-    }
-    return self;
+    if ((self=[super initWithFrame:frame])) {
+        self.cover=[UIImageView new]; self.cover.contentMode=UIViewContentModeScaleAspectFill;
+        self.cover.clipsToBounds=YES; self.cover.layer.cornerCurve=kCACornerCurveContinuous;
+        self.nameLabel=[UILabel new]; self.nameLabel.textColor=UIColor.whiteColor;
+        self.nameLabel.adjustsFontSizeToFitWidth=YES; self.nameLabel.minimumScaleFactor=0.45; self.nameLabel.numberOfLines=2;
+        self.versionLabel=[UILabel new]; self.versionLabel.textColor=LiraColor(0xCCCCCC);
+        self.versionLabel.font=LiraFont(UIFontTextStyleSubheadline,17,UIFontWeightBold);
+        self.versionLabel.adjustsFontSizeToFitWidth=YES; self.versionLabel.minimumScaleFactor=0.7;
+        self.loaderIcon=[[UIImageView alloc] initWithImage:[UIImage imageNamed:@"LiraBrand/fabric.png"]]; self.loaderIcon.contentMode=UIViewContentModeScaleAspectFit;
+        for (UIView *v in @[self.cover,self.nameLabel,self.versionLabel,self.loaderIcon]) [self.contentView addSubview:v];
+        self.isAccessibilityElement=YES;
+    } return self;
+}
+- (void)layoutSubviews {
+    [super layoutSubviews]; CGFloat w=self.contentView.bounds.size.width,h=self.contentView.bounds.size.height;
+    BOOL wide=w>=580; CGFloat side=wide?MIN(h-12,w*0.35):MIN(w-48,MAX(130,h-112));
+    self.cover.frame=CGRectMake(wide?0:(w-side)/2,wide?(h-side)/2:0,side,side);
+    self.cover.layer.cornerRadius=side*0.17;
+    CGFloat left=wide?side+28:8, top=wide?MAX(0,(h-side)/2):side+14;
+    CGFloat textWidth=wide?w-left: w-16;
+    self.nameLabel.font=LiraFont(UIFontTextStyleLargeTitle,wide?MIN(72,MAX(38,w*0.075)):38,UIFontWeightUltraLight);
+    self.nameLabel.textAlignment=wide?NSTextAlignmentLeft:NSTextAlignmentCenter;
+    CGFloat titleHeight=wide?MIN(side*0.57,138):58;
+    self.nameLabel.frame=CGRectMake(left,top,textWidth,titleHeight);
+    CGFloat versionTop=top+titleHeight+(wide?12:4);
+    self.versionLabel.textAlignment=wide?NSTextAlignmentLeft:NSTextAlignmentCenter;
+    self.versionLabel.frame=CGRectMake(left,versionTop,textWidth-(wide?36:0),28);
+    CGFloat versionWidth=MIN(textWidth-36,[self.versionLabel.text sizeWithAttributes:@{NSFontAttributeName:self.versionLabel.font}].width);
+    self.loaderIcon.frame=CGRectMake(wide?left+versionWidth+10:(w+versionWidth)/2+7,versionTop+1,26,26);
+    if (!wide && !self.loaderIcon.hidden) { self.versionLabel.frame=CGRectMake((w-versionWidth-34)/2,versionTop,versionWidth,28); self.loaderIcon.frame=CGRectMake(CGRectGetMaxX(self.versionLabel.frame)+8,versionTop+1,26,26); }
 }
 - (void)configureProfile:(NSString *)name focused:(BOOL)focused {
-    self.cover.image = LiraWorldImage(LiraSceneForProfile(name));
-    self.nameLabel.text = [name isEqualToString:@"(Default)"] ? localize(@"lira.home.default_profile",nil) : name;
-    self.versionLabel.text = LiraProfileVersion(name);
-    self.loaderLabel.text = [NSString stringWithFormat:@"◈  %@", LiraProfileLoader(name)];
-    self.contentView.alpha = focused ? 1 : 0.55;
-    self.contentView.transform = focused || !LiraMotionAllowed() ? CGAffineTransformIdentity : CGAffineTransformMakeScale(0.90,0.90);
-    self.accessibilityLabel = [NSString stringWithFormat:@"%@, %@, %@",self.nameLabel.text,self.versionLabel.text,self.loaderLabel.text];
-    self.accessibilityTraits = UIAccessibilityTraitButton | (focused ? UIAccessibilityTraitSelected : 0);
+    self.cover.image=LiraProfileCover(name);
+    self.nameLabel.text=[name isEqualToString:@"(Default)"]?localize(@"lira.home.default_profile",nil):name;
+    NSString *version=LiraProfileVersion(name), *loader=LiraProfileLoader(name);
+    // Keep the full underlying version id available to accessibility; the display separates loader metadata.
+    NSString *display=version;
+    NSRegularExpression *pattern=[NSRegularExpression regularExpressionWithPattern:@"[0-9]+\\.[0-9]+(?:\\.[0-9]+)?" options:0 error:nil];
+    NSTextCheckingResult *match=[pattern firstMatchInString:version options:0 range:NSMakeRange(0,version.length)];
+    if (match) display=[version substringWithRange:match.range];
+    self.versionLabel.text=[NSString stringWithFormat:@"%@  %@",display,loader];
+    self.loaderIcon.hidden=![loader.lowercaseString containsString:@"fabric"];
+    self.contentView.alpha=focused?1:0.45;
+    self.contentView.transform=focused||!LiraMotionAllowed()?CGAffineTransformIdentity:CGAffineTransformMakeScale(0.96,0.96);
+    self.accessibilityLabel=[NSString stringWithFormat:@"%@, %@, %@",self.nameLabel.text,version,loader];
+    self.accessibilityTraits=UIAccessibilityTraitButton|(focused?UIAccessibilityTraitSelected:0);
+    [self setNeedsLayout];
 }
 @end
 
 @interface LiraHomeViewController () <UICollectionViewDataSource, UICollectionViewDelegateFlowLayout>
 @property(nonatomic, strong) UIScrollView *page;
 @property(nonatomic, strong) UIView *canvas;
-@property(nonatomic, strong) UIStackView *heading;
+@property(nonatomic, strong) UIView *heading;
 @property(nonatomic, strong) UILabel *greeting;
 @property(nonatomic, strong) UIButton *avatar;
 @property(nonatomic, strong) UILabel *jitLabel;
@@ -112,8 +108,6 @@ static NSString *LiraProfileLoader(NSString *name) {
 @property(nonatomic) BOOL visible;
 @property(nonatomic) NSUInteger launchRequest;
 @property(nonatomic) CGFloat lastWidth;
-@property(nonatomic, strong) NSLayoutConstraint *skyHeight;
-@property(nonatomic, strong) NSLayoutConstraint *galleryHeight;
 @end
 
 @implementation LiraHomeViewController
@@ -122,29 +116,14 @@ static NSString *LiraProfileLoader(NSString *name) {
     self.view.backgroundColor = UIColor.clearColor;
     self.overrideUserInterfaceStyle = UIUserInterfaceStyleDark;
     self.view.tintColor = LiraMint();
-    self.page = [[UIScrollView alloc] init]; self.page.translatesAutoresizingMaskIntoConstraints = NO;
-    self.page.showsVerticalScrollIndicator = NO;
-    self.page.alwaysBounceVertical = NO;
-    [self.view addSubview:self.page];
-    self.canvas = [[UIView alloc] init]; self.canvas.translatesAutoresizingMaskIntoConstraints = NO;
-    [self.page addSubview:self.canvas];
-    [NSLayoutConstraint activateConstraints:@[
-        [self.page.leadingAnchor constraintEqualToAnchor:self.view.leadingAnchor],
-        [self.page.trailingAnchor constraintEqualToAnchor:self.view.trailingAnchor],
-        [self.page.topAnchor constraintEqualToAnchor:self.view.safeAreaLayoutGuide.topAnchor],
-        [self.page.bottomAnchor constraintEqualToAnchor:self.view.safeAreaLayoutGuide.bottomAnchor],
-        [self.canvas.leadingAnchor constraintEqualToAnchor:self.page.contentLayoutGuide.leadingAnchor],
-        [self.canvas.trailingAnchor constraintEqualToAnchor:self.page.contentLayoutGuide.trailingAnchor],
-        [self.canvas.topAnchor constraintEqualToAnchor:self.page.contentLayoutGuide.topAnchor],
-        [self.canvas.bottomAnchor constraintEqualToAnchor:self.page.contentLayoutGuide.bottomAnchor],
-        [self.canvas.widthAnchor constraintEqualToAnchor:self.page.frameLayoutGuide.widthAnchor],
-        [self.canvas.heightAnchor constraintGreaterThanOrEqualToAnchor:self.page.frameLayoutGuide.heightAnchor]
-    ]];
+    self.page=[UIScrollView new]; self.page.showsVerticalScrollIndicator=NO;
+    self.page.contentInsetAdjustmentBehavior=UIScrollViewContentInsetAdjustmentNever;
+    [self.view addSubview:self.page]; self.canvas=[UIView new]; [self.page addSubview:self.canvas];
     [self buildHeader]; [self buildGallery];
     NSNotificationCenter *center = NSNotificationCenter.defaultCenter;
     [center addObserver:self selector:@selector(stateChanged:) name:AmeRightPanelStateNotification object:nil];
     [center addObserver:self selector:@selector(progressChanged) name:AmeLaunchProgressChangedNotification object:nil];
-    for (NSString *name in @[@"SelectedProfileChanged",@"ProfileListChanged",@"VersionListChanged",UIApplicationWillEnterForegroundNotification]) {
+    for (NSString *name in @[@"SelectedProfileChanged",@"ProfileListChanged",@"VersionListChanged",@"LiraCoverChanged",UIApplicationWillEnterForegroundNotification]) {
         [center addObserver:self selector:@selector(refreshProfiles) name:name object:nil];
     }
     [self refreshProfiles];
@@ -156,122 +135,57 @@ static NSString *LiraProfileLoader(NSString *name) {
     return label;
 }
 - (void)buildHeader {
-    self.heading = [[UIStackView alloc] init]; self.heading.axis = UILayoutConstraintAxisVertical;
-    self.heading.spacing = 2; self.heading.translatesAutoresizingMaskIntoConstraints = NO;
-    UILabel *wordmark = [self labelWithSize:40 weight:UIFontWeightHeavy];
-    wordmark.font = [[UIFontMetrics metricsForTextStyle:UIFontTextStyleLargeTitle] scaledFontForFont:[UIFont fontWithName:@"AvenirNext-Heavy" size:40] ?: [UIFont boldSystemFontOfSize:40]];
-    wordmark.attributedText = [[NSAttributedString alloc] initWithString:@"LIRA✦" attributes:@{NSKernAttributeName:@2, NSForegroundColorAttributeName:LiraColor(0xD1FFE7)}];
-    [self.heading addArrangedSubview:wordmark];
-    self.greeting = [self labelWithSize:15 weight:UIFontWeightMedium]; self.greeting.numberOfLines = 2;
-    [self.heading addArrangedSubview:self.greeting];
-    [self.canvas addSubview:self.heading];
-    self.avatar = [UIButton buttonWithType:UIButtonTypeSystem]; self.avatar.translatesAutoresizingMaskIntoConstraints = NO;
-    self.avatar.backgroundColor = [LiraColor(0x002B19) colorWithAlphaComponent:0.8];
-    self.avatar.layer.cornerRadius = 17; self.avatar.clipsToBounds = YES;
-    self.avatar.layer.borderWidth = 1; self.avatar.layer.borderColor = [LiraMint() colorWithAlphaComponent:0.5].CGColor;
-    [self.avatar setImage:[UIImage systemImageNamed:@"person.crop.square.fill"] forState:UIControlStateNormal];
-    self.avatar.imageView.contentMode = UIViewContentModeScaleAspectFill;
-    self.avatar.accessibilityLabel = localize(@"lira.home.account",nil);
-    [self.avatar addTarget:self action:@selector(accounts) forControlEvents:UIControlEventTouchUpInside];
-    [self.canvas addSubview:self.avatar];
-    self.jitLabel = [self labelWithSize:11 weight:UIFontWeightSemibold]; self.jitLabel.translatesAutoresizingMaskIntoConstraints = NO;
-    self.jitLabel.text = localize(@"login.jit.checking",nil); self.jitLabel.textColor = LiraMint();
-    self.jitLabel.numberOfLines = 2; self.jitLabel.textAlignment = NSTextAlignmentRight;
+    UIImageView *logo=[[UIImageView alloc] initWithImage:[UIImage imageNamed:@"LiraBrand/wordmark.png"]];
+    logo.contentMode=UIViewContentModeScaleAspectFit; logo.accessibilityLabel=@"Lira Launcher"; logo.isAccessibilityElement=YES;
+    self.heading=logo; [self.canvas addSubview:logo];
+    self.avatar=[UIButton buttonWithType:UIButtonTypeCustom]; self.avatar.hidden=YES;
+    self.jitLabel=[self labelWithSize:11 weight:UIFontWeightMedium]; self.jitLabel.textColor=LiraColor(0x999999);
+    self.jitLabel.textAlignment=NSTextAlignmentRight; self.jitLabel.numberOfLines=2;
     [self.canvas addSubview:self.jitLabel];
-    [NSLayoutConstraint activateConstraints:@[
-        [self.heading.topAnchor constraintEqualToAnchor:self.canvas.topAnchor constant:18],
-        [self.heading.leadingAnchor constraintEqualToAnchor:self.canvas.leadingAnchor constant:24],
-        [self.heading.trailingAnchor constraintLessThanOrEqualToAnchor:self.avatar.leadingAnchor constant:-16],
-        [self.avatar.topAnchor constraintEqualToAnchor:self.heading.topAnchor constant:4],
-        [self.avatar.trailingAnchor constraintEqualToAnchor:self.canvas.trailingAnchor constant:-24],
-        [self.avatar.widthAnchor constraintEqualToConstant:48], [self.avatar.heightAnchor constraintEqualToConstant:48],
-        [self.jitLabel.topAnchor constraintEqualToAnchor:self.avatar.bottomAnchor constant:7],
-        [self.jitLabel.trailingAnchor constraintEqualToAnchor:self.avatar.trailingAnchor],
-        [self.jitLabel.widthAnchor constraintLessThanOrEqualToConstant:130]
-    ]];
 }
 - (void)buildGallery {
-    UIView *sky = [[UIView alloc] init]; sky.translatesAutoresizingMaskIntoConstraints = NO; sky.userInteractionEnabled = NO;
-    [self.canvas addSubview:sky];
-    self.skyHeight = [sky.heightAnchor constraintEqualToConstant:160];
-    self.galleryLayout = [[UICollectionViewFlowLayout alloc] init];
-    self.galleryLayout.scrollDirection = UICollectionViewScrollDirectionHorizontal;
-    self.galleryLayout.minimumLineSpacing = 12;
-    self.galleryLayout.sectionInset = UIEdgeInsetsMake(0,24,0,24);
-    self.gallery = [[UICollectionView alloc] initWithFrame:CGRectZero collectionViewLayout:self.galleryLayout];
-    self.gallery.translatesAutoresizingMaskIntoConstraints = NO; self.gallery.backgroundColor = UIColor.clearColor;
-    self.gallery.showsHorizontalScrollIndicator = NO; self.gallery.decelerationRate = UIScrollViewDecelerationRateFast;
-    self.gallery.dataSource = self; self.gallery.delegate = self;
-    self.galleryHeight = [self.gallery.heightAnchor constraintEqualToConstant:170];
-    [self.gallery registerClass:LiraWorldInstanceCell.class forCellWithReuseIdentifier:@"world"];
-    [self.canvas addSubview:self.gallery];
-    self.emptyLabel = [self labelWithSize:24 weight:UIFontWeightBold]; self.emptyLabel.translatesAutoresizingMaskIntoConstraints = NO;
-    self.emptyLabel.numberOfLines = 0; self.emptyLabel.text = localize(@"lira.world.empty",nil);
+    self.galleryLayout=[UICollectionViewFlowLayout new]; self.galleryLayout.scrollDirection=UICollectionViewScrollDirectionHorizontal; self.galleryLayout.minimumLineSpacing=12;
+    self.gallery=[[UICollectionView alloc] initWithFrame:CGRectZero collectionViewLayout:self.galleryLayout];
+    self.gallery.backgroundColor=UIColor.clearColor; self.gallery.showsHorizontalScrollIndicator=NO;
+    self.gallery.decelerationRate=UIScrollViewDecelerationRateFast; self.gallery.dataSource=self; self.gallery.delegate=self;
+    [self.gallery registerClass:LiraWorldInstanceCell.class forCellWithReuseIdentifier:@"world"]; [self.canvas addSubview:self.gallery];
+    self.emptyLabel=[self labelWithSize:30 weight:UIFontWeightUltraLight]; self.emptyLabel.numberOfLines=0; self.emptyLabel.text=localize(@"lira.world.empty",nil); self.emptyLabel.textAlignment=NSTextAlignmentCenter;
     [self.canvas addSubview:self.emptyLabel];
-    self.installButton = [UIButton buttonWithType:UIButtonTypeSystem]; self.installButton.translatesAutoresizingMaskIntoConstraints = NO;
-    [self.installButton setTitle:localize(@"lira.world.install",nil) forState:UIControlStateNormal];
-    [self.installButton setTitleColor:LiraMint() forState:UIControlStateNormal];
-    self.installButton.titleLabel.font = LiraFont(UIFontTextStyleHeadline,17,UIFontWeightSemibold);
-    [self.installButton addTarget:self action:@selector(downloads) forControlEvents:UIControlEventTouchUpInside];
-    [self.canvas addSubview:self.installButton];
-    self.playButton = [[LiraPlayButton alloc] init]; self.playButton.translatesAutoresizingMaskIntoConstraints = NO;
-    self.playButton.title = localize(@"Play",nil); self.playButton.enabled = NO;
-    self.playButton.accessibilityIdentifier = @"lira.play";
-    [self.playButton addTarget:self action:@selector(play) forControlEvents:UIControlEventTouchUpInside];
-    [self.canvas addSubview:self.playButton];
-    self.pages = [[UIPageControl alloc] init]; self.pages.translatesAutoresizingMaskIntoConstraints = NO;
-    self.pages.pageIndicatorTintColor = [LiraMint() colorWithAlphaComponent:0.2]; self.pages.currentPageIndicatorTintColor = LiraMint();
-    self.pages.hidesForSinglePage = YES;
-    [self.pages addTarget:self action:@selector(pageChanged) forControlEvents:UIControlEventValueChanged];
-    [self.canvas addSubview:self.pages];
-    self.moreButton = [UIButton buttonWithType:UIButtonTypeSystem]; self.moreButton.translatesAutoresizingMaskIntoConstraints = NO;
-    [self.moreButton setTitle:localize(@"lira.world.tools",nil) forState:UIControlStateNormal];
-    [self.moreButton setImage:[UIImage systemImageNamed:@"ellipsis.circle"] forState:UIControlStateNormal];
-    self.moreButton.titleLabel.font = LiraFont(UIFontTextStyleSubheadline,14,UIFontWeightMedium);
-    self.moreButton.imageEdgeInsets = UIEdgeInsetsMake(0,-5,0,5);
-    [self.moreButton setTitleColor:LiraColor(0xBDE4CD) forState:UIControlStateNormal];
-    [self.moreButton addTarget:self action:@selector(showTools) forControlEvents:UIControlEventTouchUpInside];
-    [self.canvas addSubview:self.moreButton];
-    NSLayoutConstraint *playWidth = [self.playButton.widthAnchor constraintEqualToAnchor:self.canvas.widthAnchor constant:-48]; playWidth.priority = 999;
-    [NSLayoutConstraint activateConstraints:@[
-        [sky.topAnchor constraintEqualToAnchor:self.heading.bottomAnchor constant:16],
-        [sky.leadingAnchor constraintEqualToAnchor:self.canvas.leadingAnchor], self.skyHeight,
-        [self.gallery.topAnchor constraintEqualToAnchor:sky.bottomAnchor],
-        [self.gallery.leadingAnchor constraintEqualToAnchor:self.canvas.leadingAnchor],
-        [self.gallery.trailingAnchor constraintEqualToAnchor:self.canvas.trailingAnchor],
-        self.galleryHeight,
-        [self.emptyLabel.leadingAnchor constraintEqualToAnchor:self.canvas.leadingAnchor constant:24],
-        [self.emptyLabel.trailingAnchor constraintEqualToAnchor:self.canvas.trailingAnchor constant:-24],
-        [self.emptyLabel.centerYAnchor constraintEqualToAnchor:self.gallery.centerYAnchor constant:-18],
-        [self.installButton.topAnchor constraintEqualToAnchor:self.emptyLabel.bottomAnchor constant:12],
-        [self.installButton.leadingAnchor constraintEqualToAnchor:self.emptyLabel.leadingAnchor],
-        [self.installButton.heightAnchor constraintGreaterThanOrEqualToConstant:44],
-        [self.playButton.topAnchor constraintEqualToAnchor:self.gallery.bottomAnchor constant:12],
-        [self.playButton.leadingAnchor constraintEqualToAnchor:self.canvas.leadingAnchor constant:24],
-        playWidth, [self.playButton.widthAnchor constraintLessThanOrEqualToConstant:520],
-        [self.playButton.heightAnchor constraintEqualToConstant:64],
-        [self.pages.topAnchor constraintEqualToAnchor:self.playButton.bottomAnchor constant:8],
-        [self.pages.centerXAnchor constraintEqualToAnchor:self.playButton.centerXAnchor],
-        [self.pages.heightAnchor constraintEqualToConstant:24],
-        [self.moreButton.topAnchor constraintEqualToAnchor:self.pages.bottomAnchor constant:0],
-        [self.moreButton.leadingAnchor constraintEqualToAnchor:self.playButton.leadingAnchor],
-        [self.moreButton.heightAnchor constraintGreaterThanOrEqualToConstant:44],
-        [self.moreButton.bottomAnchor constraintEqualToAnchor:self.canvas.bottomAnchor constant:-12]
-    ]];
+    self.installButton=[UIButton buttonWithType:UIButtonTypeCustom]; [self.installButton setTitle:localize(@"lira.world.install",nil) forState:UIControlStateNormal];
+    [self.installButton setTitleColor:UIColor.whiteColor forState:UIControlStateNormal]; self.installButton.backgroundColor=LiraColor(0x333333); self.installButton.layer.cornerRadius=22;
+    [self.installButton addTarget:self action:@selector(downloads) forControlEvents:UIControlEventTouchUpInside]; [self.canvas addSubview:self.installButton];
+    self.playButton=[LiraPlayButton new]; self.playButton.title=localize(@"Play",nil); self.playButton.enabled=NO; self.playButton.accessibilityIdentifier=@"lira.play";
+    [self.playButton addTarget:self action:@selector(play) forControlEvents:UIControlEventTouchUpInside]; [self.canvas addSubview:self.playButton];
+    self.pages=[UIPageControl new]; self.pages.pageIndicatorTintColor=LiraColor(0x454545); self.pages.currentPageIndicatorTintColor=LiraColor(0xBBBBBB); self.pages.hidesForSinglePage=YES;
+    [self.pages addTarget:self action:@selector(pageChanged) forControlEvents:UIControlEventValueChanged]; [self.canvas addSubview:self.pages];
+    self.moreButton=[UIButton buttonWithType:UIButtonTypeCustom]; [self.moreButton setTitle:localize(@"lira.world.tools",nil) forState:UIControlStateNormal];
+    self.moreButton.titleLabel.font=LiraFont(UIFontTextStyleFootnote,12,UIFontWeightMedium); [self.moreButton setTitleColor:LiraColor(0xAAAAAA) forState:UIControlStateNormal];
+    [self.moreButton addTarget:self action:@selector(showTools) forControlEvents:UIControlEventTouchUpInside]; [self.canvas addSubview:self.moreButton];
 }
 - (void)viewDidLayoutSubviews {
     [super viewDidLayoutSubviews];
-    CGFloat width = self.view.bounds.size.width, height = self.page.bounds.size.height;
-    // Retain scenery on large screens; short landscape screens scroll vertically instead of clipping controls.
-    CGFloat galleryHeight=UIContentSizeCategoryIsAccessibilityCategory(self.traitCollection.preferredContentSizeCategory)?260:170;
-    self.galleryHeight.constant=galleryHeight;
-    self.skyHeight.constant = MAX(24, height - 368 - self.heading.bounds.size.height - (galleryHeight-170));
-    if (fabs(width-self.lastWidth)>1 || self.galleryLayout.itemSize.height!=galleryHeight) {
-        self.lastWidth = width;
-        self.galleryLayout.itemSize = CGSizeMake(MIN(560,MAX(260,width*0.82)),galleryHeight);
-        [self.galleryLayout invalidateLayout];
-        if (self.profiles.count) [self.gallery setContentOffset:CGPointMake(self.focusedIndex*(self.galleryLayout.itemSize.width+12),0) animated:NO];
+    CGRect safe=UIEdgeInsetsInsetRect(self.view.bounds,self.view.safeAreaInsets); self.page.frame=safe;
+    CGFloat w=safe.size.width,h=safe.size.height; BOOL wide=w>=650;
+    CGFloat pad=wide?MAX(28,w*0.07):20, logoWidth=MIN(w*0.5,310), logoHeight=logoWidth*78/661;
+    self.heading.frame=CGRectMake((w-logoWidth)/2,wide?10:20,logoWidth,logoHeight);
+    CGFloat top=CGRectGetMaxY(self.heading.frame)+(wide?18:30);
+    CGFloat heroHeight=wide?MAX(142,MIN(360,h-top-128)):MAX(270,MIN(440,h-top-140));
+    if (UIContentSizeCategoryIsAccessibilityCategory(self.traitCollection.preferredContentSizeCategory)) heroHeight+=100;
+    self.gallery.frame=CGRectMake(pad,top,w-pad*2,heroHeight);
+    CGSize size=self.gallery.bounds.size;
+    if (!CGSizeEqualToSize(self.galleryLayout.itemSize,size)) {
+        self.galleryLayout.itemSize=size; [self.galleryLayout invalidateLayout];
+        if (self.profiles.count) [self.gallery setContentOffset:CGPointMake(self.focusedIndex*(size.width+12),0) animated:NO];
     }
+    CGFloat playWidth=MIN(w-48,wide?360:420), playX=wide?MAX(pad,(w-playWidth)/2+MIN(60,w*0.05)):(w-playWidth)/2;
+    self.playButton.frame=CGRectMake(playX,CGRectGetMaxY(self.gallery.frame)+12,playWidth,wide?54:60);
+    self.pages.frame=CGRectMake((w-140)/2,CGRectGetMaxY(self.playButton.frame)+5,140,24);
+    self.moreButton.frame=CGRectMake(pad,CGRectGetMaxY(self.pages.frame),100,44);
+    self.jitLabel.frame=CGRectMake(w-pad-170,CGRectGetMinY(self.moreButton.frame),170,44);
+    CGFloat contentHeight=MAX(h,CGRectGetMaxY(self.moreButton.frame)+6);
+    self.canvas.frame=CGRectMake(0,0,w,contentHeight); self.page.contentSize=self.canvas.bounds.size;
+    self.emptyLabel.frame=CGRectMake(pad,top+heroHeight/2-70,w-2*pad,90);
+    self.installButton.frame=CGRectMake((w-MIN(280,w-48))/2,CGRectGetMaxY(self.emptyLabel.frame)+20,MIN(280,w-48),48);
 }
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated]; self.visible = YES;
@@ -354,7 +268,7 @@ static NSString *LiraProfileLoader(NSString *name) {
         UIImage *avatar=info[@"avatar"];
         if ([avatar isKindOfClass:UIImage.class]) [self.avatar setImage:[avatar imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal] forState:UIControlStateNormal];
         self.jitLabel.text=info[@"jit"]?:localize(@"login.jit.checking",nil);
-        self.jitLabel.textColor=info[@"jitColor"]?:LiraMint();
+        self.jitLabel.textColor=LiraColor(0xAAAAAA);
         self.playButton.enabled=[info[@"launchEnabled"] boolValue] && !self.draggingGallery;
         if (!self.playButton.launching) self.playButton.title=info[@"launchTitle"]?:localize(@"Play",nil);
     });
@@ -394,28 +308,26 @@ static NSString *LiraProfileLoader(NSString *name) {
 - (void)accounts { [LauncherRightPanelViewController norightPostAction:@"accountManager"]; }
 - (void)downloads { self.tabBarController.selectedIndex=1; }
 - (void)showTools {
-    UIAlertController *sheet=[UIAlertController alertControllerWithTitle:localize(@"lira.world.tools",nil) message:nil preferredStyle:UIAlertControllerStyleActionSheet];
+    NSMutableArray *actions=NSMutableArray.array;
     NSArray *items=@[
+        @[localize(@"lira.cover.choose",nil),@"cover"], @[localize(@"lira.home.account",nil),@"account"],
         @[localize(@"lira.home.mods",nil),@"mods"], @[localize(@"lira.home.import",nil),@"import"],
         @[localize(@"lira.home.downloads",nil),@"downloads"], @[localize(@"lira.home.history",nil),@"history"],
-        @[localize(@"lira.home.multiplayer",nil),@"multiplayer"], @[localize(@"lira.home.news",nil),@"news"],
-        @[localize(@"tab.ai",nil),@"ai"]];
+        @[localize(@"lira.home.multiplayer",nil),@"multiplayer"], @[localize(@"lira.home.news",nil),@"news"], @[localize(@"tab.ai",nil),@"ai"]];
     __weak typeof(self) weakSelf=self;
-    for (NSArray *item in items) [sheet addAction:[UIAlertAction actionWithTitle:item[0] style:UIAlertActionStyleDefault handler:^(UIAlertAction *action){
-        typeof(self) self=weakSelf; if (!self) return;
-        NSString *key=item[1];
-        if ([key isEqual:@"mods"]) { ModsManagerViewController *vc=[[ModsManagerViewController alloc] init]; vc.profileName=PLProfiles.current.selectedProfileName; [self push:vc]; }
-        else if ([key isEqual:@"import"]) [self push:[[ModpackImportViewController alloc] init]];
+    for (NSArray *item in items) [actions addObject:[LiraSheetAction title:item[0] handler:^{
+        typeof(self) self=weakSelf; if (!self) return; NSString *key=item[1];
+        if ([key isEqual:@"cover"]) LiraChooseProfileCover(self,PLProfiles.current.selectedProfileName);
+        else if ([key isEqual:@"account"]) [self accounts];
+        else if ([key isEqual:@"mods"]) { ModsManagerViewController *vc=[ModsManagerViewController new]; vc.profileName=PLProfiles.current.selectedProfileName; [self push:vc]; }
+        else if ([key isEqual:@"import"]) [self push:[ModpackImportViewController new]];
         else if ([key isEqual:@"downloads"]) [LauncherRightPanelViewController norightPostAction:@"downloadCenter"];
-        else if ([key isEqual:@"history"]) [self push:[[DownloadHistoryViewController alloc] init]];
-        else if ([key isEqual:@"multiplayer"]) [self push:[[TerracottaViewController alloc] init]];
-        else if ([key isEqual:@"news"]) [self push:[[MinecraftNewsViewController alloc] init]];
+        else if ([key isEqual:@"history"]) [self push:[DownloadHistoryViewController new]];
+        else if ([key isEqual:@"multiplayer"]) [self push:[TerracottaViewController new]];
+        else if ([key isEqual:@"news"]) [self push:[MinecraftNewsViewController new]];
         else if ([key isEqual:@"ai"]) self.tabBarController.selectedIndex=2;
     }]];
-    [sheet addAction:[UIAlertAction actionWithTitle:localize(@"Cancel",nil) style:UIAlertActionStyleCancel handler:nil]];
-    sheet.popoverPresentationController.sourceView=self.moreButton;
-    sheet.popoverPresentationController.sourceRect=self.moreButton.bounds;
-    [self presentViewController:sheet animated:YES completion:nil];
+    LiraPresentSheet(self,localize(@"lira.world.tools",nil),actions);
 }
 - (void)dealloc { [NSNotificationCenter.defaultCenter removeObserver:self]; }
 @end

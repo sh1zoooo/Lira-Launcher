@@ -67,7 +67,7 @@ NSString * const AmeTabTappedNotification = @"AmeTabTapped";
 }
 - (void)viewDidLoad {
     [super viewDidLoad];
-    self.view.backgroundColor=LiraColor(0x04160F);
+    self.view.backgroundColor=LiraColor(0x101010);
     self.tabBar.hidden=YES;
     // iOS 18+ adaptive system tabs are not used; the four-destination dock is our UI on every device.
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= 180000

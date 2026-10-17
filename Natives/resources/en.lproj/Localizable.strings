@@ -2772,3 +2772,5 @@
 "lira.library.unfavorite" = "Remove from favorites";
 "lira.library.configure" = "Profile settings";
 "lira.profile.caption" = "Your world. Your rules.";
+"lira.cover.choose" = "Choose cover image";
+"lira.cover.error" = "Could not open the image. Choose a supported image under 20 MB.";

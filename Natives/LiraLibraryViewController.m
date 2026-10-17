@@ -1,6 +1,7 @@
 #import "LiraLibraryViewController.h"
 #import "LiraLivingWorld.h"
 #import "LiraTheme.h"
+#import "LiraDesignKit.h"
 #import "PLProfiles.h"
 #import "ProfileSettingsViewController.h"
 #import "VersionManagerViewController.h"
@@ -14,7 +15,7 @@
 @implementation LiraLibraryCell
 - (instancetype)initWithFrame:(CGRect)frame {
     if ((self=[super initWithFrame:frame])) {
-        self.contentView.backgroundColor=LiraColor(0x0B281D);
+        self.contentView.backgroundColor=LiraColor(0x252525);
         self.contentView.layer.cornerRadius=24; self.contentView.clipsToBounds=YES;
         self.cover=[[UIImageView alloc] init]; self.cover.contentMode=UIViewContentModeScaleAspectFill; self.cover.clipsToBounds=YES;
         self.nameLabel=[[UILabel alloc] init]; self.nameLabel.font=LiraFont(UIFontTextStyleHeadline,18,UIFontWeightBold);
@@ -43,7 +44,7 @@
 @interface LiraLibraryViewController () <UICollectionViewDataSource, UICollectionViewDelegateFlowLayout, UISearchBarDelegate>
 @property(nonatomic, strong) UICollectionView *grid;
 @property(nonatomic, strong) UISearchBar *search;
-@property(nonatomic, strong) UISegmentedControl *filter;
+@property(nonatomic, strong) LiraSegmentControl *filter;
 @property(nonatomic, strong) UILabel *empty;
 @property(nonatomic, strong) NSArray<NSString *> *names;
 @end
@@ -51,26 +52,38 @@
 - (void)viewDidLoad {
     [super viewDidLoad]; self.title=localize(@"lira.world.library",nil);
     self.overrideUserInterfaceStyle=UIUserInterfaceStyleDark;
-    self.view.backgroundColor=LiraColor(0x04170F);
-    self.navigationItem.rightBarButtonItems=@[
-        [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAdd target:self action:@selector(install)],
-        [[UIBarButtonItem alloc] initWithTitle:localize(@"lira.library.manage",nil) style:UIBarButtonItemStylePlain target:self action:@selector(manage)]];
-    self.search=[[UISearchBar alloc] init]; self.search.delegate=self; self.search.searchBarStyle=UISearchBarStyleMinimal;
+    self.view.backgroundColor=LiraColor(0x141414);
+    UIStackView *header=[UIStackView new]; header.translatesAutoresizingMaskIntoConstraints=NO; header.spacing=12; header.alignment=UIStackViewAlignmentCenter;
+    UILabel *title=[UILabel new]; title.text=self.title; title.textColor=UIColor.whiteColor; title.font=LiraFont(UIFontTextStyleLargeTitle,32,UIFontWeightLight); title.adjustsFontSizeToFitWidth=YES; title.minimumScaleFactor=0.7;
+    [header addArrangedSubview:title];
+    for (NSString *text in @[localize(@"lira.library.manage",nil),@"+"]) {
+        UIButton *button=[UIButton buttonWithType:UIButtonTypeCustom]; [button setTitle:text forState:UIControlStateNormal];
+        button.titleLabel.font=LiraFont(UIFontTextStyleFootnote,14,UIFontWeightSemibold); button.backgroundColor=LiraColor(0x2C2C2C); button.layer.cornerRadius=18;
+        [button.widthAnchor constraintEqualToConstant:[text isEqual:@"+"]?44:108].active=YES; [button.heightAnchor constraintEqualToConstant:44].active=YES;
+        button.accessibilityLabel=[text isEqual:@"+"]?localize(@"lira.world.install",nil):text;
+        [button addTarget:self action:[text isEqual:@"+"]?@selector(install):@selector(manage) forControlEvents:UIControlEventTouchUpInside];
+        [header addArrangedSubview:button];
+    }
+    [self.view addSubview:header];
+    [NSLayoutConstraint activateConstraints:@[[header.leadingAnchor constraintEqualToAnchor:self.view.safeAreaLayoutGuide.leadingAnchor constant:20],[header.trailingAnchor constraintEqualToAnchor:self.view.safeAreaLayoutGuide.trailingAnchor constant:-20],[header.topAnchor constraintEqualToAnchor:self.view.safeAreaLayoutGuide.topAnchor constant:18]]];
+    [NSNotificationCenter.defaultCenter addObserver:self selector:@selector(refresh) name:@"LiraCoverChanged" object:nil];
+    self.search=[[UISearchBar alloc] init]; self.search.delegate=self; LiraStyleSearchBar(self.search);
     self.search.placeholder=localize(@"lira.home.search",nil);
-    self.filter=[[UISegmentedControl alloc] initWithItems:@[localize(@"lira.home.all",nil),localize(@"lira.home.favorites",nil)]];
-    self.filter.selectedSegmentIndex=0; self.filter.selectedSegmentTintColor=LiraColor(0x24553D);
+    self.filter=[[LiraSegmentControl alloc] initWithItems:@[localize(@"lira.home.all",nil),localize(@"lira.home.favorites",nil)]];
+    self.filter.selectedSegmentIndex=0; self.filter.selectedSegmentTintColor=LiraColor(0x444444);
     [self.filter addTarget:self action:@selector(refresh) forControlEvents:UIControlEventValueChanged];
     UICollectionViewFlowLayout *layout=[[UICollectionViewFlowLayout alloc] init]; layout.minimumInteritemSpacing=16; layout.minimumLineSpacing=20;
     self.grid=[[UICollectionView alloc] initWithFrame:CGRectZero collectionViewLayout:layout];
+    [self.grid addGestureRecognizer:[[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(profileMenu:)]];
     self.grid.backgroundColor=UIColor.clearColor; self.grid.dataSource=self; self.grid.delegate=self;
     self.grid.keyboardDismissMode=UIScrollViewKeyboardDismissModeOnDrag; self.grid.alwaysBounceVertical=YES;
     self.grid.contentInset=UIEdgeInsetsMake(18,20,20,20);
     [self.grid registerClass:LiraLibraryCell.class forCellWithReuseIdentifier:@"world"];
     self.empty=[[UILabel alloc] init]; self.empty.text=localize(@"lira.home.empty",nil); self.empty.textAlignment=NSTextAlignmentCenter;
-    self.empty.textColor=LiraColor(0xABC4B5); self.empty.numberOfLines=0;
+    self.empty.textColor=LiraColor(0xAAAAAA); self.empty.numberOfLines=0;
     for (UIView *v in @[self.search,self.filter,self.grid]) { v.translatesAutoresizingMaskIntoConstraints=NO; [self.view addSubview:v]; }
     [NSLayoutConstraint activateConstraints:@[
-        [self.search.topAnchor constraintEqualToAnchor:self.view.safeAreaLayoutGuide.topAnchor constant:8],
+        [self.search.topAnchor constraintEqualToAnchor:header.bottomAnchor constant:14],
         [self.search.leadingAnchor constraintEqualToAnchor:self.view.safeAreaLayoutGuide.leadingAnchor constant:12],
         [self.search.trailingAnchor constraintEqualToAnchor:self.view.safeAreaLayoutGuide.trailingAnchor constant:-12],
         [self.filter.topAnchor constraintEqualToAnchor:self.search.bottomAnchor constant:8],
@@ -83,7 +96,7 @@
     ]];
 }
 - (void)viewWillAppear:(BOOL)animated {
-    [super viewWillAppear:animated]; [self.navigationController setNavigationBarHidden:NO animated:animated];
+    [super viewWillAppear:animated]; [self.navigationController setNavigationBarHidden:YES animated:animated];
     LiraApplyNavigationAppearance(self.navigationController.navigationBar); [self refresh];
 }
 - (void)viewDidLayoutSubviews { [super viewDidLayoutSubviews]; [self.grid.collectionViewLayout invalidateLayout]; }
@@ -108,7 +121,7 @@
     LiraLibraryCell *cell=[collection dequeueReusableCellWithReuseIdentifier:@"world" forIndexPath:path];
     NSString *name=self.names[path.item]; BOOL selected=[name isEqualToString:PLProfiles.current.selectedProfileName];
     NSString *display=[name isEqualToString:@"(Default)"]?localize(@"lira.home.default_profile",nil):name;
-    cell.cover.image=LiraWorldImage(LiraSceneForProfile(name));
+    cell.cover.image=LiraProfileCover(name);
     cell.nameLabel.text=[NSString stringWithFormat:@"%@%@",[[self favorites] containsObject:name]?@"★ ":@"",display];
     cell.versionLabel.text=PLProfiles.current.profiles[name][@"lastVersionId"]?:@"";
     cell.contentView.layer.borderWidth=selected?2:0;
@@ -126,25 +139,28 @@
     [PLProfiles.current setSelectedProfileName:self.names[path.item]];
     [self.search resignFirstResponder]; self.tabBarController.selectedIndex=0;
 }
-- (UIContextMenuConfiguration *)collectionView:(UICollectionView *)collection contextMenuConfigurationForItemAtIndexPath:(NSIndexPath *)path point:(CGPoint)point {
+- (void)profileMenu:(UILongPressGestureRecognizer *)gesture {
+    if (gesture.state!=UIGestureRecognizerStateBegan) return;
+    NSIndexPath *path=[self.grid indexPathForItemAtPoint:[gesture locationInView:self.grid]]; if (!path) return;
     NSString *name=self.names[path.item]; __weak typeof(self) weakSelf=self;
-    return [UIContextMenuConfiguration configurationWithIdentifier:name previewProvider:nil actionProvider:^UIMenu *(NSArray *suggested){
-        UIAction *favorite=[UIAction actionWithTitle:localize([[weakSelf favorites] containsObject:name]?@"lira.library.unfavorite":@"lira.library.favorite",nil) image:[UIImage systemImageNamed:@"star"] identifier:nil handler:^(UIAction *action){
+    LiraPresentSheet(self,name,@[
+        [LiraSheetAction title:localize(@"lira.cover.choose",nil) handler:^{ LiraChooseProfileCover(weakSelf,name); }],
+        [LiraSheetAction title:localize([[self favorites] containsObject:name]?@"lira.library.unfavorite":@"lira.library.favorite",nil) handler:^{
             typeof(self) self=weakSelf; if (!self) return;
-            NSMutableArray *names=[[self favorites] mutableCopy];
-            if ([names containsObject:name]) [names removeObject:name]; else [names addObject:name];
+            NSMutableArray *names=[[self favorites] mutableCopy]; if ([names containsObject:name]) [names removeObject:name]; else [names addObject:name];
             NSMutableDictionary *all=[[NSUserDefaults.standardUserDefaults dictionaryForKey:@"lira.favoriteProfiles"] mutableCopy]?:NSMutableDictionary.dictionary;
             all[[self scope]]=names; [NSUserDefaults.standardUserDefaults setObject:all forKey:@"lira.favoriteProfiles"]; [self refresh];
-        }];
-        UIAction *settings=[UIAction actionWithTitle:localize(@"lira.library.configure",nil) image:[UIImage systemImageNamed:@"slider.horizontal.3"] identifier:nil handler:^(UIAction *action){
-            ProfileSettingsViewController *page=[[ProfileSettingsViewController alloc] init]; page.profileName=name;
-            [weakSelf.navigationController pushViewController:page animated:YES];
-        }];
-        return [UIMenu menuWithTitle:@"" children:@[favorite,settings]];
-    }];
+        }],
+        [LiraSheetAction title:localize(@"lira.library.configure",nil) handler:^{
+            ProfileSettingsViewController *page=[ProfileSettingsViewController new]; page.profileName=name;
+            [weakSelf.navigationController setNavigationBarHidden:NO animated:YES]; [weakSelf.navigationController pushViewController:page animated:YES];
+        }]
+    ]);
 }
+- (void)viewWillDisappear:(BOOL)animated { [super viewWillDisappear:animated]; [self.navigationController setNavigationBarHidden:NO animated:animated]; }
+- (void)dealloc { [NSNotificationCenter.defaultCenter removeObserver:self]; }
 - (void)install { self.tabBarController.selectedIndex=1; }
-- (void)manage { [self.navigationController pushViewController:[[VersionManagerViewController alloc] init] animated:YES]; }
+- (void)manage { [self.navigationController setNavigationBarHidden:NO animated:YES]; [self.navigationController pushViewController:[[VersionManagerViewController alloc] init] animated:YES]; }
 - (void)searchBar:(UISearchBar *)searchBar textDidChange:(NSString *)text { [self refresh]; }
 - (void)searchBarSearchButtonClicked:(UISearchBar *)searchBar { [searchBar resignFirstResponder]; }
 @end

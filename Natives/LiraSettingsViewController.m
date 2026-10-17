@@ -1,6 +1,7 @@
 #import "LiraSettingsViewController.h"
 #import "LiraTheme.h"
 #import "LiraLivingWorld.h"
+#import "LiraDesignKit.h"
 #import "utils.h"
 #import "LauncherPreferencesViewController.h"
 #import "LauncherLanguageViewController.h"
@@ -22,16 +23,16 @@
 - (instancetype)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)identifier {
     if ((self=[super initWithStyle:UITableViewCellStyleDefault reuseIdentifier:identifier])) {
         self.backgroundColor=UIColor.clearColor; self.selectionStyle=UITableViewCellSelectionStyleNone;
-        self.panel=[[UIView alloc] init]; self.panel.backgroundColor=LiraColor(0x0D2B1E);
+        self.panel=[[UIView alloc] init]; self.panel.backgroundColor=LiraColor(0x262626);
         self.panel.layer.cornerRadius=20; self.panel.layer.borderWidth=0.5;
         self.panel.layer.borderColor=[LiraMint() colorWithAlphaComponent:0.16].CGColor;
         self.heading=[[UILabel alloc] init]; self.heading.font=LiraFont(UIFontTextStyleBody,17,UIFontWeightSemibold);
         self.heading.textColor=UIColor.whiteColor; self.heading.numberOfLines=0;
         self.detail=[[UILabel alloc] init]; self.detail.font=[UIFont preferredFontForTextStyle:UIFontTextStyleFootnote];
-        self.detail.textColor=LiraColor(0xA6C1B1); self.detail.numberOfLines=0;
+        self.detail.textColor=LiraColor(0xAFAFAF); self.detail.numberOfLines=0;
         self.symbol=[[UIImageView alloc] init]; self.symbol.tintColor=LiraMint(); self.symbol.contentMode=UIViewContentModeScaleAspectFit;
         UIStackView *text=[[UIStackView alloc] initWithArrangedSubviews:@[self.heading,self.detail]]; text.axis=UILayoutConstraintAxisVertical; text.spacing=4;
-        UIImageView *arrow=[[UIImageView alloc] initWithImage:[UIImage systemImageNamed:@"chevron.right"]]; arrow.tintColor=LiraColor(0x729D83); arrow.contentMode=UIViewContentModeScaleAspectFit;
+        UIImageView *arrow=[[UIImageView alloc] initWithImage:[UIImage systemImageNamed:@"chevron.right"]]; arrow.tintColor=LiraColor(0x999999); arrow.contentMode=UIViewContentModeScaleAspectFit;
         self.panel.translatesAutoresizingMaskIntoConstraints=NO; [self.contentView addSubview:self.panel];
         for (UIView *v in @[self.symbol,text,arrow]) { v.translatesAutoresizingMaskIntoConstraints=NO; [self.panel addSubview:v]; }
         [NSLayoutConstraint activateConstraints:@[
@@ -59,8 +60,8 @@
 }
 @end
 
-@interface LiraSettingsViewController () <UISearchResultsUpdating>
-@property(nonatomic, strong) UISearchController *search;
+@interface LiraSettingsViewController () <UISearchBarDelegate>
+@property(nonatomic, strong) UISearchBar *search;
 @property(nonatomic, copy) NSArray<NSArray<NSDictionary *> *> *sections;
 @property(nonatomic, copy) NSArray<NSArray<NSDictionary *> *> *visibleSections;
 @end
@@ -76,16 +77,10 @@
     self.tableView.estimatedRowHeight = 76;
     self.tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
     [self.tableView registerClass:LiraSettingCell.class forCellReuseIdentifier:@"setting"];
-    [self buildProfileHeader];
     self.navigationItem.largeTitleDisplayMode = UINavigationItemLargeTitleDisplayModeNever;
     self.navigationController.navigationBar.prefersLargeTitles = NO;
-    self.search = [[UISearchController alloc] initWithSearchResultsController:nil];
-    self.search.searchResultsUpdater = self;
-    self.search.obscuresBackgroundDuringPresentation = NO;
-    self.search.searchBar.placeholder = localize(@"lira.settings.search", nil);
-    self.navigationItem.searchController = self.search;
-    self.navigationItem.hidesSearchBarWhenScrolling = NO;
-    self.definesPresentationContext = YES;
+    self.search=[UISearchBar new]; self.search.delegate=self; self.search.placeholder=localize(@"lira.settings.search",nil); LiraStyleSearchBar(self.search);
+    [self buildProfileHeader];
     self.sections = @[
         @[@{@"key": @"lira.settings.theme", @"detail": @"lira.settings.theme_detail", @"icon": @"circle.lefthalf.filled", @"action": @"theme"},
           @{@"key": @"preference.lang.title", @"detail": @"lira.settings.language_detail", @"icon": @"globe", @"class": @"LauncherLanguageViewController"},
@@ -102,29 +97,23 @@
     LiraApplyNavigationAppearance(self.navigationController.navigationBar);
 }
 - (void)buildProfileHeader {
-    UIView *hero=[[UIView alloc] initWithFrame:CGRectMake(0,0,400,178)];
-    UIImageView *art=[[UIImageView alloc] initWithImage:LiraWorldImage(@"forest")];
-    art.frame=hero.bounds; art.autoresizingMask=UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight;
-    art.contentMode=UIViewContentModeScaleAspectFill; art.clipsToBounds=YES;
-    [hero addSubview:art];
-    UIView *shade=[[UIView alloc] initWithFrame:hero.bounds]; shade.autoresizingMask=art.autoresizingMask;
-    shade.backgroundColor=[LiraColor(0x001B0F) colorWithAlphaComponent:0.65]; [hero addSubview:shade];
-    UILabel *brand=[[UILabel alloc] initWithFrame:CGRectMake(24,28,300,48)];
-    brand.font=[UIFont fontWithName:@"AvenirNext-Heavy" size:34]; brand.textColor=LiraMint(); brand.text=@"LIRA✦";
-    [hero addSubview:brand];
-    UILabel *caption=[[UILabel alloc] initWithFrame:CGRectMake(24,82,340,64)];
-    caption.autoresizingMask=UIViewAutoresizingFlexibleWidth; caption.text=localize(@"lira.profile.caption",nil);
-    caption.textColor=UIColor.whiteColor; caption.numberOfLines=2; caption.font=LiraFont(UIFontTextStyleTitle2,23,UIFontWeightSemibold);
-    [hero addSubview:caption]; self.tableView.tableHeaderView=hero;
+    UIView *hero=[[UIView alloc] initWithFrame:CGRectMake(0,0,400,232)];
+    UIImageView *logo=[[UIImageView alloc] initWithImage:[UIImage imageNamed:@"LiraBrand/wordmark.png"]];
+    logo.frame=CGRectMake(24,24,260,31); logo.contentMode=UIViewContentModeScaleAspectFit; [hero addSubview:logo];
+    UILabel *caption=[[UILabel alloc] initWithFrame:CGRectMake(24,76,350,60)];
+    caption.autoresizingMask=UIViewAutoresizingFlexibleWidth; caption.text=localize(@"lira.world.profile",nil);
+    caption.textColor=UIColor.whiteColor; caption.font=LiraFont(UIFontTextStyleLargeTitle,40,UIFontWeightUltraLight); [hero addSubview:caption];
+    self.search.frame=CGRectMake(12,156,376,56); self.search.autoresizingMask=UIViewAutoresizingFlexibleWidth;
+    [hero addSubview:self.search]; self.tableView.tableHeaderView=hero;
 }
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
-    [self.navigationController setNavigationBarHidden:NO animated:animated];
+    [self.navigationController setNavigationBarHidden:YES animated:animated];
     LiraApplyNavigationAppearance(self.navigationController.navigationBar);
     [self.tableView reloadData];
 }
-- (void)updateSearchResultsForSearchController:(UISearchController *)controller {
-    NSString *query = [controller.searchBar.text stringByTrimmingCharactersInSet:NSCharacterSet.whitespaceAndNewlineCharacterSet];
+- (void)searchBar:(UISearchBar *)bar textDidChange:(NSString *)text {
+    NSString *query = [bar.text stringByTrimmingCharactersInSet:NSCharacterSet.whitespaceAndNewlineCharacterSet];
     NSMutableArray *sections = NSMutableArray.array;
     for (NSArray *section in self.sections) {
         NSMutableArray *rows = NSMutableArray.array;
@@ -168,23 +157,20 @@
     Class cls = NSClassFromString(item[@"class"]);
     if (cls && [cls isSubclassOfClass:UIViewController.class]) {
         UIViewController *vc = [[cls alloc] init];
+        [self.navigationController setNavigationBarHidden:NO animated:YES];
         [self.navigationController pushViewController:vc animated:YES];
     }
 }
 - (void)chooseTheme:(NSIndexPath *)path {
-    UIAlertController *sheet = [UIAlertController alertControllerWithTitle:localize(@"lira.settings.theme", nil) message:nil preferredStyle:UIAlertControllerStyleActionSheet];
-    NSArray *values = @[@"auto", @"light", @"dark"];
-    NSArray *keys = @[@"lira.settings.system", @"lira.settings.light", @"lira.settings.dark"];
-    for (NSUInteger i = 0; i < values.count; i++) {
-        NSString *value = values[i];
-        [sheet addAction:[UIAlertAction actionWithTitle:localize(keys[i], nil) style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
-            setPrefObject(@"general.ui_theme", value);
-            [NSNotificationCenter.defaultCenter postNotificationName:@"UIThemeChanged" object:nil];
+    NSMutableArray *actions=NSMutableArray.array;
+    NSArray *values=@[@"auto",@"light",@"dark"], *keys=@[@"lira.settings.system",@"lira.settings.light",@"lira.settings.dark"];
+    for (NSUInteger i=0;i<values.count;i++) {
+        NSString *value=values[i]; [actions addObject:[LiraSheetAction title:localize(keys[i],nil) handler:^{
+            setPrefObject(@"general.ui_theme",value); [NSNotificationCenter.defaultCenter postNotificationName:@"UIThemeChanged" object:nil];
         }]];
     }
-    [sheet addAction:[UIAlertAction actionWithTitle:localize(@"Cancel", nil) style:UIAlertActionStyleCancel handler:nil]];
-    sheet.popoverPresentationController.sourceView = [self.tableView cellForRowAtIndexPath:path];
-    sheet.popoverPresentationController.sourceRect = sheet.popoverPresentationController.sourceView.bounds;
-    [self presentViewController:sheet animated:YES completion:nil];
+    LiraPresentSheet(self,localize(@"lira.settings.theme",nil),actions);
 }
+- (void)viewWillDisappear:(BOOL)animated { [super viewWillDisappear:animated]; [self.navigationController setNavigationBarHidden:NO animated:animated]; }
+- (void)searchBarSearchButtonClicked:(UISearchBar *)bar { [bar resignFirstResponder]; }
 @end

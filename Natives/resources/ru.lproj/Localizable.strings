@@ -2619,3 +2619,5 @@
 "lira.library.unfavorite" = "Убрать из избранного";
 "lira.library.configure" = "Настройки сборки";
 "lira.profile.caption" = "Твой мир. Твои правила.";
+"lira.cover.choose" = "Выбрать обложку";
+"lira.cover.error" = "Не удалось открыть изображение. Выбери изображение размером до 20 МБ.";

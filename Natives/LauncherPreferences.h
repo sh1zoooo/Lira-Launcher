@@ -38,7 +38,7 @@ void resetWarnings();
 UIColor *accentColor(void);
 
 /// accentColor 的默认值（当前绿 #38C785），供需要区分"默认/自定义"的场景使用
-#define ACCENT_COLOR_DEFAULT_HEX @"38C785"
+#define ACCENT_COLOR_DEFAULT_HEX @"D9D9D9"
 
 BOOL getEntitlementValue(NSString *key);
 

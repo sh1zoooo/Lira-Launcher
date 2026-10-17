@@ -9,17 +9,17 @@ static inline UIColor *LiraColor(unsigned int rgb) {
 }
 static inline UIColor *LiraBackground(void) {
     return [UIColor colorWithDynamicProvider:^UIColor *(UITraitCollection *t) {
-        return LiraColor(t.userInterfaceStyle == UIUserInterfaceStyleDark ? 0x04170F : 0xF2F7F3);
+        return LiraColor(t.userInterfaceStyle == UIUserInterfaceStyleDark ? 0x141414 : 0xF4F4F4);
     }];
 }
 static inline UIColor *LiraSurface(void) {
     return [UIColor colorWithDynamicProvider:^UIColor *(UITraitCollection *t) {
-        return LiraColor(t.userInterfaceStyle == UIUserInterfaceStyleDark ? 0x0C271C : 0xFFFFFF);
+        return LiraColor(t.userInterfaceStyle == UIUserInterfaceStyleDark ? 0x252525 : 0xFFFFFF);
     }];
 }
 static inline UIColor *LiraSecondarySurface(void) {
     return [UIColor colorWithDynamicProvider:^UIColor *(UITraitCollection *t) {
-        return LiraColor(t.userInterfaceStyle == UIUserInterfaceStyleDark ? 0x153A2B : 0xE4EFE7);
+        return LiraColor(t.userInterfaceStyle == UIUserInterfaceStyleDark ? 0x353535 : 0xE7E7E7);
     }];
 }
 static inline UIFont *LiraFont(UIFontTextStyle style, CGFloat size, UIFontWeight weight) {

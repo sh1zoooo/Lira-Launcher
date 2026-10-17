@@ -245,7 +245,7 @@ UIColor *accentColor(void) {
     UIColor *custom = colorFromHex(hex);
     if (custom) return custom;
     // 默认蓝 RGB(0.26, 0.63, 0.96) = #429CF5
-    return [UIColor colorWithRed:0.22 green:0.78 blue:0.52 alpha:1.0];
+    return [UIColor colorWithRed:0.85 green:0.85 blue:0.85 alpha:1.0];
 }
 
 #pragma mark Safe area

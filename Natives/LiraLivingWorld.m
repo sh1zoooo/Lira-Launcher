@@ -4,96 +4,27 @@
 #import <QuartzCore/QuartzCore.h>
 
 NSNotificationName const LiraWorldSceneChangedNotification = @"LiraWorldSceneChanged";
-UIColor *LiraMint(void) { return LiraColor(0x6AF0B7); }
+UIColor *LiraMint(void) { return LiraColor(0xECEBEC); }
 BOOL LiraMotionAllowed(void) { return !UIAccessibilityIsReduceMotionEnabled(); }
-NSString *LiraSceneForProfile(NSString *name) {
-    // Decorative scenes are stable across launches; they do not claim to preview a saved world.
-    if (!name.length || [name isEqualToString:@"(Default)"]) return @"forest";
-    const unsigned char *bytes = (const unsigned char *)name.UTF8String;
-    uint32_t hash = 2166136261u;
-    while (bytes && *bytes) { hash ^= *bytes++; hash *= 16777619u; }
-    return (hash & 1u) ? @"forest" : @"nether";
-}
-UIImage *LiraWorldImage(NSString *scene) {
-    return [UIImage imageNamed:[NSString stringWithFormat:@"LiraWorlds/%@.png", [scene isEqualToString:@"nether"] ? @"nether" : @"forest"]];
-}
+NSString *LiraSceneForProfile(NSString *name) { return @"graphite"; }
+UIImage *LiraWorldImage(NSString *scene) { return [UIImage imageNamed:@"LiraBrand/wordmark.png"]; }
 
 @interface LiraWorldBackdrop ()
-@property(nonatomic, strong) UIView *landscape;
-@property(nonatomic, strong) UIImageView *imageView;
-@property(nonatomic, strong) UIImageView *outgoing;
-@property(nonatomic, strong) CAGradientLayer *shade;
-@property(nonatomic, copy) NSString *scene;
+@property(nonatomic, strong) CAGradientLayer *gradient;
 @end
 @implementation LiraWorldBackdrop
 - (instancetype)initWithFrame:(CGRect)frame {
-    if ((self = [super initWithFrame:frame])) {
-        self.userInteractionEnabled = NO;
-        self.clipsToBounds = YES;
-        self.backgroundColor = LiraColor(0x04160F);
-        self.landscape = [[UIView alloc] init];
-        [self addSubview:self.landscape];
-        self.imageView = [[UIImageView alloc] init];
-        self.imageView.contentMode = UIViewContentModeScaleAspectFill;
-        self.imageView.clipsToBounds = YES;
-        [self.landscape addSubview:self.imageView];
-        self.outgoing = [[UIImageView alloc] init];
-        self.outgoing.contentMode = UIViewContentModeScaleAspectFill;
-        self.outgoing.clipsToBounds = YES;
-        self.outgoing.alpha = 0;
-        [self.landscape addSubview:self.outgoing];
-        self.shade = [CAGradientLayer layer];
-        self.shade.colors = @[(id)[UIColor colorWithWhite:0 alpha:0.28].CGColor,
-            (id)[UIColor colorWithWhite:0 alpha:0.03].CGColor,
-            (id)[LiraColor(0x00160D) colorWithAlphaComponent:0.7].CGColor,
-            (id)[LiraColor(0x001209) colorWithAlphaComponent:0.97].CGColor];
-        self.shade.locations = @[@0, @0.36, @0.7, @1];
-        [self.layer addSublayer:self.shade];
-        [self showScene:@"forest" animated:NO];
-        [NSNotificationCenter.defaultCenter addObserver:self selector:@selector(updateMotion) name:UIAccessibilityReduceMotionStatusDidChangeNotification object:nil];
-    }
-    return self;
+    if ((self=[super initWithFrame:frame])) {
+        self.userInteractionEnabled=NO; self.backgroundColor=LiraColor(0x101010);
+        self.gradient=[CAGradientLayer layer];
+        self.gradient.colors=@[(id)LiraColor(0x323232).CGColor,(id)LiraColor(0x171717).CGColor,(id)LiraColor(0x0B0B0B).CGColor];
+        self.gradient.startPoint=CGPointMake(0,0); self.gradient.endPoint=CGPointMake(0.9,0.8);
+        [self.layer addSublayer:self.gradient];
+    } return self;
 }
-- (void)layoutSubviews {
-    [super layoutSubviews];
-    self.landscape.bounds = CGRectInset(self.bounds, -28, -28);
-    self.landscape.center = CGPointMake(CGRectGetMidX(self.bounds), CGRectGetMidY(self.bounds));
-    self.imageView.frame = self.landscape.bounds;
-    self.outgoing.frame = self.landscape.bounds;
-    [CATransaction begin]; [CATransaction setDisableActions:YES];
-    self.shade.frame = self.bounds;
-    [CATransaction commit];
-}
-- (void)showScene:(NSString *)scene animated:(BOOL)animated {
-    if ([self.scene isEqualToString:scene]) return;
-    self.scene = scene;
-    [self.outgoing.layer removeAllAnimations];
-    self.outgoing.image = self.imageView.image;
-    self.imageView.image = LiraWorldImage(scene);
-    if (animated && self.window && LiraMotionAllowed() && self.outgoing.image) {
-        self.outgoing.alpha = 1;
-        [UIView animateWithDuration:0.65 delay:0 options:UIViewAnimationOptionBeginFromCurrentState | UIViewAnimationOptionCurveEaseInOut animations:^{ self.outgoing.alpha = 0; } completion:nil];
-    } else self.outgoing.alpha = 0;
-}
-- (void)setMotionActive:(BOOL)motionActive { _motionActive = motionActive; [self updateMotion]; }
-- (void)didMoveToWindow { [super didMoveToWindow]; [self updateMotion]; }
-- (void)updateMotion {
-    [self.landscape.layer removeAnimationForKey:@"lira.breathe"];
-    for (UIMotionEffect *effect in self.landscape.motionEffects.copy) [self.landscape removeMotionEffect:effect];
-    if (!self.motionActive || !self.window || !LiraMotionAllowed()) return;
-    UIInterpolatingMotionEffect *x = [[UIInterpolatingMotionEffect alloc] initWithKeyPath:@"center.x" type:UIInterpolatingMotionEffectTypeTiltAlongHorizontalAxis];
-    x.minimumRelativeValue = @(-12); x.maximumRelativeValue = @12;
-    UIInterpolatingMotionEffect *y = [[UIInterpolatingMotionEffect alloc] initWithKeyPath:@"center.y" type:UIInterpolatingMotionEffectTypeTiltAlongVerticalAxis];
-    y.minimumRelativeValue = @(-9); y.maximumRelativeValue = @9;
-    UIMotionEffectGroup *group = [[UIMotionEffectGroup alloc] init]; group.motionEffects = @[x,y];
-    [self.landscape addMotionEffect:group];
-    CABasicAnimation *breath = [CABasicAnimation animationWithKeyPath:@"transform.scale"];
-    breath.fromValue = @1; breath.toValue = @1.025; breath.duration = 14;
-    breath.autoreverses = YES; breath.repeatCount = HUGE_VALF;
-    breath.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut];
-    [self.landscape.layer addAnimation:breath forKey:@"lira.breathe"];
-}
-- (void)dealloc { [NSNotificationCenter.defaultCenter removeObserver:self]; }
+- (void)layoutSubviews { [super layoutSubviews]; [CATransaction begin]; [CATransaction setDisableActions:YES]; self.gradient.frame=self.bounds; [CATransaction commit]; }
+- (void)setMotionActive:(BOOL)active { _motionActive=active; }
+- (void)showScene:(NSString *)scene animated:(BOOL)animated {} // Graphite intentionally has no scenic wallpaper.
 @end
 
 @interface LiraPlayButton ()
@@ -109,31 +40,31 @@ UIImage *LiraWorldImage(NSString *scene) {
     if ((self = [super initWithFrame:frame])) {
         self.isAccessibilityElement = YES;
         self.accessibilityTraits = UIAccessibilityTraitButton;
-        self.layer.shadowColor = LiraMint().CGColor;
-        self.layer.shadowOpacity = 0.35; self.layer.shadowRadius = 20;
+        self.layer.shadowColor = UIColor.blackColor.CGColor;
+        self.layer.shadowOpacity = 0.08; self.layer.shadowRadius = 18;
         self.layer.shadowOffset = CGSizeMake(0,4);
         self.fill = [CAGradientLayer layer];
-        self.fill.colors = @[(id)LiraColor(0xB7FFDB).CGColor, (id)LiraColor(0x40DE9C).CGColor];
+        self.fill.colors = @[(id)LiraColor(0x171719).CGColor, (id)LiraColor(0x3F4043).CGColor];
         self.fill.startPoint = CGPointMake(0,0); self.fill.endPoint = CGPointMake(1,1);
         self.fill.cornerCurve = kCACornerCurveContinuous;
         [self.layer addSublayer:self.fill];
         self.contour = [CAShapeLayer layer]; self.contour.fillColor = UIColor.clearColor.CGColor;
-        self.contour.strokeColor = [UIColor.whiteColor colorWithAlphaComponent:0.45].CGColor;
-        self.contour.lineWidth = 1; [self.layer addSublayer:self.contour];
+        self.contour.strokeColor = [UIColor.whiteColor colorWithAlphaComponent:0.13].CGColor;
+        self.contour.lineWidth = 0.5; [self.layer addSublayer:self.contour];
         self.titleLabel = [[UILabel alloc] init]; self.titleLabel.textAlignment = NSTextAlignmentCenter;
-        self.titleLabel.font = LiraFont(UIFontTextStyleTitle2, 23, UIFontWeightHeavy);
-        self.titleLabel.textColor = LiraColor(0x003E29);
+        self.titleLabel.font = LiraFont(UIFontTextStyleTitle2, 23, UIFontWeightSemibold);
+        self.titleLabel.textColor = LiraColor(0xEEEEEE);
         self.titleLabel.adjustsFontForContentSizeCategory = YES;
         self.titleLabel.adjustsFontSizeToFitWidth = YES; self.titleLabel.minimumScaleFactor = 0.65;
         self.titleLabel.userInteractionEnabled = NO;
         [self addSubview:self.titleLabel];
-        self.arrowDisc = [[UIView alloc] init]; self.arrowDisc.backgroundColor = [LiraColor(0x007344) colorWithAlphaComponent:0.7];
+        self.arrowDisc = [[UIView alloc] init]; self.arrowDisc.backgroundColor = [LiraColor(0xFFFFFF) colorWithAlphaComponent:0.05];
         self.arrowDisc.userInteractionEnabled = NO; [self addSubview:self.arrowDisc];
         self.arrow = [[UIImageView alloc] initWithImage:[UIImage systemImageNamed:@"chevron.right" withConfiguration:[UIImageSymbolConfiguration configurationWithPointSize:18 weight:UIImageSymbolWeightBold]]];
-        self.arrow.tintColor = LiraColor(0xC7FFE7); self.arrow.contentMode = UIViewContentModeCenter;
+        self.arrow.tintColor = LiraColor(0xE6E6E6); self.arrow.contentMode = UIViewContentModeCenter;
         [self.arrowDisc addSubview:self.arrow];
         self.ring = [CAShapeLayer layer]; self.ring.fillColor = UIColor.clearColor.CGColor;
-        self.ring.strokeColor = LiraColor(0xCEFFEB).CGColor; self.ring.lineWidth = 2;
+        self.ring.strokeColor = LiraColor(0xFFFFFF).CGColor; self.ring.lineWidth = 2;
         self.ring.lineCap = kCALineCapRound; self.ring.strokeEnd = 0;
         [self.arrowDisc.layer addSublayer:self.ring];
         [NSNotificationCenter.defaultCenter addObserver:self selector:@selector(motionChanged) name:UIAccessibilityReduceMotionStatusDidChangeNotification object:nil];
@@ -151,7 +82,8 @@ UIImage *LiraWorldImage(NSString *scene) {
     self.arrow.frame = self.arrowDisc.bounds;
     self.ring.frame = self.arrowDisc.bounds;
     self.ring.path = [UIBezierPath bezierPathWithOvalInRect:CGRectInset(self.arrowDisc.bounds,3,3)].CGPath;
-    self.titleLabel.frame = CGRectMake(16,4,MAX(0,w-side-40),h-8);
+    self.titleLabel.frame = CGRectMake(20,4,MAX(0,w-40),h-8);
+    self.arrowDisc.hidden=!self.launching;
     [CATransaction commit];
 }
 - (void)setTitle:(NSString *)title { _title = [title copy]; self.titleLabel.text = title; self.accessibilityLabel = title; }
@@ -160,10 +92,10 @@ UIImage *LiraWorldImage(NSString *scene) {
     [super setHighlighted:highlighted];
     [UIView animateWithDuration:LiraMotionAllowed() ? 0.13 : 0 animations:^{
         self.transform = highlighted ? CGAffineTransformMakeScale(0.97,0.97) : CGAffineTransformIdentity;
-        self.layer.shadowOpacity = highlighted ? 0.12 : 0.35;
+        self.layer.shadowOpacity = highlighted ? 0.04 : 0.08;
     }];
 }
-- (void)setLaunching:(BOOL)launching { _launching = launching; [self motionChanged]; }
+- (void)setLaunching:(BOOL)launching { _launching = launching; [self motionChanged]; [self setNeedsLayout]; }
 - (void)motionChanged {
     [self.arrowDisc.layer removeAnimationForKey:@"lira.portal"];
     self.arrow.image = [UIImage systemImageNamed:self.launching ? @"sparkles" : @"chevron.right"];
@@ -182,6 +114,30 @@ UIImage *LiraWorldImage(NSString *scene) {
 - (void)didMoveToWindow { [super didMoveToWindow]; [self motionChanged]; }
 - (void)dealloc { [NSNotificationCenter.defaultCenter removeObserver:self]; }
 @end
+
+static UIImage *LiraDockIcon(NSUInteger index) {
+    UIGraphicsImageRenderer *renderer=[[UIGraphicsImageRenderer alloc] initWithSize:CGSizeMake(28,28)];
+    return [[renderer imageWithActions:^(UIGraphicsImageRendererContext *context){
+        [UIColor.whiteColor setStroke]; UIBezierPath *p=[UIBezierPath bezierPath]; p.lineWidth=1.8; p.lineCapStyle=kCGLineCapRound; p.lineJoinStyle=kCGLineJoinRound;
+        if (index==0) {
+            [p moveToPoint:CGPointMake(8,7)]; [p addCurveToPoint:CGPointMake(3,22) controlPoint1:CGPointMake(3,8) controlPoint2:CGPointMake(1,22)];
+            [p addCurveToPoint:CGPointMake(10,19) controlPoint1:CGPointMake(6,24) controlPoint2:CGPointMake(8,19)];
+            [p addLineToPoint:CGPointMake(18,19)]; [p addCurveToPoint:CGPointMake(25,22) controlPoint1:CGPointMake(20,19) controlPoint2:CGPointMake(22,24)];
+            [p addCurveToPoint:CGPointMake(20,7) controlPoint1:CGPointMake(27,22) controlPoint2:CGPointMake(25,8)]; [p closePath]; [p stroke];
+            p=[UIBezierPath bezierPath]; p.lineWidth=1.8; [p moveToPoint:CGPointMake(7,12)]; [p addLineToPoint:CGPointMake(13,12)]; [p moveToPoint:CGPointMake(10,9)]; [p addLineToPoint:CGPointMake(10,15)]; [p stroke];
+            [UIColor.whiteColor setFill]; [[UIBezierPath bezierPathWithOvalInRect:CGRectMake(18,10,2.5,2.5)] fill]; [[UIBezierPath bezierPathWithOvalInRect:CGRectMake(21,14,2.5,2.5)] fill];
+        } else if (index==1) {
+            for (NSUInteger i=0;i<3;i++) { UIBezierPath *book=[UIBezierPath bezierPathWithRoundedRect:CGRectMake(4+i*7,6-(i%2)*2,5,19+(i%2)*2) cornerRadius:1]; book.lineWidth=1.8; [book stroke]; }
+        } else if (index==2) {
+            p=[UIBezierPath bezierPathWithOvalInRect:CGRectMake(3,3,22,22)]; p.lineWidth=1.8; [p stroke];
+            p=[UIBezierPath bezierPath]; [p moveToPoint:CGPointMake(19,8)]; [p addLineToPoint:CGPointMake(16,17)]; [p addLineToPoint:CGPointMake(9,20)]; [p addLineToPoint:CGPointMake(12,11)]; [p closePath]; [UIColor.whiteColor setFill]; [p fill];
+        } else {
+            p=[UIBezierPath bezierPathWithOvalInRect:CGRectMake(3,3,22,22)]; p.lineWidth=1.8; [p stroke];
+            [[UIBezierPath bezierPathWithOvalInRect:CGRectMake(10,7,8,8)] fill];
+            p=[UIBezierPath bezierPathWithRoundedRect:CGRectMake(7,17,14,7) cornerRadius:4]; [p fill];
+        }
+    }] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+}
 
 @interface LiraDockButton : UIButton
 @end
@@ -215,24 +171,23 @@ UIImage *LiraWorldImage(NSString *scene) {
 - (instancetype)initWithFrame:(CGRect)frame {
     if ((self = [super initWithFrame:frame])) {
         self.layer.cornerCurve = kCACornerCurveContinuous; self.layer.borderWidth = 1;
-        self.layer.borderColor = [LiraMint() colorWithAlphaComponent:0.2].CGColor;
+        self.layer.borderColor = [LiraMint() colorWithAlphaComponent:0.12].CGColor;
         self.clipsToBounds = YES;
-        self.material = [[UIVisualEffectView alloc] initWithEffect:[UIBlurEffect effectWithStyle:UIBlurEffectStyleSystemUltraThinMaterialDark]];
+        self.material = [[UIVisualEffectView alloc] initWithEffect:[UIBlurEffect effectWithStyle:UIBlurEffectStyleDark]];
         self.material.userInteractionEnabled = NO; [self addSubview:self.material];
-        self.backgroundColor = [LiraColor(0x031B12) colorWithAlphaComponent:0.88];
+        self.backgroundColor = [LiraColor(0x292929) colorWithAlphaComponent:0.9];
         self.selection = [[UIView alloc] init]; self.selection.userInteractionEnabled = NO;
-        self.selection.backgroundColor = [LiraMint() colorWithAlphaComponent:0.19];
+        self.selection.backgroundColor = [LiraMint() colorWithAlphaComponent:0.10];
         self.selection.layer.borderWidth = 0.8;
-        self.selection.layer.borderColor = [LiraMint() colorWithAlphaComponent:0.35].CGColor;
+        self.selection.layer.borderColor = [LiraMint() colorWithAlphaComponent:0.25].CGColor;
         [self addSubview:self.selection];
         self.row = [[UIStackView alloc] init]; self.row.distribution = UIStackViewDistributionFillEqually;
         [self addSubview:self.row];
         NSArray *keys = @[@"lira.world.play", @"lira.world.library", @"lira.explore.title", @"lira.world.profile"];
-        NSArray *icons = @[@"gamecontroller", @"books.vertical", @"safari", @"person.crop.circle"];
         NSMutableArray *buttons = NSMutableArray.array;
         for (NSUInteger i=0;i<keys.count;i++) {
             UIButton *button = [LiraDockButton buttonWithType:UIButtonTypeSystem]; button.tag = i;
-            [button setImage:[UIImage systemImageNamed:icons[i] withConfiguration:[UIImageSymbolConfiguration configurationWithPointSize:21 weight:UIImageSymbolWeightMedium]] forState:UIControlStateNormal];
+            [button setImage:LiraDockIcon(i) forState:UIControlStateNormal];
             [button setTitle:localize(keys[i],nil) forState:UIControlStateNormal];
             button.accessibilityLabel = localize(keys[i],nil);
             button.accessibilityIdentifier = [NSString stringWithFormat:@"lira.destination.%lu",(unsigned long)i];
@@ -264,7 +219,7 @@ UIImage *LiraWorldImage(NSString *scene) {
     _selectedDestination = MIN(3,MAX(0,destination));
     for (UIButton *b in self.buttons) {
         BOOL selected = b.tag == _selectedDestination;
-        b.tintColor = selected ? LiraMint() : LiraColor(0xAAC5B7);
+        b.tintColor = selected ? LiraMint() : LiraColor(0xAFAFAF);
         [b setTitleColor:b.tintColor forState:UIControlStateNormal];
         b.accessibilityTraits = UIAccessibilityTraitButton | (selected ? UIAccessibilityTraitSelected : 0);
     }

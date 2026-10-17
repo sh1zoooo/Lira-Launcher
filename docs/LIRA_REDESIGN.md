@@ -1,72 +1,11 @@
-# Lira interface and Russian localization
+# Lira: Graphite
 
-The launcher now uses a shared graphite/violet design with light and dark semantic
-colors. A custom accent and a custom photo/video background remain supported.
-Without a custom background the default cards are opaque; wallpaper cards retain
-the existing system material settings. Game rendering and JIT code are unchanged.
+The current direction follows the user's supplied monochrome mockup: a graphite gradient, large rounded profile artwork, a thin profile title, compact version/loader metadata, a wide gradient launch capsule, and a floating four-destination dock. The user's transparent wordmark and Fabric icon are bundled under `LiraBrand`. The supplied WebP was losslessly decoded to PNG for native image loading. No cat image is bundled: that image is part of the reference mockup, and users can select their own profile cover.
 
-## Navigation
+Home, library and profile have custom layouts and headers. Dock icons are drawn in code. Filters use a custom `UIControl`, with a spring-animated indicator, instead of system segmented controls. Home tools, library actions and theme choices use custom overlay panels. Search fields retain native text input and keyboard behavior with custom graphite styling. The existing catalog keeps its download and search implementations with the shared custom filters and appearance. Advanced game-management pages retain their existing UIKit controllers.
 
-- Home: selected version, account switcher, original launch action, quick actions,
-  searchable profiles, favorites, free storage, JIT status, download center, history,
-  and Minecraft news. Favorites are scoped to each game directory and stored in
-  `NSUserDefaults`; they never modify game data.
-- Explore: seven horizontally scrolling content categories with full localized
-  names, using the existing search, filters and download implementations.
-- Assistant: existing AI tools and sessions, with localized interface and tool text.
-- Instances: existing version manager and version-specific settings.
-- Settings: searchable entry points for appearance, language, accounts, Java,
-  controls, folders, downloads and the complete advanced preferences screen.
+Transitions use short fades and small spring motions. Launch has press feedback, a brief expanding contour and actual pipeline progress. Reduce Motion disables spatial/repeating motion. Tab transitions queue rapid requests to preserve the final destination. Account, JIT, launch and downloads remain connected to the existing backend.
 
-Home stays embedded in the existing iPhone/iPad launcher containers. The hidden
-`LauncherRightPanelViewController` continues to own account/JIT/download gating
-and broadcasts button availability. The new UI forwards actions to it rather than
-reimplementing launch checks. Existing profile names and identifiers are preserved.
+Profile covers are imported through the system Files picker, downsampled to 1024 pixels, stored locally and scoped to the resolved game directory. Abstract cube artwork is the fallback. Favorites retain their previous directory-scoped storage. No generated scenic wallpapers are needed for this direction.
 
-## Localization
-
-Russian is registered in the app's language list and `CFBundleLocalizations`, so
-`ru-RU` and other Russian region variants resolve to `ru`. The existing scene
-rebuild on language change also rebuilds the new pages. Every English catalogue
-key has a Russian value. Additional formerly inline messages in the multiplayer,
-AI and migration screens are now localized. Diagnostic match tokens remain
-unchanged. Logs, downloaded resource names/descriptions and third-party Java
-installer interfaces are supplied by their respective sources.
-
-Run `python3 scripts/check_localizations.py` to validate syntax, catalogue parity,
-format argument types/positions and direct native localization references. The
-`Lira UI checks` workflow also runs Apple's `plutil` and iOS Clang syntax checks.
-The existing Development build workflow remains the full IPA/TIPA packaging check.
-
-## Device acceptance checks
-
-Before merging, exercise the build on iPhone and iPad in both orientations:
-
-1. Switch system/Russian/English and reopen Home, Explore, Assistant and Settings.
-2. Search profiles by name/version, toggle Favorites, select another game directory
-   and verify favorites remain scoped to their original directory after restart.
-3. Select a version, change account, and launch with JIT enabled/disabled. Check
-   the launch/download/authentication flow and errors still come from the original
-   launch controller.
-4. Open every quick action and settings entry; return to Home/Settings and verify
-   the navigation bar and tab selection are correct.
-5. Scroll every Explore category, search, download a mod to the selected profile,
-   and pause/resume from the download center.
-6. Switch light/dark/system, enable a wallpaper, increase text size, and enable
-   VoiceOver. Verify buttons, scrolling, rotation and theme contrast.
-
-No device or simulator run is implied by the static checks.
-
-## Living World (selected visual direction)
-
-The home is now a full-bleed scenic screen with a mint launch control, a snapping instance carousel, an account avatar and a floating four-destination dock. iPhone and iPad use the same adaptive host. The right-hand motion storyboard in the concept is not an application panel.
-
-`LiraLivingWorld` owns artwork crossfades, tilt parallax, slow scene breathing, button feedback, a launch ripple and the animated dock indicator. Reduce Motion disables spatial/repeating motion. Animation stops offscreen and when the app becomes inactive. Progress comes from `AmeLaunchProgress`, with account/JIT actions still forwarded to the existing launcher backend.
-
-The library has responsive scenic covers, actual profile/version search, per-directory favorites and profile settings via context menus. The management action retains the original version manager. Profile settings use custom forest panels and a scenic header. Full English/Russian catalog parity remains checked by CI.
-
-The two bundled background illustrations were generated for this redesign. They are decorative forest/nether themes assigned deterministically to profiles; they are not screenshots of a user's saved worlds. All labels, controls and status text are native UIKit views.
-
-### Native rendering check
-
-`bash scripts/lira-preview/run.sh` builds the production home, library, profile, dock and tab controller in a small iOS Simulator host, using clearly isolated profile/account fixtures and no game backend. It saves populated/empty-library screenshots and checks artwork, basic hit-target/scroll geometry and rapid tab navigation. This supplements iOS syntax checks and the full Development build. It does not validate JVM/JIT/game launch; those require device testing.
+English/Russian catalog parity is checked with `python3 scripts/check_localizations.py`. CI checks iOS syntax and runs `scripts/lira-preview/run.sh`, which mounts the production home, library, profile, dock and tabs in an isolated simulator host with fixture profiles/account state. It saves populated, empty and landscape screenshots and checks basic geometry and rapid navigation. This is a UI check, not a JVM/JIT/game-launch test; game execution requires a physical device.

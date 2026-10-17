@@ -83,6 +83,7 @@ STUB_PAGE(AISessionListViewController)
     NSString *documents=NSSearchPathForDirectoriesInDomains(NSDocumentDirectory,NSUserDomainMask,YES).firstObject;
     [UIImagePNGRepresentation(image) writeToFile:[documents stringByAppendingPathComponent:[name stringByAppendingString:@".png"]] atomically:YES];
 }
+- (UIInterfaceOrientationMask)application:(UIApplication *)application supportedInterfaceOrientationsForWindow:(UIWindow *)window { return [NSUserDefaults.standardUserDefaults boolForKey:@"Landscape"]?UIInterfaceOrientationMaskLandscapeLeft:UIInterfaceOrientationMaskPortrait; }
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)options {
     self.window=[[UIWindow alloc] initWithFrame:UIScreen.mainScreen.bounds]; self.window.overrideUserInterfaceStyle=UIUserInterfaceStyleDark;
     self.home=[PreviewHome new]; self.tabs=[AmeRootTabController tabControllerWithHomeViewController:self.home];
@@ -90,7 +91,7 @@ STUB_PAGE(AISessionListViewController)
     [NSNotificationCenter.defaultCenter addObserver:self selector:@selector(state) name:AmeRightPanelRequestStateNotification object:nil];
     [self state];
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW,2*NSEC_PER_SEC),dispatch_get_main_queue(),^{
-        NSCAssert(LiraWorldImage(@"forest") && LiraWorldImage(@"nether"),@"Bundled artwork missing");
+        NSCAssert([UIImage imageNamed:@"LiraBrand/wordmark.png"] && [UIImage imageNamed:@"LiraBrand/fabric.png"],@"Bundled artwork missing");
         UIView *dock=[self.tabs valueForKey:@"dock"];
         NSCAssert(CGRectGetMinY(dock.frame)>0 && CGRectGetMaxY(dock.frame)<=self.window.bounds.size.height,@"Dock outside window");
         LiraPlayButton *play=[self.home valueForKey:@"playButton"];
